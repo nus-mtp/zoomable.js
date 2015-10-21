@@ -1,0 +1,31 @@
+{
+  "name": "shaka-player",
+  "description": "DASH/EME video player library",
+  "version": "1.5.0",
+  "homepage": "https://github.com/google/shaka-player",
+  "author": "Google",
+  "maintainers": [
+    {
+      "name": "Joey Parrish",
+      "email": "joeyparrish@google.com"
+    }
+  ],
+  "main": "shaka-player.compiled.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google/shaka-player.git"
+  },
+  "bugs": {
+    "url": "https://github.com/google/shaka-player/issues"
+  },
+  "license": "Apache License 2.0",
+  "licenses": [
+    {
+      "type": "Apache",
+      "url": "https://github.com/google/shaka-player/blob/master/LICENSE"
+    }
+  ],
+  "scripts": {
+    "prepublish": "./build/checkversion.sh && ./build/all.sh"
+  }
+}
