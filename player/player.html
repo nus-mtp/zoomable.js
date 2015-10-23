@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title> Zoomable Video Player </title>
-    <link rel="stylesheet" type="text/css" href="" >    
+    <link rel="stylesheet" type="text/css" href="assets/stylesheets/canvas.css" >    
     <script src="assets/javascripts/shaka-player.compiled.debug.js" type="text/javascript"></script>
     <script src="assets/javascripts/canvas.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -16,7 +16,38 @@
        controls>
   Your browser does not support HTML5 video.
 </video>
-<canvas id="canvas" width="640px" height="360px"></canvas>
+<div id="canvasPlayerArea">
+  <canvas id="canvas" width="640px" height="360px"></canvas>
+  <div id="uiControls">
+    <div id="zoomBarControls">
+      <button id="zoomInBtn"></button>
+      <input id="zoomCtrl" type="range" step="any" min="0" max="1">
+      <button id="zoomOutBtn"></button>
+    </div>
+    <div id="seekBarControls">
+      <input id="seekCtrl" type="range" step="any" min="0" max="1">
+    </div>
+    <div id="bottomBarControls">
+      <div class="flexChild">
+            <button id="playPauseBtn" class="play"></button>
+            <span id="volumeArea">
+              <button id="volumeBtn" class="low"></button>
+              <input id="volumeCtrl" type="range" step="any" min="0" max="1">
+            </span>
+            <div id="timeTxt">
+              <span id="currentTimeTxt">00:00</span> /
+              <span id="totalTimeTxt">50:00</span>
+            </div>
+        </div>
+        <div class="flexChild">
+            <button id="snapshotBtn"></button>
+            <button id="settingBtn"></button>
+            <button id="captionBtn"></button>           
+            <button id="fullscreenBtn"></button>
+        </div>
+      </div>
+  </div>
+</div>
 
 <script>
 function initPlayer() {
