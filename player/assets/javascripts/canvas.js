@@ -145,3 +145,55 @@ function trackTransforms(ctx){
         return pt.matrixTransform(xform.inverse());
     }
 }
+
+/* functions for UI controls */
+
+function playPauseVideo() {
+    var v = document.getElementById('video');
+    var buttonState = $('#playPauseBtn');
+    var uiControls = $('#uiControls');
+
+    if (buttonState.hasClass('play')) {
+        v.play();
+        buttonState.removeClass('play').addClass('pause');
+        uiControls.addClass('hideOnHover');
+    }
+    else {
+        v.pause();
+        buttonState.removeClass('pause').addClass('play');
+        uiControls.removeClass('hideOnHover');
+    }
+}
+
+function toggleVolume() {
+    var volumeState = $('#volumeBtn');
+    if (volumeState.hasClass('low') || volumeState.hasClass('high')) {
+        prevVolumeState = volumeState.attr('class');
+        volumeState.removeClass().addClass('off');
+    }
+    else {
+        volumeState.removeClass().addClass(prevVolumeState);
+        prevVolumeState = 'off';
+    }
+}
+
+function getVideoLength() {
+    var v = document.getElementById('video');
+    v.addEventListener('loadedmetadata', function() {
+        var videoLength = v.duration;
+        // convert seconds to hours, mins, secs
+        var hours = parseInt(Math.floor(videoLength / 3600));
+        videoLength %= 3600;
+        var minutes = parseInt(Math.floor(videoLength / 60));
+        var seconds = parseInt(videoLength % 60);
+        if (hours == 0) {
+            if (minutes == 0)
+                $('#totalTimeTxt').text(seconds);
+            else 
+                $('#totalTimeTxt').text(minutes+':'+seconds);
+        }
+        else 
+            $('#totalTimeTxt').text(hours+':'+minutes+':'+seconds); 
+    });
+}
+document.addEventListener('DOMContentLoaded', getVideoLength);

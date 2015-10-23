@@ -29,14 +29,14 @@
     </div>
     <div id="bottomBarControls">
       <div class="flexChild">
-            <button id="playPauseBtn" class="play"></button>
+            <button id="playPauseBtn" class="play" onclick="playPauseVideo()"></button>
             <span id="volumeArea">
-              <button id="volumeBtn" class="low"></button>
+              <button id="volumeBtn" class="low" onclick="toggleVolume()"></button>
               <input id="volumeCtrl" type="range" step="any" min="0" max="1">
             </span>
             <div id="timeTxt">
-              <span id="currentTimeTxt">00:00</span> /
-              <span id="totalTimeTxt">50:00</span>
+              <span id="currentTimeTxt">0:00</span> /
+              <span id="totalTimeTxt">0:00</span>
             </div>
         </div>
         <div class="flexChild">
