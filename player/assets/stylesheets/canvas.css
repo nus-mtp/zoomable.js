@@ -27,9 +27,9 @@
 	background-color: rgba(0, 0, 0, 0.5);
 	width: 135px;
 	height: 24px;
-	transform: rotate(90deg);
-	-webkit-transform: rotate(90deg);	/* safari */
-	-moz-transform: rotate(90deg);		/* firefox */
+	transform: rotate(270deg);
+	-webkit-transform: rotate(270deg);	/* safari */
+	-moz-transform: rotate(270deg);		/* firefox */
 	display: flex;
 	justify-content: space-between;
 }
@@ -41,6 +41,9 @@
 	width: 24px;
 	height: 24px;
 	opacity: 0.85;
+	transform: rotate(180deg);
+	-webkit-transform: rotate(180deg);	/* safari */
+	-moz-transform: rotate(180deg);		/* firefox */
 }
 #zoomBarControls button:hover {
 	opacity: 1;
