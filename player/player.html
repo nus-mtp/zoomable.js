@@ -20,23 +20,23 @@
   <canvas id="canvas" width="640px" height="360px"></canvas>
   <div id="uiControls">
     <div id="zoomBarControls">
-      <button id="zoomInBtn"></button>
-      <input id="zoomCtrl" type="range" step="any" min="0" max="1">
       <button id="zoomOutBtn"></button>
+      <input id="zoomCtrl" type="range" step="any" min="0" max="1" value="0">
+      <button id="zoomInBtn"></button>
     </div>
     <div id="seekBarControls">
-      <input id="seekCtrl" type="range" step="any" min="0" max="1">
+      <input id="seekCtrl" type="range" step="any" min="0" max="1" value="0">
     </div>
     <div id="bottomBarControls">
       <div class="flexChild">
-            <button id="playPauseBtn" class="play" onclick="playPauseVideo()"></button>
+            <button id="playPauseBtn" class="play"></button>
             <span id="volumeArea">
-              <button id="volumeBtn" class="low" onclick="toggleVolume()"></button>
-              <input id="volumeCtrl" type="range" step="any" min="0" max="1">
+              <button id="volumeBtn" class="low"></button>
+              <input id="volumeCtrl" type="range" step="any" min="0" max="1" value="0.5">
             </span>
             <div id="timeTxt">
-              <span id="currentTimeTxt">0:00</span> /
-              <span id="totalTimeTxt">0:00</span>
+              <span id="currentTimeTxt">0:00:00</span> /
+              <span id="totalTimeTxt">0:00:00</span>
             </div>
         </div>
         <div class="flexChild">

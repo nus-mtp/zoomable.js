@@ -148,52 +148,142 @@ function trackTransforms(ctx){
 
 /* functions for UI controls */
 
-function playPauseVideo() {
-    var v = document.getElementById('video');
-    var buttonState = $('#playPauseBtn');
-    var uiControls = $('#uiControls');
+var video, currentTimeTxt, totalTimeTxt, playPauseBtn, seekCtrl, volumeBtn, volumeCtrl, uiControls;
+var previousVolumeState = '';
+var previousVolumeControlValue = 0;
 
-    if (buttonState.hasClass('play')) {
-        v.play();
-        buttonState.removeClass('play').addClass('pause');
-        uiControls.addClass('hideOnHover');
-    }
-    else {
-        v.pause();
-        buttonState.removeClass('pause').addClass('play');
-        uiControls.removeClass('hideOnHover');
-    }
+/* initialise the video controls on the canvas */
+function initialiseCanvasControls() {
+    // Set object references
+    video = document.getElementById('video');
+    currentTimeTxt = document.getElementById('currentTimeTxt');
+    totalTimeTxt = document.getElementById('totalTimeTxt');
+    playPauseBtn = document.getElementById('playPauseBtn');
+    seekCtrl = document.getElementById('seekCtrl');
+    volumeBtn = document.getElementById('volumeBtn');
+    volumeCtrl = document.getElementById('volumeCtrl');
+    uiControls = document.getElementById('uiControls');
+
+    // Add event listeners
+    video.addEventListener('loadedmetadata',getVideoLength,false);
+    video.addEventListener('timeupdate',updateSeekTime,false);
+    seekCtrl.addEventListener('change',videoSeek,false);
+    playPauseBtn.addEventListener('click',playPauseVideo,false);
+    video.addEventListener('pause',changeToPauseState,false);
+    video.addEventListener('play',changeToPlayState,false);     
+    volumeBtn.addEventListener('click',toggleMuteState,false);
+    volumeCtrl.addEventListener('change',volumeAdjust,false);
+    // Set default values
+    video.volume = 0.5;
+    previousVolumeControlValue = video.volume;
 }
+document.addEventListener('DOMContentLoaded', initialiseCanvasControls);
 
-function toggleVolume() {
-    var volumeState = $('#volumeBtn');
-    if (volumeState.hasClass('low') || volumeState.hasClass('high')) {
-        prevVolumeState = volumeState.attr('class');
-        volumeState.removeClass().addClass('off');
-    }
-    else {
-        volumeState.removeClass().addClass(prevVolumeState);
-        prevVolumeState = 'off';
-    }
-}
-
+/* Retrieve total duration of video and update total time text */
 function getVideoLength() {
-    var v = document.getElementById('video');
-    v.addEventListener('loadedmetadata', function() {
-        var videoLength = v.duration;
-        // convert seconds to hours, mins, secs
-        var hours = parseInt(Math.floor(videoLength / 3600));
-        videoLength %= 3600;
-        var minutes = parseInt(Math.floor(videoLength / 60));
-        var seconds = parseInt(videoLength % 60);
-        if (hours == 0) {
-            if (minutes == 0)
-                $('#totalTimeTxt').text(seconds);
-            else 
-                $('#totalTimeTxt').text(minutes+':'+seconds);
-        }
-        else 
-            $('#totalTimeTxt').text(hours+':'+minutes+':'+seconds); 
-    });
+    var convertedTotalTime = convertSecondsToHMS(video.duration);
+    totalTimeTxt.innerHTML = convertedTotalTime;
 }
-document.addEventListener('DOMContentLoaded', getVideoLength);
+
+/* Update seek control value and current time text */
+function updateSeekTime(){
+    var newTime = video.currentTime/video.duration;
+    seekCtrl.value = newTime;
+
+    updateCurrentTimeText(video.currentTime);
+}
+
+/* Change current video time and text according to seek control value */
+function videoSeek(){
+    var seekTo = video.duration * seekCtrl.value;
+    video.currentTime = seekTo;
+
+    updateCurrentTimeText(video.currentTime);
+}
+
+/* Convert and update current time text */
+function updateCurrentTimeText(time) {
+    var convertedTime = convertSecondsToHMS(time);
+    currentTimeTxt.innerHTML = convertedTime;
+}
+
+/* Play or pause the video */
+function playPauseVideo() {
+    if(video.paused)
+        video.play();
+    else 
+        video.pause();
+}
+
+/* Updates icon to "play" button during pause state, show UI controls bar */
+function changeToPauseState() {
+    playPauseBtn.className = 'play';
+    uiControls.className = '';
+}
+
+/* Updates icon to "pause" button during play state, hide UI controls bar */
+function changeToPlayState() {
+    playPauseBtn.className = 'pause';
+    uiControls.className = 'hideOnHover';
+}
+
+/* Toggle mute on or off, saves previous states of volume and its value */
+function toggleMuteState(evt) {
+    var currentVolumeState = evt.target.className;
+    var currentVolumeControlValue = video.volume;
+
+    if (currentVolumeState == 'low' || currentVolumeState == 'high') {
+        previousVolumeState = currentVolumeState;
+        previousVolumeControlValue = currentVolumeControlValue;
+        evt.target.className = 'off';
+        video.muted = true;
+        volumeCtrl.value = 0;
+    }
+    else {
+        // if no previous state, set volume to "low" (default value)
+        if (previousVolumeState == '')
+            evt.target.className = 'low';
+        else 
+            evt.target.className = previousVolumeState;
+        previousVolumeState = currentVolumeState;
+        video.muted = false;
+        volumeCtrl.value = previousVolumeControlValue;
+        previousVolumeControlValue = currentVolumeControlValue;
+    }
+}
+
+/* Adjust volume using volume control and update UI and mute state */
+function volumeAdjust() {
+    previousVolumeControlValue = video.volume;
+    previousVolumeState = volumeBtn.className;
+    video.volume = volumeCtrl.value;
+
+    if (video.volume > 0) {
+        video.muted = false;
+        if (video.volume > 0.5)
+            volumeBtn.className = 'high';
+        else 
+            volumeBtn.className = 'low';
+    }
+    else {
+        video.muted = true;
+        volumeBtn.className = 'off';
+    }
+}
+
+/* Function to converts seconds to HH:MM:SS format */
+function convertSecondsToHMS(timeInSeconds) {
+    var formattedTime = '';
+    var hours = Math.floor(timeInSeconds / 3600);
+    var mins = Math.floor((timeInSeconds / 60) % 60);
+    var secs = Math.floor(timeInSeconds % 60);
+
+    if (secs < 10) 
+        secs = '0' + secs;
+    if (mins < 10)
+        mins = '0' + mins;
+
+    formattedTime = hours+':'+mins+':'+secs;
+
+    return formattedTime; 
+}
