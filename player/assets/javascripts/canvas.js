@@ -240,9 +240,9 @@ function toggleMuteState(evt) {
         volumeCtrl.value = 0;
     }
     else {
-        // if no previous state, set volume to "low" (default value)
-        if (previousVolumeState == '')
-            evt.target.className = 'low';
+        // if volume is already zero, do nothing on pressing mute button again
+        if (video.volume == 0)
+            return;   
         else 
             evt.target.className = previousVolumeState;
         previousVolumeState = currentVolumeState;
