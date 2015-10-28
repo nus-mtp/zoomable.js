@@ -186,10 +186,29 @@ function getVideoLength() {
 }
 
 /* Update seek control value and current time text */
-function updateSeekTime(){
+function updateSeekTime(){    
     var newTime = video.currentTime/video.duration;
+    var gradient = ['to right'];
+    var buffered = video.buffered;
+
     seekCtrl.value = newTime;
 
+    if (buffered.length == 0) {
+    gradient.push('rgba(255, 255, 255, 0.1) 0%');
+    } else {
+    // NOTE: the fallback to zero eliminates NaN.
+    var bufferStartFraction = (buffered.start(0) / video.duration) || 0;
+    var bufferEndFraction = (buffered.end(0) / video.duration) || 0;
+    var playheadFraction = (video.currentTime / video.duration) || 0;
+    gradient.push('rgba(255, 255, 255, 0.1) ' + (bufferStartFraction * 100) + '%');
+    gradient.push('rgba(255, 255, 255, 0.7) ' + (bufferStartFraction * 100) + '%');
+    gradient.push('rgba(255, 255, 255, 0.7) ' + (playheadFraction * 100) + '%');
+    gradient.push('rgba(255, 255, 255, 0.4) ' + (playheadFraction * 100) + '%');
+    gradient.push('rgba(255, 255, 255, 0.4) ' + (bufferEndFraction * 100) + '%');
+    gradient.push('rgba(255, 255, 255, 0.1) ' + (bufferEndFraction * 100) + '%');
+    }
+    seekCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+  
     updateCurrentTimeText(video.currentTime);
 }
 
