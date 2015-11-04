@@ -1,4 +1,4 @@
-<!doctype html>
+  <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -9,6 +9,23 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
 <body>
+<table>
+  <tbody>
+    <tr style="display:table-row;">
+    <td>Video Source:</td>
+    <td colspan="2">
+      <select id="mpdSource">
+      <option value="http://zoomable.comp.nus.edu.sg/puppey/puppy_dash.mpd">Puppy</option>
+      <option value="http://zoomable.comp.nus.edu.sg/squirrel/squirrel_video_dash.mpd">Squirrel</option>
+      <option value="http://yt-dash-mse-test.commondatastorage.googleapis.com/media/car-20120827-manifest.mpd">Car</option>
+      <option value="http://yt-dash-mse-test.commondatastorage.googleapis.com/media/motion-20120802-manifest.mpd">Motion</option>
+      <option value="http://yt-dash-mse-test.commondatastorage.googleapis.com/media/oops-20120802-manifest.mpd">Oops</option>
+    </select>
+    </td>
+    <td><button onclick="initPlayer()">Load</button></td>
+    <tr> 
+  </tbody>
+</table>
 
 <video id="video"
        width="640" height="360"
@@ -69,14 +86,14 @@ function initPlayer() {
   });
 
   // Construct a DashVideoSource to represent the DASH manifest.
-  var mpdUrl = 'https://turtle-tube.appspot.com/t/t2/dash.mpd';
+  var mpdUrl = $('#mpdSource').val();
   var estimator = new shaka.util.EWMABandwidthEstimator();
   var source = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
 
   // Load the source into the Player.
   player.load(source);
 }
-document.addEventListener('DOMContentLoaded', initPlayer);
+// document.addEventListener('DOMContentLoaded', initPlayer);
 </script>
 </body>
 </html>
