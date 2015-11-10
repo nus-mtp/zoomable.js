@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="shortcut icon" type="image/png" href="../shaka-player/third_party/jasmine/lib/jasmine-2.1.3/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="../shaka-player/third_party/jasmine/lib/jasmine-2.1.3/jasmine.css">
+
+  <!-- Libraries: -->
+  <script src="../shaka-player/third_party/jasmine/lib/jasmine-2.1.3/jasmine.js"></script>
+  <script src="../shaka-player/third_party/jasmine/lib/jasmine-2.1.3/jasmine-html.js"></script>
+  <script src="../shaka-player/third_party/jasmine/lib/jasmine-2.1.3/boot.js"></script>
+  <script src="../shaka-player/third_party/jasmine/lib/jasmine-ajax-3.1.0/mock-ajax.js"></script>
+  <script src="../shaka-player/third_party/blanket_jasmine/blanket_jasmine.js"
+          data-cover-never="//\/(jasmine|debug)\//"></script>
+
+  <script>
+    // Enable code-coverage stats if requested in the URL.
+    var fields = location.search.split('?').pop();
+    fields = fields ? fields.split('&') : [];
+    if (fields.indexOf('enableCodeCoverage') >= 0) {
+      // Add data-cover attribute to closure-loaded scripts so that they will
+      // be analyzed by blanket.js.
+      function loadScript(src) {
+        document.write('<script src="' + src + '" data-cover><'+'/script>');
+        return true;
+      }
+      CLOSURE_IMPORT_SCRIPT = loadScript;
+    }
+  </script>
+
+
+  <script src="../assets/javascripts/canvas.js"></script>
+
+  <!-- Spec files: -->
+  <script src="spec/player_spec.js"></script>
+
+
+</head>
+<body>
+</body>
+</html>
