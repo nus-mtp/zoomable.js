@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function(){
     canvas.addEventListener('mousewheel',handleScroll,false);
 
     function draw(v,c,w,h) {
-      //  if(v.paused || v.ended) return false;
+        //if(v.paused || v.ended) return false;
         c.drawImage(v,0,0,w,h);
         setTimeout(draw,20,v,c,w,h);
     }
@@ -64,25 +64,19 @@ document.addEventListener('DOMContentLoaded', function(){
             var pt = ctx.transformedPoint(lastX,lastY);
             var dx = pt.x-dragStart.x;
             var dy = pt.y-dragStart.y;
-            console.log("move: (" + dx + ", " + dy + ")");            
             var tx = ctx.currentTransform.e;
             var ty = ctx.currentTransform.f;
-            console.log("pos: (" + tx + ", " + ty + ")");
-            var flag = 0;
+            var flag = 0;           //for checking if no other translation has been made
             var s = ctx.currentTransform.a;
-            var intx = tx+dx;
-            var untx = tx+cw*s+dx;
-            console.log("x condition: " + intx + ", " + tx+cw*s+dx);
             if (tx+dx <= 0 && tx+cw*s+dx > cw) { 
-                    ctx.translate(dx,0);
-                    flag = 1;
+                //canvas x-borders exceed viewport x-borders (OK to translate x)
+                ctx.translate(dx,0);
+                flag = 1;
             }
             if (ty+dy <= 0 && ty+ch*s+dy > ch) {
-                    ctx.translate(0,dy);
-                    flag = 1;
-            }
-            if (flag = 0) {
-                ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
+                //canvas y-borders exceed viewport y-borders (OK to translate y)
+                ctx.translate(0,dy);
+                flag = 1;
             }
             redraw();
         }
