@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     function mouseDown(evt){
-        document.body.style.mozUserSelect =         document.body.style.webkitUserSelect = document.body.style.userSelect = 'none';
+        document.body.style.mozUserSelect = document.body.style.webkitUserSelect = document.body.style.userSelect = 'none';
         lastX = evt.offsetX || (evt.pageX - canvas.offsetLeft);
         lastY = evt.offsetY || (evt.pageY - canvas.offsetTop);
         dragStart = ctx.transformedPoint(lastX,lastY);
@@ -102,14 +102,13 @@ document.addEventListener('DOMContentLoaded', function(){
             ctx.translate(pt.x,pt.y);
             ctx.scale(factor,factor);
             ctx.translate(-pt.x,-pt.y);
-                    refit();
-//            printMat();
-
+            refit();
         }
-        zoomFactor=zoomFactor*factor;
         redraw(); 
     }
 
+    /* Prints the current transformation matrix (rotation not used)
+    ** scale_x, scale_y \n translation_x, translation_y  */
     function printMat() {
         console.log(ctx.currentTransform.a + ", " + ctx.currentTransform.d);
         console.log(ctx.currentTransform.e + ", " + 
@@ -124,6 +123,8 @@ document.addEventListener('DOMContentLoaded', function(){
         return evt.preventDefault() && false;
     }
     
+    /* Checks if the viewport borders intersect with the canvas borders
+    ** If it intersects, then scale/translate back the canvas accordingly to fit the viewport.*/
     function refit() {
         var tx = ctx.currentTransform.e;
         var ty = ctx.currentTransform.f;
