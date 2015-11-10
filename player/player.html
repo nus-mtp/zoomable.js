@@ -5,6 +5,7 @@
     <title> Zoomable Video Player </title>
     <link rel="stylesheet" type="text/css" href="assets/stylesheets/canvas.css" >    
     <script src="assets/javascripts/shaka-player.compiled.debug.js" type="text/javascript"></script>
+    <script src="assets/javascripts/initShakaPlayer.js"></script>
     <script src="assets/javascripts/canvas.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
@@ -22,7 +23,7 @@
       <option value="http://yt-dash-mse-test.commondatastorage.googleapis.com/media/oops-20120802-manifest.mpd">Oops</option>
     </select>
     </td>
-    <td><button onclick="initPlayer()">Load</button></td>
+    <td><button onclick="initShakaPlayer()">Load</button></td>
     <tr> 
   </tbody>
 </table>
@@ -65,35 +66,5 @@
       </div>
   </div>
 </div>
-
-<script>
-function initPlayer() {
-  // Install polyfills.
-  shaka.polyfill.installAll();
-
-  // Find the video element.
-  var video = document.getElementById('video');
-
-  // Construct a Player to wrap around it.
-  var player = new shaka.player.Player(video);
-
-  // Attach the player to the window so that it can be easily debugged.
-  window.player = player;
-
-  // Listen for errors from the Player.
-  player.addEventListener('error', function(event) {
-    console.error(event);
-  });
-
-  // Construct a DashVideoSource to represent the DASH manifest.
-  var mpdUrl = $('#mpdSource').val();
-  var estimator = new shaka.util.EWMABandwidthEstimator();
-  var source = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
-
-  // Load the source into the Player.
-  player.load(source);
-}
-// document.addEventListener('DOMContentLoaded', initPlayer);
-</script>
 </body>
 </html>

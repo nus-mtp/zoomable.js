@@ -51,9 +51,15 @@
 
 #seekBarControls {
 	position: absolute;
-	bottom: 32px;
+	display: flex;
+	bottom: 36px;
 	left: 0px;
 	z-index: 10;
+	width: 640px;
+	height: 12px;
+	background-color: rgba(0, 0, 0, 0.5);
+	justify-content: space-around;
+	align-items: flex-end;
 }
 
 #bottomBarControls {
@@ -61,10 +67,10 @@
 	display: flex;
 	bottom: 0;
 	left: 0;
-	width: 630px;
+	width: 610px;
 	height: 36px;
 	background-color: rgba(0, 0, 0, 0.5);
-	padding: 0px 5px 0px 5px;
+	padding: 0px 15px 0px 15px;
 	justify-content: space-between;
 }
 
@@ -160,8 +166,8 @@
 }
 
 #seekCtrl {
-	width: 640px;
-	height: 7px;
+	width: 620px;
+	height: 5px;
 	margin: 0px;
 
 	/* removes webkit default styling */
@@ -193,15 +199,15 @@
 	-webkit-appearance: none;
 	background-color: white;
 	outline: none;
-	width: 20px;
-	height: 14px;
+	width: 12px;
+	height: 12px;
 	border-radius: 8px;
 }
 #seekCtrl::-moz-range-thumb {
 	background-color: white;
 	border: none;
-	width: 20px;
-	height: 14px;
+	width: 12px;
+	height: 12px;
 	border-radius: 8px;
 }
 
