@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var canvas = document.getElementById('canvas');
     var ctx = canvas.getContext('2d');
     var scaleFactor = 1.1;
-    var zoomFactor = 0;
+    var zoomFactor = 1;
 
 
     /*var cw = Math.floor(canvas.clientWidth / 100);
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function(){
     canvas.addEventListener('mousewheel',handleScroll,false);
 
     function draw(v,c,w,h) {
-        if(v.paused || v.ended) return false;
+      //  if(v.paused || v.ended) return false;
         c.drawImage(v,0,0,w,h);
         setTimeout(draw,20,v,c,w,h);
     }
@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function(){
         // ctx.setTransform(1,0,0,1,0,0);
         // ctx.clearRect(0,0,canvas.width,canvas.height);
         // ctx.restore();
-
         draw(v,ctx,cw,ch);
     }
 
@@ -63,7 +62,28 @@ document.addEventListener('DOMContentLoaded', function(){
         dragged = true;
         if (dragStart){
             var pt = ctx.transformedPoint(lastX,lastY);
-            ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
+            var dx = pt.x-dragStart.x;
+            var dy = pt.y-dragStart.y;
+            console.log("move: (" + dx + ", " + dy + ")");            
+            var tx = ctx.currentTransform.e;
+            var ty = ctx.currentTransform.f;
+            console.log("pos: (" + tx + ", " + ty + ")");
+            var flag = 0;
+            var s = ctx.currentTransform.a;
+            var intx = tx+dx;
+            var untx = tx+cw*s+dx;
+            console.log("x condition: " + intx + ", " + tx+cw*s+dx);
+            if (tx+dx <= 0 && tx+cw*s+dx > cw) { 
+                    ctx.translate(dx,0);
+                    flag = 1;
+            }
+            if (ty+dy <= 0 && ty+ch*s+dy > ch) {
+                    ctx.translate(0,dy);
+                    flag = 1;
+            }
+            if (flag = 0) {
+                ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
+            }
             redraw();
         }
     }
@@ -74,17 +94,58 @@ document.addEventListener('DOMContentLoaded', function(){
 
     function zoom(clicks){
         var pt = ctx.transformedPoint(lastX,lastY);
-        ctx.translate(pt.x,pt.y);
         var factor = Math.pow(scaleFactor,clicks);
-        ctx.scale(factor,factor);
-        ctx.translate(-pt.x,-pt.y);
+        var tx = ctx.currentTransform.e;
+        var ty = ctx.currentTransform.f;
+        var s = ctx.currentTransform.a;
+        if (factor*s >= 1) {
+            ctx.translate(pt.x,pt.y);
+            ctx.scale(factor,factor);
+            ctx.translate(-pt.x,-pt.y);
+                    refit();
+//            printMat();
+
+        }
+        zoomFactor=zoomFactor*factor;
         redraw(); 
     }
 
+    function printMat() {
+        console.log(ctx.currentTransform.a + ", " + ctx.currentTransform.d);
+        console.log(ctx.currentTransform.e + ", " + 
+                   ctx.currentTransform.f);
+        console.log("width: " + cw*ctx.currentTransform.a);
+        console.log("height: " + ch *ctx.currentTransform.a);
+        console.log("______");
+    }
     function handleScroll(evt){
         var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
         if (delta) zoom(delta);
         return evt.preventDefault() && false;
+    }
+    
+    function refit() {
+        var tx = ctx.currentTransform.e;
+        var ty = ctx.currentTransform.f;
+        var s = ctx.currentTransform.a;
+        if (s < 1) {
+            ctx.scale(1/s, 1/s);    
+        }
+        if (tx > 0 ) {
+            ctx.translate(-tx,0);
+        }
+        if (ty > 0) {
+            ctx.translate(0,-ty);
+        }
+        if (tx+cw*s < cw) {
+            var dx = cw - tx-cw*s;
+            var sum =tx+cw*s;
+            ctx.translate(dx, 0);
+        } 
+        if (ty+ch*s < ch) {
+            var dy = ch - ty-ch*s;
+            ctx.translate(0, dy);
+        }
     }
 
     
