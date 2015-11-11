@@ -65,10 +65,10 @@ document.addEventListener('DOMContentLoaded', function(){
             var pt = ctx.transformedPoint(lastX,lastY);
             var dx = pt.x-dragStart.x;
             var dy = pt.y-dragStart.y;
-            var tx = ctx.currentTransform.e;
-            var ty = ctx.currentTransform.f;
+            var tx = ctx.getTransform().e;
+            var ty = ctx.getTransform().f;
             var flag = 0;
-            var s = ctx.currentTransform.a;
+            var s = ctx.getTransform().a;
             if (tx+dx <= 0 && tx+cw*s+dx > cw) { 
                     ctx.translate(dx,0);
                     flag = 1;
@@ -92,14 +92,14 @@ document.addEventListener('DOMContentLoaded', function(){
     function zoom(clicks, x, y){
         var pt = ctx.transformedPoint(x, y);
         var factor = Math.pow(scaleFactor,clicks);
-        var tx = ctx.currentTransform.e;
-        var ty = ctx.currentTransform.f;
-        var s = ctx.currentTransform.a;
+        var tx = ctx.getTransform().e;
+        var ty = ctx.getTransform().f;
+        var s = ctx.getTransform().a;
         if (factor*s >= 1 && factor*s <= maxZoom) {
             ctx.translate(pt.x,pt.y);
             ctx.scale(factor,factor);
             ctx.translate(-pt.x,-pt.y);
-            zoomCtrl.value = convertScaleToPercent(ctx.currentTransform.a);
+            zoomCtrl.value = convertScaleToPercent(ctx.getTransform().a);
             refit();
         }
         redraw(); 
@@ -108,11 +108,11 @@ document.addEventListener('DOMContentLoaded', function(){
     /* Prints the current transformation matrix (rotation not used)
     ** scale_x, scale_y \n translation_x, translation_y  */
     function printMat() {
-        console.log(ctx.currentTransform.a + ", " + ctx.currentTransform.d);
-        console.log(ctx.currentTransform.e + ", " + 
-                   ctx.currentTransform.f);
-        console.log("width: " + cw*ctx.currentTransform.a);
-        console.log("height: " + ch *ctx.currentTransform.a);
+        console.log(ctx.getTransform().a + ", " + ctx.getTransform().d);
+        console.log(ctx.getTransform().e + ", " + 
+                   ctx.getTransform().f);
+        console.log("width: " + cw*ctx.getTransform().a);
+        console.log("height: " + ch *ctx.getTransform().a);
         console.log("______");
     }
     function handleScroll(evt){
@@ -124,9 +124,9 @@ document.addEventListener('DOMContentLoaded', function(){
     /* Checks if the viewport borders intersect with the canvas borders
     ** If it intersects, then scale/translate back the canvas accordingly to fit the viewport.*/
     function refit() {
-        var tx = ctx.currentTransform.e;
-        var ty = ctx.currentTransform.f;
-        var s = ctx.currentTransform.a;
+        var tx = ctx.getTransform().e;
+        var ty = ctx.getTransform().f;
+        var s = ctx.getTransform().a;
         console.log("zoom: " + s);
         if (s < 1 || s > maxZoom) {
             ctx.scale(1/s, 1/s);    
@@ -356,9 +356,9 @@ document.addEventListener('DOMContentLoaded', function(){
     
     /* General function to call zoom(clicks,x,y) from the UI Controls. */
     function zoomHelper(value) {
-        var tx = ctx.currentTransform.e;
-        var ty = ctx.currentTransform.f;
-        var old_s = ctx.currentTransform.a;     
+        var tx = ctx.getTransform().e;
+        var ty = ctx.getTransform().f;
+        var old_s = ctx.getTransform().a;     
         var x = cw/2;
         var y = ch/2; 
         zoom(value, x, y);
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function(){
     function zoomAdjust() {
         var zoomPercent = zoomCtrl.value;
         var new_s = convertPercentToScale(zoomPercent);
-        var old_s = ctx.currentTransform.a;
+        var old_s = ctx.getTransform().a;
         var delta_clicks = Math.log(new_s/old_s) /Math.log(scaleFactor);
         zoomHelper(delta_clicks); 
     }
