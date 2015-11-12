@@ -1,10 +1,5 @@
 var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn) {
     var ctx = canvas.getContext('2d');
-    
-    /*var cw = Math.floor(canvas.clientWidth / 100);
-    var ch = Math.floor(canvas.clientHeight / 100);
-    canvas.width = cw;
-    canvas.height = ch;/*/
     var scaleFactor = 1.1;
     var zoomFactor = 1;
     var maxZoom = 7;
@@ -17,7 +12,7 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     },false);
     setCanvasControlsListeners();
     trackTransforms(ctx);
-    redraw();	
+    redraw(video,ctx,cw,ch);	
     var lastX=canvas.width/2, lastY=canvas.height/2;
     var dragStart,dragged;
     canvas.addEventListener('mousedown',mouseDown,false);
@@ -25,27 +20,6 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     canvas.addEventListener('mouseup',mouseUp,false);
     canvas.addEventListener('DOMMouseScroll',handleScroll,false);
     canvas.addEventListener('mousewheel',handleScroll,false);
-
-    function draw(v,c,w,h) {
-      //  if(v.paused || v.ended) return false;
-        c.drawImage(v,0,0,w,h);
-        setTimeout(draw,20,v,c,w,h);
-    }
-
-    function redraw(){
-        // Clear the entire canvas
-        var p1 = ctx.transformedPoint(0,0);
-        var p2 = ctx.transformedPoint(canvas.width,canvas.height);
-        //ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
-        ctx.fillStyle = 'rgb(0,0,0)';
-        ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
-        // Alternatively:
-        // ctx.save();
-        // ctx.setTransform(1,0,0,1,0,0);
-        // ctx.clearRect(0,0,canvas.width,canvas.height);
-        // ctx.restore();
-        draw(video,ctx,cw,ch);
-    }
 
     function mouseDown(evt){
         document.body.style.mozUserSelect = document.body.style.webkitUserSelect = document.body.style.userSelect = 'none';
@@ -60,47 +34,12 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         lastY = evt.offsetY || (evt.pageY - canvas.offsetTop);
         dragged = true;
         if (dragStart){
-            var pt = ctx.transformedPoint(lastX,lastY);
-            var dx = pt.x-dragStart.x;
-            var dy = pt.y-dragStart.y;
-            var tx = ctx.getTransform().e;
-            var ty = ctx.getTransform().f;
-            var flag = 0;
-            var s = ctx.getTransform().a;
-            if (tx+dx <= 0 && tx+cw*s+dx > cw) { 
-                    ctx.translate(dx,0);
-                    flag = 1;
-            }
-            if (ty+dy <= 0 && ty+ch*s+dy > ch) {
-                    ctx.translate(0,dy);
-                    flag = 1;
-            }
-           /* if (flag = 0) {
-                ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
-            }*/
-            redraw();
+            translate(video, ctx, dragStart, lastX, lastY, cw, ch);
         }
     }
     function mouseUp(evt){
         dragStart = null;
         //if (!dragged) zoom(evt.shiftKey ? -1 : 1 );
-    }
-
-    /* Zooms into the position x, y with the amount clicks */
-    function zoom(clicks, x, y){
-        var pt = ctx.transformedPoint(x, y);
-        var factor = Math.pow(scaleFactor,clicks);
-        var tx = ctx.getTransform().e;
-        var ty = ctx.getTransform().f;
-        var s = ctx.getTransform().a;
-        if (factor*s >= 1 && factor*s <= maxZoom) {
-            ctx.translate(pt.x,pt.y);
-            ctx.scale(factor,factor);
-            ctx.translate(-pt.x,-pt.y);
-            zoomCtrl.value = convertScaleToPercent(ctx.getTransform().a, maxZoom);
-            refit();
-        }
-        redraw(); 
     }
 
     /* Prints the current transformation matrix (rotation not used)
@@ -115,92 +54,11 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     }
     function handleScroll(evt){
         var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
-        if (delta) zoom(delta, lastX, lastY);
+        if (delta) zoom(video, ctx, delta, lastX, lastY, zoomCtrl, maxZoom, scaleFactor, cw, ch);
         return evt.preventDefault() && false;
     }
+   //ctx, clicks, x, y, button, maxZoom)
     
-    /* Checks if the viewport borders intersect with the canvas borders
-    ** If it intersects, then scale/translate back the canvas accordingly to fit the viewport.*/
-    function refit() {
-        var tx = ctx.getTransform().e;
-        var ty = ctx.getTransform().f;
-        var s = ctx.getTransform().a;
-        console.log("zoom: " + s);
-        if (s < 1 || s > maxZoom) {
-            ctx.scale(1/s, 1/s);    
-        }
-        if (tx > 0 ) {
-            ctx.translate(-tx,0);
-        }
-        if (ty > 0) {
-            ctx.translate(0,-ty);
-        }
-        if (tx+cw*s < cw) {
-            var dx = cw - tx-cw*s;
-            var sum =tx+cw*s;
-            ctx.translate(dx, 0);
-        } 
-        if (ty+ch*s < ch) {
-            var dy = ch - ty-ch*s;
-            ctx.translate(0, dy);
-        }
-    }
-
-    function trackTransforms(ctx){
-        var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
-        var xform = svg.createSVGMatrix();
-        ctx.getTransform = function(){ return xform; };
-
-        var savedTransforms = [];
-        var save = ctx.save;
-        ctx.save = function(){
-            savedTransforms.push(xform.translate(0,0));
-            return save.call(ctx);
-        };
-        var restore = ctx.restore;
-        ctx.restore = function(){
-            xform = savedTransforms.pop();
-            return restore.call(ctx);
-        };
-
-        var scale = ctx.scale;
-        ctx.scale = function(sx,sy){
-            xform = xform.scaleNonUniform(sx,sy);
-            return scale.call(ctx,sx,sy);
-        };
-        var rotate = ctx.rotate;
-        ctx.rotate = function(radians){
-            xform = xform.rotate(radians*180/Math.PI);
-            return rotate.call(ctx,radians);
-        };
-        var translate = ctx.translate;
-        ctx.translate = function(dx,dy){
-            xform = xform.translate(dx,dy);
-            return translate.call(ctx,dx,dy);
-        };
-        var transform = ctx.transform;
-        ctx.transform = function(a,b,c,d,e,f){
-            var m2 = svg.createSVGMatrix();
-            m2.a=a; m2.b=b; m2.c=c; m2.d=d; m2.e=e; m2.f=f;
-            xform = xform.multiply(m2);
-            return transform.call(ctx,a,b,c,d,e,f);
-        };
-        var setTransform = ctx.setTransform;
-        ctx.setTransform = function(a,b,c,d,e,f){
-            xform.a = a;
-            xform.b = b;
-            xform.c = c;
-            xform.d = d;
-            xform.e = e;
-            xform.f = f;
-            return setTransform.call(ctx,a,b,c,d,e,f);
-        };
-        var pt  = svg.createSVGPoint();
-        ctx.transformedPoint = function(x,y){
-            pt.x=x; pt.y=y;
-            return pt.matrixTransform(xform.inverse());
-        }
-    }
 
     /* functions for UI controls */
 
@@ -292,7 +150,7 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         var old_s = ctx.getTransform().a;     
         var x = cw/2;
         var y = ch/2; 
-        zoom(value, x, y);
+        zoom(video, ctx, value, x, y, zoomCtrl, maxZoom, scaleFactor, cw, ch);
     }
     /* Adjust zoom by adjusting the slider */
     function zoomAdjust() {
@@ -393,3 +251,158 @@ function convertSecondsToHMS(timeInSeconds) {
 
     return formattedTime; 
 }
+
+function draw(v,c,w,h) {
+    //if(v.paused || v.ended) return false;
+    c.drawImage(v,0,0,w,h);
+    setTimeout(draw,20,v,c,w,h);
+}
+
+function redraw(video,ctx,cw,ch){
+    // Clear the entire canvas
+    var p1 = ctx.transformedPoint(0,0);
+    var p2 = ctx.transformedPoint(canvas.width,canvas.height);
+    //ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+    ctx.fillStyle = 'rgb(0,0,0)';
+    ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+    // Alternatively:
+    // ctx.save();
+    // ctx.setTransform(1,0,0,1,0,0);
+    // ctx.clearRect(0,0,canvas.width,canvas.height);
+    // ctx.restore();
+    draw(video,ctx,cw,ch);
+}
+
+function translate(video, ctx, dragStart, lastX, lastY, cw, ch) {
+    var pt = ctx.transformedPoint(lastX,lastY);
+    var dx = pt.x-dragStart.x;
+    var dy = pt.y-dragStart.y;
+    var tx = ctx.getTransform().e;
+    var ty = ctx.getTransform().f;
+    var flag = 0;
+    var s = ctx.getTransform().a;
+    if (tx+dx <= 0 && tx+cw*s+dx > cw) { 
+            ctx.translate(dx,0);
+            flag = 1;
+    }
+    if (ty+dy <= 0 && ty+ch*s+dy > ch) {
+            ctx.translate(0,dy);
+            flag = 1;
+    }
+   /* if (flag = 0) {
+        ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
+    }*/
+    redraw(video, ctx, cw, ch);   
+}
+
+/* Zooms into the position x, y with the amount clicks */
+function zoom(video, ctx, clicks, x, y, button, maxZoom, scaleFactor, cw, ch){
+    //tt(ctx);
+    var pt = ctx.transformedPoint(x, y);
+    var factor = Math.pow(scaleFactor,clicks);
+    var tx = ctx.getTransform().e;
+    var ty = ctx.getTransform().f;
+    var s = ctx.getTransform().a;
+    if (factor*s >= 1 && factor*s <= maxZoom) {
+        ctx.translate(pt.x,pt.y);
+        ctx.scale(factor,factor);
+        ctx.translate(-pt.x,-pt.y);
+        button.value = convertScaleToPercent(ctx.getTransform().a, maxZoom);
+        refit(ctx, maxZoom, cw, ch);
+    }
+    redraw(video,ctx,cw,ch); 
+}
+
+
+/* Checks if the viewport borders intersect with the canvas borders
+** If it intersects, then scale/translate back the canvas accordingly to fit the viewport.*/
+function refit(ctx, maxZoom, cw, ch) {
+    var tx = ctx.getTransform().e;
+    var ty = ctx.getTransform().f;
+    var s = ctx.getTransform().a;
+    console.log("zoom: " + s);
+    if (s < 1 || s > maxZoom) {
+        ctx.scale(1/s, 1/s);    
+    }
+    if (tx > 0 ) {
+        ctx.translate(-tx,0);
+    }
+    if (ty > 0) {
+        ctx.translate(0,-ty);
+    }
+    if (tx+cw*s < cw) {
+        var dx = cw - tx-cw*s;
+        var sum =tx+cw*s;
+        ctx.translate(dx, 0);
+    } 
+    if (ty+ch*s < ch) {
+        var dy = ch - ty-ch*s;
+        ctx.translate(0, dy);
+    }
+}
+
+function trackTransforms(ctx){
+    var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+    var xform = svg.createSVGMatrix();
+    ctx.getTransform = function(){ return xform; };
+
+    var savedTransforms = [];
+    var save = ctx.save;
+    ctx.save = function(){
+        savedTransforms.push(xform.translate(0,0));
+        return save.call(ctx);
+    };
+    var restore = ctx.restore;
+    ctx.restore = function(){
+        xform = savedTransforms.pop();
+        return restore.call(ctx);
+    };
+
+    var scale = ctx.scale;
+    ctx.scale = function(sx,sy){
+        xform = xform.scaleNonUniform(sx,sy);
+        return scale.call(ctx,sx,sy);
+    };
+    var rotate = ctx.rotate;
+    ctx.rotate = function(radians){
+        xform = xform.rotate(radians*180/Math.PI);
+        return rotate.call(ctx,radians);
+    };
+    var translate = ctx.translate;
+    ctx.translate = function(dx,dy){
+        xform = xform.translate(dx,dy);
+        return translate.call(ctx,dx,dy);
+    };
+    var transform = ctx.transform;
+    ctx.transform = function(a,b,c,d,e,f){
+        var m2 = svg.createSVGMatrix();
+        m2.a=a; m2.b=b; m2.c=c; m2.d=d; m2.e=e; m2.f=f;
+        xform = xform.multiply(m2);
+        return transform.call(ctx,a,b,c,d,e,f);
+    };
+    var setTransform = ctx.setTransform;
+    ctx.setTransform = function(a,b,c,d,e,f){
+        xform.a = a;
+        xform.b = b;
+        xform.c = c;
+        xform.d = d;
+        xform.e = e;
+        xform.f = f;
+        return setTransform.call(ctx,a,b,c,d,e,f);
+    };
+    var pt  = svg.createSVGPoint();
+    ctx.transformedPoint = function(x,y){
+        pt.x=x; pt.y=y;
+        return pt.matrixTransform(xform.inverse());
+    }
+}
+
+/* Helper methods to convert between the slider values and transformation matrix values */
+    function convertPercentToScale(percent, maxZoom) {
+        var range = maxZoom - 1;
+        return percent*range + 1;
+    }
+    function convertScaleToPercent(scale, maxZoom) {
+        var range = maxZoom - 1;
+        return (scale-1)/range;
+    }
