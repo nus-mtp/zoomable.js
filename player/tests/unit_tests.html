@@ -13,6 +13,8 @@
   <script src="../shaka-player/third_party/jasmine/lib/jasmine-ajax-3.1.0/mock-ajax.js"></script>
   <script src="../shaka-player/third_party/blanket_jasmine/blanket_jasmine.js"
           data-cover-never="//\/(jasmine|debug)\//"></script>
+  <script src="./spec/javascripts/jquery-2.1.4.min.js"></script>
+  <script src="./spec/javascripts/jasmine-jquery.js"></script>
 
   <script>
     // Enable code-coverage stats if requested in the URL.
@@ -29,8 +31,8 @@
     }
   </script>
 
-
-  <script src="../assets/javascripts/canvas.js"></script>
+  <!-- Source files for testing: -->
+  <script src="../assets/javascripts/canvasControls.js"></script>
 
   <!-- Spec files: -->
   <script src="spec/player_spec.js"></script>
