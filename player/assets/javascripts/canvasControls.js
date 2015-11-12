@@ -1,6 +1,4 @@
-document.addEventListener('DOMContentLoaded', function(){
-    var v = document.getElementById('video');
-    var canvas = document.getElementById('canvas');
+var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn) {
     var ctx = canvas.getContext('2d');
     
     /*var cw = Math.floor(canvas.clientWidth / 100);
@@ -14,10 +12,10 @@ document.addEventListener('DOMContentLoaded', function(){
     var ch = 360;
 
 
-    v.addEventListener('play', function(){
+    video.addEventListener('play', function(){
         draw(this,ctx,cw,ch);
     },false);
-    initialiseCanvasControls();
+    setCanvasControlsListeners();
     trackTransforms(ctx);
     redraw();	
     var lastX=canvas.width/2, lastY=canvas.height/2;
@@ -46,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function(){
         // ctx.setTransform(1,0,0,1,0,0);
         // ctx.clearRect(0,0,canvas.width,canvas.height);
         // ctx.restore();
-        draw(v,ctx,cw,ch);
+        draw(video,ctx,cw,ch);
     }
 
     function mouseDown(evt){
@@ -99,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function(){
             ctx.translate(pt.x,pt.y);
             ctx.scale(factor,factor);
             ctx.translate(-pt.x,-pt.y);
-            zoomCtrl.value = convertScaleToPercent(ctx.getTransform().a);
+            zoomCtrl.value = convertScaleToPercent(ctx.getTransform().a, maxZoom);
             refit();
         }
         redraw(); 
@@ -206,34 +204,31 @@ document.addEventListener('DOMContentLoaded', function(){
 
     /* functions for UI controls */
 
-    var video, currentTimeTxt, totalTimeTxt, playPauseBtn, seekCtrl, volumeBtn, volumeCtrl, uiControls;
     var previousVolumeState = '';
     var previousVolumeControlValue = 0;
 
-    /* initialise the video controls on the canvas */
-    function initialiseCanvasControls() {
-        // Set object references
-        video = document.getElementById('video');
-        currentTimeTxt = document.getElementById('currentTimeTxt');
-        totalTimeTxt = document.getElementById('totalTimeTxt');
-        playPauseBtn = document.getElementById('playPauseBtn');
-        seekCtrl = document.getElementById('seekCtrl');
-        volumeBtn = document.getElementById('volumeBtn');
-        volumeCtrl = document.getElementById('volumeCtrl');
-        zoomOutBtn = document.getElementById('zoomOutBtn');
-        zoomCtrl = document.getElementById('zoomCtrl');
-        zoomInBtn = document.getElementById('zoomInBtn');
-        uiControls = document.getElementById('uiControls');
-
+    /* create event listeners for canvas controls */
+    function setCanvasControlsListeners() {
         // Add event listeners
         video.addEventListener('loadedmetadata',getVideoLength,false);
         video.addEventListener('timeupdate',updateSeekTime,false);
         seekCtrl.addEventListener('change',videoSeek,false);
-        playPauseBtn.addEventListener('click',playPauseVideo,false);
-        video.addEventListener('pause',changeToPauseState,false);
-        video.addEventListener('play',changeToPlayState,false);     
-        volumeBtn.addEventListener('click',toggleMuteState,false);
-        volumeCtrl.addEventListener('change',volumeAdjust,false);
+        playPauseBtn.addEventListener('click',function(){
+            playPauseVideo(video);
+        },false);
+        video.addEventListener('pause',function(){
+            changeToPauseState(playPauseBtn, uiControls);
+        },false);
+        video.addEventListener('play',function(){
+            changeToPlayState(playPauseBtn, uiControls);
+        },false);     
+        //volumeBtn.addEventListener('click',toggleMuteState,false);
+        volumeBtn.addEventListener('click',function(){
+            toggleMuteState(event, video, volumeCtrl, previousVolumeState, previousVolumeControlValue);
+        },false);
+        volumeCtrl.addEventListener('change',function(){
+            volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl);
+        },false);
         zoomInBtn.addEventListener('click',zoomIn,false);
         zoomOutBtn.addEventListener('click',zoomOut,false);
         zoomCtrl.addEventListener('change',zoomAdjust,false);
@@ -289,70 +284,6 @@ document.addEventListener('DOMContentLoaded', function(){
         var convertedTime = convertSecondsToHMS(time);
         currentTimeTxt.innerHTML = convertedTime;
     }
-
-    /* Play or pause the video */
-    function playPauseVideo() {
-        if(video.paused)
-            video.play();
-        else 
-            video.pause();
-    }
-
-    /* Updates icon to "play" button during pause state, show UI controls bar */
-    function changeToPauseState() {
-        playPauseBtn.className = 'play';
-        uiControls.className = '';
-    }
-
-    /* Updates icon to "pause" button during play state, hide UI controls bar */
-    function changeToPlayState() {
-        playPauseBtn.className = 'pause';
-        uiControls.className = 'hideOnHover';
-    }
-
-    /* Toggle mute on or off, saves previous states of volume and its value */
-    function toggleMuteState(evt) {
-        var currentVolumeState = evt.target.className;
-        var currentVolumeControlValue = video.volume;
-
-        if (currentVolumeState == 'low' || currentVolumeState == 'high') {
-            previousVolumeState = currentVolumeState;
-            previousVolumeControlValue = currentVolumeControlValue;
-            evt.target.className = 'off';
-            video.muted = true;
-            volumeCtrl.value = 0;
-        }
-        else {
-            // if volume is already zero, do nothing on pressing mute button again
-            if (video.volume == 0)
-                return;   
-            else 
-                evt.target.className = previousVolumeState;
-            previousVolumeState = currentVolumeState;
-            video.muted = false;
-            volumeCtrl.value = previousVolumeControlValue;
-            previousVolumeControlValue = currentVolumeControlValue;
-        }
-    }
-
-    /* Adjust volume using volume control and update UI and mute state */
-    function volumeAdjust() {
-        previousVolumeControlValue = video.volume;
-        previousVolumeState = volumeBtn.className;
-        video.volume = volumeCtrl.value;
-
-        if (video.volume > 0) {
-            video.muted = false;
-            if (video.volume > 0.5)
-                volumeBtn.className = 'high';
-            else 
-                volumeBtn.className = 'low';
-        }
-        else {
-            video.muted = true;
-            volumeBtn.className = 'off';
-        }
-    }
     
     /* General function to call zoom(clicks,x,y) from the UI Controls. */
     function zoomHelper(value) {
@@ -366,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function(){
     /* Adjust zoom by adjusting the slider */
     function zoomAdjust() {
         var zoomPercent = zoomCtrl.value;
-        var new_s = convertPercentToScale(zoomPercent);
+        var new_s = convertPercentToScale(zoomPercent, maxZoom);
         var old_s = ctx.getTransform().a;
         var delta_clicks = Math.log(new_s/old_s) /Math.log(scaleFactor);
         zoomHelper(delta_clicks); 
@@ -380,31 +311,85 @@ document.addEventListener('DOMContentLoaded', function(){
         zoomHelper(-1);
     }
     
-    /* Function to converts seconds to HH:MM:SS format */
-    function convertSecondsToHMS(timeInSeconds) {
-        var formattedTime = '';
-        var hours = Math.floor(timeInSeconds / 3600);
-        var mins = Math.floor((timeInSeconds / 60) % 60);
-        var secs = Math.floor(timeInSeconds % 60);
+};
 
-        if (secs < 10) 
-            secs = '0' + secs;
-        if (mins < 10)
-            mins = '0' + mins;
+/* Play or pause the video */
+function playPauseVideo(video) {
+    if(video.paused)
+        video.play();
+    else 
+        video.pause();
+}
 
-        formattedTime = hours+':'+mins+':'+secs;
+/* Updates icon to "play" button during pause state, show UI controls bar */
+function changeToPauseState(playPauseBtn, uiControls) {
+    playPauseBtn.className = 'play';
+    uiControls.className = '';
+}
 
-        return formattedTime; 
+/* Updates icon to "pause" button during play state, hide UI controls bar */
+function changeToPlayState(playPauseBtn, uiControls) {
+    playPauseBtn.className = 'pause';
+    uiControls.className = 'hideOnHover';
+}
+
+/* Adjust volume using volume control and update UI and mute state */
+function volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl) {
+    previousVolumeControlValue = video.volume;
+    previousVolumeState = volumeBtn.className;
+    video.volume = volumeCtrl.value;
+
+    if (video.volume > 0) {
+        video.muted = false;
+        if (video.volume > 0.5)
+            volumeBtn.className = 'high';
+        else 
+            volumeBtn.className = 'low';
     }
-    
-    /* Helper methods to convert between the slider values and transformation matrix values */
-    function convertPercentToScale(percent) {
-        var range = maxZoom - 1;
-        return percent*range + 1;
+    else {
+        video.muted = true;
+        volumeBtn.className = 'off';
     }
-    function convertScaleToPercent(scale) {
-        var range = maxZoom - 1;
-        return (scale-1)/range;
+}
+
+/* Toggle mute on or off, saves previous states of volume and its value */
+function toggleMuteState(evt, video, volumeCtrl, previousVolumeState, previousVolumeControlValue) {
+    var currentVolumeState = evt.target.className;
+    var currentVolumeControlValue = video.volume;
+
+    if (currentVolumeState == 'low' || currentVolumeState == 'high') {
+        previousVolumeState = currentVolumeState;
+        previousVolumeControlValue = currentVolumeControlValue;
+        evt.target.className = 'off';
+        video.muted = true;
+        volumeCtrl.value = 0;
     }
-    
-},false); //Line 1: document.addEventListener('DOMContentLoaded', ...
+    else {
+        // if volume is already zero, do nothing on pressing mute button again
+        if (video.volume == 0)
+            return;   
+        else 
+            evt.target.className = previousVolumeState;
+        previousVolumeState = currentVolumeState;
+        video.muted = false;
+        volumeCtrl.value = previousVolumeControlValue;
+        previousVolumeControlValue = currentVolumeControlValue;
+    }
+}
+
+/* Function to converts seconds to HH:MM:SS format */
+function convertSecondsToHMS(timeInSeconds) {
+    var formattedTime = '';
+    var hours = Math.floor(timeInSeconds / 3600);
+    var mins = Math.floor((timeInSeconds / 60) % 60);
+    var secs = Math.floor(timeInSeconds % 60);
+
+    if (secs < 10) 
+        secs = '0' + secs;
+    if (mins < 10)
+        mins = '0' + mins;
+
+    formattedTime = hours+':'+mins+':'+secs;
+
+    return formattedTime; 
+}
