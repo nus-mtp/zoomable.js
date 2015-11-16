@@ -54,7 +54,10 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     }
     function handleScroll(evt){
         var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
-        if (delta) zoom(video, ctx, delta, lastX, lastY, zoomCtrl, maxZoom, scaleFactor, cw, ch);
+        if (delta) {
+            updateZoomUI();
+            zoom(video, ctx, delta, lastX, lastY, zoomCtrl, maxZoom, scaleFactor, cw, ch);
+        }
         return evt.preventDefault() && false;
     }
    //ctx, clicks, x, y, button, maxZoom)
@@ -152,6 +155,15 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         gradient.push('rgba(255, 255, 255, 0.3) 100%');
         volumeCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
     }
+
+    /* Update zoom control UI */
+    function updateZoomUI() {
+        var gradient = ['to right'];
+        gradient.push('#ccc ' + (zoomCtrl.value * 100) + '%');
+        gradient.push('rgba(255, 255, 255, 0.3) ' + (zoomCtrl.value * 100) + '%');
+        gradient.push('rgba(255, 255, 255, 0.3) 100%');
+        zoomCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+    }
     
     /* General function to call zoom(clicks,x,y) from the UI Controls. */
     function zoomHelper(value) {
@@ -160,6 +172,7 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         var old_s = ctx.getTransform().a;     
         var x = cw/2;
         var y = ch/2; 
+        updateZoomUI();
         zoom(video, ctx, value, x, y, zoomCtrl, maxZoom, scaleFactor, cw, ch);
     }
     /* Adjust zoom by adjusting the slider */
