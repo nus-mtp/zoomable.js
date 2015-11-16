@@ -87,6 +87,7 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         volumeCtrl.addEventListener('change',function(){
             volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl);
         },false);
+        video.addEventListener('volumechange',updateVolumeUI,false);
         zoomInBtn.addEventListener('click',zoomIn,false);
         zoomOutBtn.addEventListener('click',zoomOut,false);
         zoomCtrl.addEventListener('change',zoomAdjust,false);
@@ -141,6 +142,15 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     function updateCurrentTimeText(time) {
         var convertedTime = convertSecondsToHMS(time);
         currentTimeTxt.innerHTML = convertedTime;
+    }
+
+    /* Update volume control UI */
+    function updateVolumeUI() {
+        var gradient = ['to right'];
+        gradient.push('#ccc ' + (volumeCtrl.value * 100) + '%');
+        gradient.push('rgba(255, 255, 255, 0.3) ' + (volumeCtrl.value * 100) + '%');
+        gradient.push('rgba(255, 255, 255, 0.3) 100%');
+        volumeCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
     }
     
     /* General function to call zoom(clicks,x,y) from the UI Controls. */
