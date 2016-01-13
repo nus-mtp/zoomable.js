@@ -55,13 +55,15 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     function handleScroll(evt){
         var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
         if (delta) {
-            updateZoomUI();
+            //updateZoomUI();
+            //updateSliderUI(zoomCtrl);
             zoom(video, ctx, delta, lastX, lastY, zoomCtrl, maxZoom, scaleFactor, cw, ch);
+            updateZoomUI();
         }
         return evt.preventDefault() && false;
     }
    //ctx, clicks, x, y, button, maxZoom)
-    
+
 
     /* functions for UI controls */
 
@@ -82,18 +84,25 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         },false);
         video.addEventListener('play',function(){
             changeToPlayState(playPauseBtn, uiControls);
-        },false);     
-        //volumeBtn.addEventListener('click',toggleMuteState,false);
+        },false);
         volumeBtn.addEventListener('click',function(){
             toggleMuteState(event, video, volumeCtrl, previousVolumeState, previousVolumeControlValue);
+            updateSliderUI(volumeCtrl);
         },false);
         volumeCtrl.addEventListener('change',function(){
             volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl);
+            updateSliderUI(volumeCtrl);
         },false);
-        video.addEventListener('volumechange',updateVolumeUI,false);
+        video.addEventListener('volumechange',updateSliderUI(volumeCtrl),false);
+        volumeCtrl.addEventListener('mousemove',function(){
+          updateSliderUI(volumeCtrl);
+        },false);
         zoomInBtn.addEventListener('click',zoomIn,false);
         zoomOutBtn.addEventListener('click',zoomOut,false);
         zoomCtrl.addEventListener('change',zoomAdjust,false);
+        zoomCtrl.addEventListener('mousemove',function(){
+          updateSliderUI(zoomCtrl);
+        },false);
 
         // Set default values
         video.volume = 0.5;
@@ -147,33 +156,30 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         currentTimeTxt.innerHTML = convertedTime;
     }
 
-    /* Update volume control UI */
-    function updateVolumeUI() {
-        var gradient = ['to right'];
-        gradient.push('#ccc ' + (volumeCtrl.value * 100) + '%');
-        gradient.push('rgba(255, 255, 255, 0.3) ' + (volumeCtrl.value * 100) + '%');
-        gradient.push('rgba(255, 255, 255, 0.3) 100%');
-        volumeCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
-    }
-
     /* Update zoom control UI */
     function updateZoomUI() {
-        var gradient = ['to right'];
-        gradient.push('#ccc ' + (zoomCtrl.value * 100) + '%');
-        gradient.push('rgba(255, 255, 255, 0.3) ' + (zoomCtrl.value * 100) + '%');
-        gradient.push('rgba(255, 255, 255, 0.3) 100%');
-        zoomCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+        zoomCtrl.value = convertScaleToPercent(ctx.getTransform().a, maxZoom);
+        updateSliderUI(zoomCtrl);
     }
-    
+
+    /* Update slider color when slider value changes - for zoomCtrl/volumeCtrl */
+    function updateSliderUI(element) {
+        var gradient = ['to right'];
+        gradient.push('#ccc ' + (element.value * 100) + '%');
+        gradient.push('rgba(255, 255, 255, 0.3) ' + (element.value * 100) + '%');
+        gradient.push('rgba(255, 255, 255, 0.3) 100%');
+        element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+    }
+
     /* General function to call zoom(clicks,x,y) from the UI Controls. */
     function zoomHelper(value) {
         var tx = ctx.getTransform().e;
         var ty = ctx.getTransform().f;
-        var old_s = ctx.getTransform().a;     
+        var old_s = ctx.getTransform().a;
         var x = cw/2;
-        var y = ch/2; 
-        updateZoomUI();
+        var y = ch/2;
         zoom(video, ctx, value, x, y, zoomCtrl, maxZoom, scaleFactor, cw, ch);
+        updateZoomUI();
     }
     /* Adjust zoom by adjusting the slider */
     function zoomAdjust() {
@@ -244,17 +250,19 @@ function toggleMuteState(evt, video, volumeCtrl, previousVolumeState, previousVo
         evt.target.className = 'off';
         video.muted = true;
         volumeCtrl.value = 0;
+        video.volume = 0;
     }
     else {
         // if volume is already zero, do nothing on pressing mute button again
         if (video.volume == 0)
-            return;   
-        else 
+            return;
+        else
             evt.target.className = previousVolumeState;
         previousVolumeState = currentVolumeState;
         video.muted = false;
         volumeCtrl.value = previousVolumeControlValue;
         previousVolumeControlValue = currentVolumeControlValue;
+        video.volume = volumeCtrl.value;
     }
 }
 
