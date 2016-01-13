@@ -10,4 +10,4 @@ before_script:
 script: cd dashboard && grunt test
 branches:
   only:
-    - development
+    - develop
