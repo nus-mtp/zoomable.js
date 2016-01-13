@@ -5,9 +5,7 @@ node_js:
   - "4.2"
 env:
   DASHBOARD_DIR=dashboard
-before_script:
-  - npm install
-script: cd dashboard && grunt test
+script: cd $DASHBOARD_DIR && npm install && grunt test
 branches:
   only:
     - develop
