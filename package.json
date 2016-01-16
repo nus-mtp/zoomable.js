@@ -2,7 +2,7 @@
   "name": "zoomable.js",
   "private": true,
   "version": "0.0.0",
-  "description": "a Sails application",
+  "description": "A JavaScript-based zoomable video player and server",
   "keywords": [],
   "dependencies": {
     "sails": "~0.11.0",
@@ -30,8 +30,8 @@
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/jiale/zoomable.js.git"
+    "url": "git://github.com/nus-mtp/zoomable.js.git"
   },
-  "author": "jiale",
+  "author": "Meteoria",
   "license": ""
 }
