@@ -4,6 +4,7 @@ module.exports = function (grunt) {
 		'concat',
 		'uglify',
 		'cssmin',
+		'jasmine-runner',
 		'sails-linker:prodJs',
 		'sails-linker:prodStyles',
 		'sails-linker:devTpl',
