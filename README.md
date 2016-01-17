@@ -3,7 +3,19 @@ An open source Javascript-based zoomable video player and server, which utilizes
 
 
 ## Installation
-`to be updated`
+
+### Prerequisites
+
+[Node.js](http://nodejs.org)
+
+### Setup
+
+Install the necessary packages.
+
+```bash
+$ npm install 
+$ bower install 
+```
 
 
 ## Usage
