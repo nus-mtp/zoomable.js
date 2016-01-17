@@ -67,8 +67,8 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
 
     /* functions for UI controls */
 
-    var previousVolumeState = '';
-    var previousVolumeControlValue = 0;
+    // an object variable to store volume to toggle between states
+    var previousVolume;
 
     /* create event listeners for canvas controls */
     function setCanvasControlsListeners() {
@@ -86,11 +86,11 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
             changeToPlayState(playPauseBtn, uiControls);
         },false);
         volumeBtn.addEventListener('click',function(){
-            toggleMuteState(event, video, volumeCtrl, previousVolumeState, previousVolumeControlValue);
+            toggleMuteState(event, video, volumeCtrl, previousVolume);
             updateSliderUI(volumeCtrl);
         },false);
         volumeCtrl.addEventListener('change',function(){
-            volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl);
+            volumeAdjust(previousVolume, video, volumeBtn, volumeCtrl);
             updateSliderUI(volumeCtrl);
         },false);
         video.addEventListener('volumechange',updateSliderUI(volumeCtrl),false);
@@ -104,9 +104,12 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
           updateSliderUI(zoomCtrl);
         },false);
 
-        // Set default values
+        // Set default values for video volume
         video.volume = 0.5;
-        previousVolumeControlValue = video.volume;
+        previousVolume = {
+            state: 'low',
+            value: video.volume
+        };
     }
 
     /* Retrieve total duration of video and update total time text */
@@ -221,49 +224,48 @@ function changeToPlayState(playPauseBtn, uiControls) {
 }
 
 /* Adjust volume using volume control and update UI and mute state */
-function volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl) {
-    previousVolumeControlValue = video.volume;
-    previousVolumeState = volumeBtn.className;
+function volumeAdjust(previousVolume, video, volumeBtn, volumeCtrl) {
     video.volume = volumeCtrl.value;
 
     if (video.volume > 0) {
         video.muted = false;
         if (video.volume > 0.5)
             volumeBtn.className = 'high';
-        else 
+        else
             volumeBtn.className = 'low';
     }
     else {
         video.muted = true;
         volumeBtn.className = 'off';
     }
+
+    // update previous state at the end so mute can be toggled correctly
+    previousVolume.value = video.volume;
+    previousVolume.state = volumeBtn.className;
 }
 
 /* Toggle mute on or off, saves previous states of volume and its value */
-function toggleMuteState(evt, video, volumeCtrl, previousVolumeState, previousVolumeControlValue) {
+function toggleMuteState(evt, video, volumeCtrl, previousVolume) {
+    // temporary variables to store current volume values
     var currentVolumeState = evt.target.className;
     var currentVolumeControlValue = video.volume;
 
     if (currentVolumeState == 'low' || currentVolumeState == 'high') {
-        previousVolumeState = currentVolumeState;
-        previousVolumeControlValue = currentVolumeControlValue;
         evt.target.className = 'off';
         video.muted = true;
         volumeCtrl.value = 0;
         video.volume = 0;
     }
     else {
-        // if volume is already zero, do nothing on pressing mute button again
-        if (video.volume == 0)
-            return;
-        else
-            evt.target.className = previousVolumeState;
-        previousVolumeState = currentVolumeState;
+        evt.target.className = previousVolume.state;
         video.muted = false;
-        volumeCtrl.value = previousVolumeControlValue;
-        previousVolumeControlValue = currentVolumeControlValue;
-        video.volume = volumeCtrl.value;
+        volumeCtrl.value = previousVolume.value;
+        video.volume = previousVolume.value;
     }
+
+    // update previous state
+    previousVolume.state = currentVolumeState;
+    previousVolume.value = currentVolumeControlValue;
 }
 
 /* Function to converts seconds to HH:MM:SS format */
