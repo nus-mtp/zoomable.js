@@ -33,5 +33,5 @@ $ bower install
 ## License
 `to be updated`
 
-[travis-image]: https://travis-ci.org/nus-mtp/zoomable.js.svg?branch=master
+[travis-image]: https://travis-ci.org/nus-mtp/zoomable.js.svg?branch=develop
 [travis-url]: https://travis-ci.org/nus-mtp/zoomable.js
