@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="shortcut icon" type="image/png" href="../libs/jasmine/images/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="../libs/jasmine/lib/jasmine-core/jasmine.css">
+  <script type="text/javascript" src="../libs/jasmine/lib/jasmine-core/jasmine.js"></script>
+  <script type="text/javascript" src="../libs/jasmine/lib/jasmine-core/jasmine-html.js"></script>
+  <script type="text/javascript" src="../libs/jasmine/lib/jasmine-core/boot.js"></script>
+  <script type="text/javascript" src="../libs/jasmine-ajax/lib/mock-ajax.js"></script>
+  <script type="text/javascript" src="../libs/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="../libs/jasmine-jquery/lib/jasmine-jquery.js"></script>
+
+  <script>
+    // Enable code-coverage stats if requested in the URL.
+    var fields = location.search.split('?').pop();
+    fields = fields ? fields.split('&') : [];
+    if (fields.indexOf('enableCodeCoverage') >= 0) {
+      // Add data-cover attribute to closure-loaded scripts so that they will
+      // be analyzed by blanket.js.
+      function loadScript(src) {
+        document.write('<script src="' + src + '" data-cover><'+'/script>');
+        return true;
+      }
+      CLOSURE_IMPORT_SCRIPT = loadScript;
+    }
+  </script>
+
+  <!-- Source files for testing: -->
+  <script src="../player/assets/javascripts/canvasControls.js"></script>
+
+  <!-- Spec files: -->
+  <script src="spec/player_spec.js"></script>
+
+</head>
+<body>
+</body>
+</html>
