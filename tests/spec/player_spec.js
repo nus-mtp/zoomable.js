@@ -55,10 +55,12 @@ describe("Video player controls", function() {
   });
 
   it("should reflect the correct video volume on adjusting volume control", function() {
-    var previousVolumeControlValue = 0;
-    var previousVolumeState = '';
+    var previousVolume = {
+        state: '',
+        value: 0
+    };
     volumeCtrl.value = 0.8;   // set volume to be 0.8 using volume control
-    volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl);
+    volumeAdjust(previousVolume, video, volumeBtn, volumeCtrl);
     expect(video.volume).toBe(0.8);
   });
 });
