@@ -1,11 +1,8 @@
 language: node_js
+
 node_js:
-  - "0.11"
   - "0.10"
-  - "4.2"
-env:
-  DASHBOARD_DIR=dashboard
-script: cd $DASHBOARD_DIR && npm install && grunt test
+
 branches:
   only:
     - develop
