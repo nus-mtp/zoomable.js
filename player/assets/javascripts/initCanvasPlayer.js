@@ -12,5 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {  // create an anonymo
     var zoomOutBtn = document.getElementById('zoomOutBtn');
     var zoomCtrl = document.getElementById('zoomCtrl');
     var zoomInBtn = document.getElementById('zoomInBtn');
-    createCanvasControls(v, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn);
+    var fullscreenBtn = document.getElementById('fullscreenBtn');
+    createCanvasControls(v, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn, fullscreenBtn);
 }, false);
