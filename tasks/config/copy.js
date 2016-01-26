@@ -30,14 +30,12 @@ module.exports = function(grunt) {
 				dest: '.tmp/public/styles'
 			}, {
 				expand: true,
-      	cwd: './libs',
-      	src: [
-          'angular/angular.js', 'angular-ui-router/release/angular-ui-router.js',
-					'angular-aria/angular-aria.js', 'angular-animate/angular-animate.js',
-					'angular-material/angular-material.js'
-      	],
-      	flatten: true,
-      	dest: '.tmp/public/js/dependencies'
+				cwd: './libs',
+				src: ['angular/angular.js', 'angular-ui-router/release/angular-ui-router.js',
+				'angular-aria/angular-aria.js', 'angular-animate/angular-animate.js',
+				'angular-material/angular-material.js'],
+				flatten: true,
+				dest: '.tmp/public/js/dependencies'
 			}]
 		},
 		build: {
