@@ -3,13 +3,6 @@
 
 module.exports = {
 	attributes: {
-		videoId: {
-			type: 'integer',
-			unique: true,
-			primaryKey: true,
-			required: true
-		},
-
 		title: {
 			type: 'string',
 			required: true
