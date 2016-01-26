@@ -4,13 +4,14 @@
 # Credits to: 
 # http://www.unix.com/shell-programming-and-scripting/136694-automated-ffmpeg-convert-bash-script.html
 # http://superuser.com/questions/538112/meaningful-thumbnails-for-a-video-using-ffmpeg
+# http://blog.streamroot.io/encode-multi-bitrate-videos-mpeg-dash-mse-based-media-players-22/
 
 # Written by Nelson Goh Wei Qiang (A0111014J)
 # This script will be executed on the server side to automate the cropping and changing the resolution of videos into
 # the respective 360p, 480p, 720p and 1080p resolutions
 
 # Directory on the server where uploaded videos go to
-srclocation="/Users/nellystix/Desktop/TESTFOLDER"
+srclocation="/Users/nellystix/Desktop/TEST"
 # Extensions recognizable by FFMPEG and that can be processed
 srcext=".mp4"
 # Final output format type
@@ -141,21 +142,6 @@ do
 	x_coord=$((x_coord + _1080p_crop_w))
 done
 
-# Create the MPD file for each player (12 in total), comprising of the 360p, 480p, 720p and 1080p versions
-# MPD extension type
-mpd_ext=".mpd"
-# Name identifier for the Media Presentation Description (MPD)
-mpd_name="_mpd_"
-# For each column
-for i in {1..4}
-do
-	# For each row
-	for j in {1..3}
-	do
-		MP4Box -dash 10000 -profile dashavc264:onDemand -out ${vidname}${mpd_name}${r}${j}${c}${i}${mpd_ext} ${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#audio ${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
-	done
-done
-
 # Generate the thumbnail for the video
 # Defined thumbnail size
 tn_size="640:360"
@@ -164,13 +150,30 @@ tn_format=".png"
 # Generating the actual thumbnail
 ffmpeg -i ${vidname_and_ext} -vf  "thumbnail,scale=${tn_size}" -frames:v 1 ${vidname}${tn_format}
 
-# Move all files that have the same video name into the <videoname> folder, EXCEPT the original video
+# Create the MPD file for each player (12 in total), comprising of the 360p, 480p, 720p and 1080p versions
+# MPD extension type
+mpd_ext=".mpd"
+# Name identifier for the Media Presentation Description (MPD)
+mpd_name="_mpd"
+# For each column
+for i in {1..4}
+do
+	# For each row
+	for j in {1..3}
+	do
+		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${vidname}${mpd_name}${r}${j}${c}${i}${mpd_ext} ${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#audio ${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
+	done
+done
+
+# Move all video files that have the same video name into the <videoname> folder, EXCEPT the original video
 mv *${_360p_ext}* ${vidname}
 mv *${_480p_ext}* ${vidname}
 mv *${_720p_ext}* ${vidname}
 mv *${_1080p_ext}* ${vidname}
 # Move the thumbnail of the video into the <videoname> folder
 mv ${vidname}${tn_format} ${vidname}
+# Move the MPD files to the <videoname> folder
+mv *${mpd_name}* ${vidname}
 
 # Delete the original uploaded video
 rm ${vidname_and_ext}
