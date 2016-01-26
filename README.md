@@ -7,6 +7,25 @@ An open source Javascript-based zoomable video player and server, which utilizes
 ### Prerequisites
 
 [Node.js](http://nodejs.org)
+```bash
+$ brew install node
+```
+
+[Grunt](http://gruntjs.com/)
+```bash
+$ npm install -g grunt-cli
+```
+
+[Bower](http://www.npmjs.com/package/bower)
+```bash
+$ npm install -g bower
+```
+
+[Sails.js](http://sailsjs.org/get-started)
+```bash
+$ npm install -g sails
+```
+
 
 ### Setup
 
@@ -17,6 +36,21 @@ $ npm install
 $ bower install 
 ```
 
+### Task Automation
+
+Generate frontend assets using Grunt.
+
+```bash
+$ grunt
+```
+
+### Start server
+
+Run on http://localhost:1337 .
+
+```bash
+$ sails lift
+```
 
 ## Usage
 `to be updated`
