@@ -7,6 +7,10 @@ An open source Javascript-based zoomable video player and server, which utilizes
 ### Prerequisites
 
 [Node.js](http://nodejs.org)
+
+Install Node.js from https://nodejs.org/en/download/
+
+If you have Homebrew installed:
 ```bash
 $ brew install node
 ```
