@@ -2,9 +2,17 @@
   <!-- Navbar shows only when user is logged in -->
 
   <!-- TODO: CREATE NAVBAR ELEMENT -->
-  <md-toolbar class="md-menu-toolbar">
-    <div layout="row" layout-padding>
-        I am the navbar
+  <md-toolbar id="navbar">
+    <div layout="row" layout-align="space-between center">
+      <span layout layout-align="none center">
+        <md-button class="md-icon-button" aria-label="Menu">
+          <md-icon class="menu-btn"></md-icon>
+        </md-button>
+        <md-button class="home-btn" md-no-ink="true" aria-label="Logo"></md-button>
+      </span>
+      <span>
+        <md-button class="md-raised upload-btn">Upload</md-button>
+      </span>
     </div>
   </md-toolbar>
 
