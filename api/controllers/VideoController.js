@@ -21,7 +21,9 @@ module.exports = {
    * `VideoController.read()`
    */
   read: function (req, res) {
-    Video.find(req.body).exec(function (err, video) {
+    Video.findOne({
+      id: req.param('id')
+    }).exec(function (err, video) {
       if (err) throw err;
       res.json(video);
     });
@@ -41,7 +43,9 @@ module.exports = {
    * `VideoController.destroy()`
    */
   destroy: function (req, res) {
-    Video.destroy(req.body.id).exec(function (err, video) {
+    Video.destroy({
+      id: req.param('id')
+    }).exec(function (err, video) {
       console.log(req.body.videoId);
       if (err) throw err;
       res.json(video);
@@ -53,8 +57,9 @@ module.exports = {
    * `VideoController.update()`
    */
   update: function (req, res) {
-    Video.update(req.body.id, req.body).exec(function (err, updated) {
-      console.log(req.body);
+    Video.update({
+      id: req.param('id')
+    }, req.body).exec(function (err, updated) {
       if (err) throw err;
       res.json(updated);
     });
@@ -67,6 +72,18 @@ module.exports = {
   tags: function (req, res) {
     return res.json({
       todo: 'tags() is not implemented yet!'
+    });
+  },
+
+  /**
+   * `VideoController.getVideo()`
+   */
+  getVideo: function (req, res) {
+    Video.findOne({
+      id: req.param('id')
+    }).exec(function (err, video) {
+      if (err) throw err;
+      res.json(video.videoDir);
     });
   }
 };

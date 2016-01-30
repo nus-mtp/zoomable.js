@@ -2,7 +2,14 @@
 // The set of videos registered in our app.
 
 module.exports = {
+	autoPK: false,
 	attributes: {
+		id :{
+			autoIncrement: true,
+			primaryKey: true,
+			columnName: 'video_id'
+		},
+
 		title: {
 			type: 'string',
 			required: true
@@ -32,13 +39,18 @@ module.exports = {
 	    	type: 'integer',
 	    	defaultsTo: 0
 	    },
+
+	    videoDir: {
+	    	type: 'string',
+	    	required: true
+	    },
 	    
 	    createdAt: {
 	    	type: 'datetime',
 	    	defaultsTo: function() {return new Date(); }
 	    },
 
-	    updateAt: {
+	    updatedAt: {
 	    	type: 'datetime',
 	    	defaultsTo: function() {return new Date(); }
 	    }
