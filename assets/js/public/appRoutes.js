@@ -1,15 +1,15 @@
 angular.module('appRoutes', []).config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
 
-  // Redirect unmatched URL to state1
+  // Redirect unmatched URL to login state
   $urlRouterProvider.otherwise("/");
 
   $stateProvider
-    .state('state1', {
+    .state('login', {
       url: "/",
       templateUrl: "views/login.html",
       controller: 'loginController'
     })
-    .state('state2', {
+    .state('dashboard', {
       url: "/dashboard",
       templateUrl: "views/dashboard.html",
       controller: 'dashboardController'
