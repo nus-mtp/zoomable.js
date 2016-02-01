@@ -24,6 +24,11 @@ module.exports = {
 	    	via: 'videoWithTags'
 	    },
 
+	    views: {
+	    	type: 'integer',
+	    	defaultsTo: 0
+	    },
+
 	    // 0 for self only, 1 for public
 	    privacy: {
 	    	type: 'integer', 
@@ -41,6 +46,11 @@ module.exports = {
 	    },
 
 	    videoDir: {
+	    	type: 'string',
+	    	required: true
+	    },
+
+	    thumbnailDir: {
 	    	type: 'string',
 	    	required: true
 	    },
