@@ -2,6 +2,15 @@
  * elements.less
  */
 
+md-card {
+    display: block;     // override default card styling to inherit height of children
+}
+
+md-card-header {        // override default card header styling
+    display: block !important;
+    padding: 0px !important;
+}
+
 md-content.layout-padding {
     top: @navbar-height;
 }
