@@ -1,0 +1,71 @@
+/**
+ * edit.less
+ */
+
+#edit {
+    .tab-header {
+        vertical-align: middle;
+    }
+
+    md-icon.tab-icon {
+        width: 20px;
+        opacity: 0.54;
+    }
+
+    md-tab-item.md-tab.md-active {
+        color: fade(@color-black, 54%);
+    }
+
+    md-tabs md-ink-bar {
+        color: @color-button-primary;
+        background: @color-button-primary;
+    }
+
+    button.md-button.cancel-btn,
+    button.md-button.save-btn {
+        margin: 0px 0px 0px 10px;
+    }
+
+    .video-info {
+        margin-top: 60px;
+        font-size: 13px;
+
+        button.md-button.md-icon-button {
+            height: 20px;
+            margin: 0px 0px 0px 5px;
+            padding: 0px;
+            width: 20px;
+
+            .copy-btn {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        .embed-link-area {
+            span {
+                padding-top: 9px;
+            }
+            input {
+                width: 225px;
+            }
+        }
+
+        .field {
+            color: fade(@color-black, 87%);
+            float: left;
+            font-weight: 300;
+            width: 110px;
+        }
+
+        .title {
+            color: fade(@color-black, 54%);
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .value {
+            color: @color-black;
+        }
+    }
+}
