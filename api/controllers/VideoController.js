@@ -9,6 +9,7 @@ module.exports = {
 	
   /**
    * `VideoController.create()`
+   * Usage: POST /api/video
    */
   create: function (req, res) {
     Video.create(req.body).exec(function (err, video) {
@@ -19,6 +20,7 @@ module.exports = {
 
   /**
    * `VideoController.read()`
+   * Usage: GET /api/video/:id
    */
   read: function (req, res) {
     Video.findOne({
@@ -31,6 +33,7 @@ module.exports = {
 
   /**
    * `VideoController.readAll()`
+   * Usage: GET /api/video
    */
   readAll: function (req, res) {
     Video.find().exec(function (err, videos) {
@@ -41,6 +44,7 @@ module.exports = {
 
   /**
    * `VideoController.destroy()`
+   * Usage: DELETE /api/video/:id
    */
   destroy: function (req, res) {
     Video.destroy({
@@ -55,6 +59,7 @@ module.exports = {
 
   /**
    * `VideoController.update()`
+   * Usage: PUT /api/video/:id
    */
   update: function (req, res) {
     Video.update({
@@ -68,6 +73,7 @@ module.exports = {
 
   /**
    * `VideoController.tags()`
+   * Usage: 
    */
   tags: function (req, res) {
     return res.json({
@@ -77,6 +83,8 @@ module.exports = {
 
   /**
    * `VideoController.getVideo()`
+   * Usage: POST /api/video/getVideo
+   * Content: {id: ':id'}
    */
   getVideo: function (req, res) {
     Video.findOne({
