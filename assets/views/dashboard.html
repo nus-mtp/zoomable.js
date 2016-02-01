@@ -44,8 +44,10 @@
         <!-- VIDEO CONTENT -->
         <md-card-content>
           <md-list-item class="md-3-line video-item" ng-repeat="video in videoList" ng-show="videoList.length">
-              <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>              
-              <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+              <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
+              <a ui-sref="edit({ videoId: video.id })">
+                <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+              </a>
 
               <div class="md-list-item-text" layout="column">
                 <h3>{{ video.title }}</h3>
