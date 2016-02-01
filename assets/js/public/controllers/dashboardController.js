@@ -7,7 +7,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope)
     $scope.MESSAGE_ERROR_NO_VIDEO = 'No Video Yet';
 
     // VARIABLES
-    $scope.iconVideoPath = 'images/ic_movie_black_24px.svg';
     $scope.iconPrivacyPath = 'images/ic_lock_black_24px.svg';
     $scope.iconTagPath = 'images/ic_tag_black_24px.svg';    
     $scope.iconViewPath = 'images/ic_remove_red_eye_black_24px.svg';
