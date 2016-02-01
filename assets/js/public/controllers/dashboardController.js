@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('dashboardController', function($scope){
+angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI){
 
     // MESSAGES
     $scope.MESSAGE_MY_VIDEOS = 'My Videos';
@@ -7,7 +7,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope)
     $scope.MESSAGE_ERROR_NO_VIDEO = 'No Video Yet';
 
     // VARIABLES
-    $scope.iconVideoPath = 'images/ic_movie_black_24px.svg';
+    $scope.defaultImagePath = 'images/bunny.png';
     $scope.iconPrivacyPath = 'images/ic_lock_black_24px.svg';
     $scope.iconTagPath = 'images/ic_tag_black_24px.svg';    
     $scope.iconViewPath = 'images/ic_remove_red_eye_black_24px.svg';
@@ -20,57 +20,21 @@ angular.module('zoomableApp').controller('dashboardController', function($scope)
         selectedVideoList : []
     }
 
-    var imagePath = 'images/bunny.png';
+    /* Get video object */
+    servicesAPI.get()
+    .success(function(data) {
+      $scope.videoList = data;
+    })
+    .error(function(data) {
+      console.log('Error: ' + data);
+    });    
 
-    // $scope.videoList = [];
-    $scope.videoList = [{
-      id : 1,
-      thumbnail : imagePath,
-      title: 'AY2015/16 CS3283 Lecture 4 Webcast',
-      createdAt: '2016-01-26T09:58:49.913Z',
-      updatedAt: '2016-01-26T09:58:49.913Z',
-      privacy: 1,
-      shares : 0,
-      tags: 'architecture, system',
-      views: 0
-    },{
-      id : 2,
-      thumbnail : imagePath,
-      title: 'AY2015/16 CS3283 Lecture 4 Webcast',
-      createdAt: '2016-01-26T09:58:49.913Z',
-      updatedAt: '2016-01-26T09:58:49.913Z',
-      privacy: 0,
-      shares : 0,
-      tags: '',
-      views: 2
-    },{
-      id : 3,
-      thumbnail : imagePath,
-      title: 'AY2015/16 CS3283 Lecture 4 Webcast',
-      createdAt: '2016-01-26T09:58:49.913Z',
-      updatedAt: '2016-01-26T09:58:49.913Z',
-      privacy: 1,
-      shares : 0,
-      tags: 'architecture, system',
-      views: 3    
-    },{
-      id : 4,
-      thumbnail : imagePath,
-      title: 'AY2015/16 CS3283 Lecture 4 Webcast',
-      createdAt: '2016-01-26T09:58:49.913Z',
-      updatedAt: '2016-01-26T09:58:49.913Z',
-      privacy: 0,
-      shares : 0,
-      tags: 'architecture, system',
-      views: 4    
-    }];
-
-    /* BUTTON HANDLER */
+    /* Button Handler */
     $scope.toggleButton = function(buttonId) {
         $scope.userButtonState = buttonId;
     };
 
-    /* CHECKBOX HANDLER */
+    /* Checkbox Handler */
     $scope.isSelectAll = function() {
         $scope.model.selectedVideoList = [];
 

@@ -13,6 +13,11 @@ angular.module('appRoutes', []).config(['$stateProvider', '$urlRouterProvider', 
       url: "/dashboard",
       templateUrl: "views/dashboard.html",
       controller: 'dashboardController'
+    })
+    .state('edit', {
+      url: "/edit/:videoId",
+      templateUrl: "views/edit.html",
+      controller: 'editController'
     });
 
 }]);

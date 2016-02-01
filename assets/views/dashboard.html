@@ -2,14 +2,10 @@
   <md-content layout-padding>
 
     <div flex-xs flex-gt-xs="100" layout="column">
-      <!-- TODO: REMOVE AFTER DEBUG -->
-<!--       <code style="display: block; padding: 8px;">{{selectedVideos | json}}</code>
-      button : {{ userButtonState}} , filter: {{ userFilterState}}, list: {{model.selectedVideoList}}, master : {{master}}, test : {{test}} -->
-
       <!-- DASHBOARD HEADER -->
-      <h2>
-        <md-icon md-svg-icon="{{iconVideoPath}}" id="videoIcon"></md-icon>
-        <span class="md-headline">{{ MESSAGE_MY_VIDEOS }}
+      <h2 class="page-header">
+        <md-icon class="header-icon"></md-icon>
+        <span class="md-headline header-title">{{ MESSAGE_MY_VIDEOS }}
           <span ng-show="videoList.length" class="video-count">{{ videoList.length }}</span>
           <span ng-hide="videoList.length" class="video-count">{{ MESSAGE_COUNT_ZERO }}</span>
         </span>
@@ -44,8 +40,15 @@
         <!-- VIDEO CONTENT -->
         <md-card-content>
           <md-list-item class="md-3-line video-item" ng-repeat="video in videoList" ng-show="videoList.length">
-              <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>              
-              <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+              <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
+              <a ui-sref="edit({ videoId: video.id })">
+                <span ng-show="video.thumbnailDir">
+                  <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+                </span>
+                <span ng-hide="video.thumbnailDir">
+                  <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
+                </span>              
+              </a>
 
               <div class="md-list-item-text" layout="column">
                 <h3>{{ video.title }}</h3>
@@ -56,7 +59,7 @@
                   </span>
                 </h4>
                 <p>
-                  <span ng-if="video.tags">
+                  <span ng-if="video.tags.length">
                     <md-icon md-svg-icon="{{ iconTagPath }}" class="small"></md-icon>
                     {{ video.tags }}
                   </span> 
@@ -65,7 +68,9 @@
 
               <div class="md-secondary">
                 <md-icon class="md-avatar-icon" md-svg-icon="{{ iconViewPath }}"></md-icon>
-                {{ video.views }} {{ MESSAGE_VIEWS}}
+                <span ng-show"video.views">{{ video.views }}</span>
+                <span ng-hide"video.views">{{ MESSAGE_COUNT_ZERO }}</span>
+                {{ MESSAGE_VIEWS }}
               </div>
           </md-list-item>
 
@@ -76,6 +81,6 @@
 
       </md-card>
     </div>
-
+    
   </md-content>
 </div>
