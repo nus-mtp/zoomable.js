@@ -4,17 +4,41 @@
 
 .dashboard {
     img {
-        height:@dashboard-video-height;
-        width:@dashboard-video-width;
+        height: @dashboard-video-height;
+        width: @dashboard-video-width;
         margin-right: 10px;
+    }
+
+    .md-avatar-icon {
+        padding: 0 !important;
     }
 
     md-checkbox.select-all {
         margin: 0 10px 0 25px;
     }
 
+    md-icon#videoIcon {
+        padding: 0 20px;
+    }
+
     .md-no-style.md-list-item-inner {
         padding: 15px 0;
     }
 
+    .small {
+        width:15px;
+    }
+
+    .video-count {
+        &::before {
+            content: '(';
+        }
+        &::after {
+            content: ')';
+        }
+    }
+    
+    .video-item {
+        padding-left: 15px;
+    }
 }
