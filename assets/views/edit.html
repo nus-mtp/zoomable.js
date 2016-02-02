@@ -33,7 +33,7 @@
                       <div flex>
                         <div layout="row" layout-align="end start">
                           <md-button class="md-raised md-primary save-btn">Save</md-button>
-                          <md-button class="md-raised cancel-btn">Cancel</md-button>
+                          <md-button class="md-raised cancel-btn" ui-sref="dashboard">Cancel</md-button>
                         </div>
                       </div>
                       <div flex layout-margin class="video-info">
@@ -57,7 +57,48 @@
                     </div>
                   </div>
                 </div>  <!-- end top row -->
-                <!-- continue last few rows here -->
+                <div> <!-- start editable fields -->
+                  <form name="videoForm" class="form-padding">
+                    <md-input-container class="md-block">
+                      <label>Title</label>
+                      <input required name="videoTitle" ng-model="video.title" />
+                      <div ng-messages="projectForm.videoTitle.$error">
+                        <div ng-message="required">This is required.</div>
+                      </div>
+                    </md-input-container>
+                    <md-input-container class="md-block">
+                      <label>Description</label>
+                      <input name="videoDescription" ng-model="video.videoDescription" />
+                    </md-input-container>
+                    <div layout="row">
+                      <div flex="80">
+                        <md-input-container class="md-block">
+                          <label>Tags</label>
+                          <input name="videoTags" ng-model="video.videoTags" />
+                        </md-input-container>
+                      </div>
+                      <div flex="20">
+                        <div class="custom-button-set">
+                          <div layout="column">
+                            <div flex>
+                              <label>Privacy</label>
+                            </div>
+                            <div flex class="privacy-buttons">
+                              <div layout="row" class="custom-switch">
+                                <div flex="50" class="custom-btn" ng-class="video.privacy ? 'selected' : ''" ng-click="updatePrivacy(1)">
+                                  <span class="text">Public</span>
+                                </div>
+                                <div flex="50" class="custom-btn" ng-class="video.privacy ? '' : 'selected'" ng-click="updatePrivacy(0)">
+                                  <span class="text">Private</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div> <!-- end editable fields -->
               </md-content>
             </md-tab-body>
           </md-tab>

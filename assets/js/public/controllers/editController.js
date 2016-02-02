@@ -24,4 +24,9 @@ angular.module('zoomableApp').controller('editController', function($scope, $sta
 		// TO BE IMPLEMENTED
 	}
 
+	/* Update video privacy field */
+	$scope.updatePrivacy = function(privacy) {
+		$scope.video.privacy = privacy;
+	}
+
 });

@@ -3,13 +3,71 @@
  */
 
 #edit {
-    .tab-header {
-        vertical-align: middle;
+    a.md-button.cancel-btn,
+    button.md-button.save-btn {
+        margin: 0px 0px 0px 10px;
+    }
+
+    .custom-button-set {
+        margin-left: 20px;
+
+        label {
+            color: fade(@color-black, 54%);
+            font-size: 12px;
+        }
+
+        .privacy-buttons {
+            margin-top: 5px;
+            padding-left: 3px;
+
+            .custom-switch {
+                border: 1px solid fade(@color-black, 10%);
+                border-radius: 3px;
+                justify-content: space-around;
+                height: 35px;
+
+                .custom-btn {
+                    color: fade(@color-black, 30%);
+                    display: inline-block;
+                    height: inherit;
+                    font-size: 14px;
+                    font-weight: 500;
+                    padding-top: 8px;
+                    text-align: center;
+                    text-transform: uppercase;
+
+                    span.text {
+                        pointer-events: none;
+                    }
+
+                    &:focus {
+                        outline: 0;
+                    }
+
+                    &:hover {
+                        cursor: pointer;
+                    }
+
+                    &.selected {
+                        background-color: fade(@color-button-primary, 25%);
+                        color: @color-button-primary;
+                    }
+                }
+            }
+        }
+    }
+
+    .form-padding {
+        padding: 15px 5px 0px 5px;
     }
 
     md-icon.tab-icon {
         width: 20px;
         opacity: 0.54;
+    }
+
+    md-input-container.md-block {
+        margin-bottom: 5px;
     }
 
     md-tab-item.md-tab.md-active {
@@ -21,9 +79,8 @@
         background: @color-button-primary;
     }
 
-    button.md-button.cancel-btn,
-    button.md-button.save-btn {
-        margin: 0px 0px 0px 10px;
+    .tab-header {
+        vertical-align: middle;
     }
 
     .video-info {
