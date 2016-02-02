@@ -42,12 +42,12 @@
           <md-list-item class="md-3-line video-item" ng-repeat="video in videoList" ng-show="videoList.length">
               <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
               <a ui-sref="edit({ videoId: video.id })">
+
+                <!-- TODO: Uncomment after server side can auto generate image directory
                 <span ng-show="video.thumbnailDir">
                   <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
-                </span>
-                <span ng-hide="video.thumbnailDir">
-                  <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
-                </span>              
+                </span> -->
+                <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
               </a>
 
               <div class="md-list-item-text" layout="column">
@@ -68,9 +68,7 @@
 
               <div class="md-secondary">
                 <md-icon class="md-avatar-icon" md-svg-icon="{{ iconViewPath }}"></md-icon>
-                <span ng-show"video.views">{{ video.views }}</span>
-                <span ng-hide"video.views">{{ MESSAGE_COUNT_ZERO }}</span>
-                {{ MESSAGE_VIEWS }}
+                {{ video.views }} {{ MESSAGE_VIEWS }}
               </div>
           </md-list-item>
 

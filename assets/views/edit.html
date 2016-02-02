@@ -21,12 +21,11 @@
               <md-content class="md-padding">
                 <div layout="row"> <!-- start top row -->
                   <div flex="60">
-                    <span ng-show="video.thumbnailDir">
-                      <img class="small-video-player" ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
-                    </span>
-                    <span ng-hide="video.thumbnailDir">
-                      <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
-                    </span>
+                <!-- TODO: Uncomment after server side can auto generate image directory
+                <span ng-show="video.thumbnailDir">
+                  <img class="small-video-player" ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+                </span> -->
+                <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
                   </div>
                   <div flex="40">
                     <div layout="column">
