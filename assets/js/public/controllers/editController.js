@@ -1,10 +1,5 @@
 angular.module('zoomableApp').controller('editController', function($scope, $stateParams, servicesAPI){
 
-	// MESSAGES
-	$scope.MESSAGE_TAB_1 = 'INFO & SETTINGS';
-	$scope.MESSAGE_TAB_2 = 'SUBTITLES & CC';
-	$scope.MESSAGE_TAB_3 = 'STATISTICS';
-
 	// VARIABLES
 	$scope.defaultImagePath = 'images/bunny.png';
 	$scope.video_id = $stateParams.videoId;
