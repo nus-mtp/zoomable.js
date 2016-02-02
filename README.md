@@ -3,8 +3,58 @@ An open source Javascript-based zoomable video player and server, which utilizes
 
 
 ## Installation
-`to be updated`
 
+### Prerequisites
+
+[Node.js](http://nodejs.org)
+
+Install Node.js from https://nodejs.org/en/download/
+
+If you have Homebrew installed:
+```bash
+$ brew install node
+```
+
+[Grunt](http://gruntjs.com/)
+```bash
+$ npm install -g grunt-cli
+```
+
+[Bower](http://www.npmjs.com/package/bower)
+```bash
+$ npm install -g bower
+```
+
+[Sails.js](http://sailsjs.org/get-started)
+```bash
+$ npm install -g sails
+```
+
+
+### Setup
+
+Install the necessary packages.
+
+```bash
+$ npm install 
+$ bower install 
+```
+
+### Task Automation
+
+Generate frontend assets using Grunt.
+
+```bash
+$ grunt
+```
+
+### Start server
+
+Run on http://localhost:1337 .
+
+```bash
+$ sails lift
+```
 
 ## Usage
 `to be updated`
@@ -21,5 +71,5 @@ An open source Javascript-based zoomable video player and server, which utilizes
 ## License
 `to be updated`
 
-[travis-image]: https://travis-ci.org/nus-mtp/zoomable.js.svg?branch=master
+[travis-image]: https://travis-ci.org/nus-mtp/zoomable.js.svg?branch=develop
 [travis-url]: https://travis-ci.org/nus-mtp/zoomable.js

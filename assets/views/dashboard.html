@@ -1,0 +1,84 @@
+<div ng-controller="dashboardController" ng-cloak class="dashboard" md-no-ink="">
+  <md-content layout-padding>
+
+    <div flex-xs flex-gt-xs="100" layout="column">
+      <!-- DASHBOARD HEADER -->
+      <h2 class="page-header">
+        <md-icon class="header-icon"></md-icon>
+        <span class="md-headline header-title">{{ MESSAGE_MY_VIDEOS }}
+          <span ng-show="videoList.length" class="video-count">{{ videoList.length }}</span>
+          <span ng-hide="videoList.length" class="video-count">{{ MESSAGE_COUNT_ZERO }}</span>
+        </span>
+      </h2>
+
+      <md-card>
+        <!-- ACTION BUTTONS -->
+        <md-card-header>
+          <md-card-actions layout="row" layout-align="start center">
+            <div flex>
+              <md-card-icon-actions>
+                <md-checkbox class="select-all" ng-model="master" ng-change="isSelectAll()" aria-label="Select All"></md-checkbox>
+                <md-button ng-click="toggleButton(buttonState)" ng-repeat="buttonState in buttonStates">
+                  {{ buttonState }}
+                </md-button>
+              </md-card-icon-actions>
+            </div>
+
+            <div flex="10">
+              <md-input-container>
+                <label>{{ MESSAGE_VIEWS.substring(0, MESSAGE_VIEWS.length - 1) }}</label>
+                <md-select ng-model="userFilterState">
+                  <md-option ng-repeat="filterState in filterStates" value="{{ filterState }}">{{ filterState }}</md-option>
+                </md-select>
+              </md-input-container>
+            </div>
+          </md-card-actions>
+        </md-card-header>
+
+        <md-divider></md-divider>
+
+        <!-- VIDEO CONTENT -->
+        <md-card-content>
+          <md-list-item class="md-3-line video-item" ng-repeat="video in videoList" ng-show="videoList.length">
+              <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
+              <a ui-sref="edit({ videoId: video.id })">
+
+                <!-- TODO: Uncomment after server side can auto generate image directory
+                <span ng-show="video.thumbnailDir">
+                  <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+                </span> -->
+                <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
+              </a>
+
+              <div class="md-list-item-text" layout="column">
+                <h3>{{ video.title }}</h3>
+                <h4>
+                  {{ video.createdAt | date:'medium'}} 
+                  <span ng-if="video.privacy">
+                    <md-icon md-svg-icon="{{ iconPrivacyPath }}" class="small"></md-icon>
+                  </span>
+                </h4>
+                <p>
+                  <span ng-if="video.tags.length">
+                    <md-icon md-svg-icon="{{ iconTagPath }}" class="small"></md-icon>
+                    {{ video.tags }}
+                  </span> 
+                </p>
+              </div>
+
+              <div class="md-secondary">
+                <md-icon class="md-avatar-icon" md-svg-icon="{{ iconViewPath }}"></md-icon>
+                {{ video.views }} {{ MESSAGE_VIEWS }}
+              </div>
+          </md-list-item>
+
+          <md-list-item ng-hide="videoList.length" layout="row" layout-align="center center">
+            {{ MESSAGE_ERROR_NO_VIDEO }}
+          </md-list-item>
+        </md-card-content>
+
+      </md-card>
+    </div>
+    
+  </md-content>
+</div>

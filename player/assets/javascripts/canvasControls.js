@@ -1,4 +1,4 @@
-var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn) {
+var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn, fullscreenBtn) {
     var ctx = canvas.getContext('2d');
     var scaleFactor = 1.1;
     var zoomFactor = 1;
@@ -55,18 +55,21 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     function handleScroll(evt){
         var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
         if (delta) {
-            updateZoomUI();
+            //updateZoomUI();
+            //updateSliderUI(zoomCtrl);
             zoom(video, ctx, delta, lastX, lastY, zoomCtrl, maxZoom, scaleFactor, cw, ch);
+            updateZoomUI();
         }
         return evt.preventDefault() && false;
     }
    //ctx, clicks, x, y, button, maxZoom)
-    
+
 
     /* functions for UI controls */
 
-    var previousVolumeState = '';
-    var previousVolumeControlValue = 0;
+    // an object variable to store volume to toggle between states
+    var previousVolume;
+    var isFullScreen = false;
 
     /* create event listeners for canvas controls */
     function setCanvasControlsListeners() {
@@ -82,22 +85,35 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         },false);
         video.addEventListener('play',function(){
             changeToPlayState(playPauseBtn, uiControls);
-        },false);     
-        //volumeBtn.addEventListener('click',toggleMuteState,false);
+        },false);
         volumeBtn.addEventListener('click',function(){
-            toggleMuteState(event, video, volumeCtrl, previousVolumeState, previousVolumeControlValue);
+            toggleMuteState(event, video, volumeCtrl, previousVolume);
+            updateSliderUI(volumeCtrl);
         },false);
         volumeCtrl.addEventListener('change',function(){
-            volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl);
+            volumeAdjust(previousVolume, video, volumeBtn, volumeCtrl);
+            updateSliderUI(volumeCtrl);
         },false);
-        video.addEventListener('volumechange',updateVolumeUI,false);
+        video.addEventListener('volumechange',updateSliderUI(volumeCtrl),false);
+        volumeCtrl.addEventListener('mousemove',function(){
+          updateSliderUI(volumeCtrl);
+        },false);
         zoomInBtn.addEventListener('click',zoomIn,false);
         zoomOutBtn.addEventListener('click',zoomOut,false);
         zoomCtrl.addEventListener('change',zoomAdjust,false);
+        zoomCtrl.addEventListener('mousemove',function(){
+          updateSliderUI(zoomCtrl);
+        },false);
+        fullscreenBtn.addEventListener('click',function(){
+            isFullScreen = toggleFullScreen(fullscreenBtn, isFullScreen);
+        },false);
 
-        // Set default values
+        // Set default values for video volume
         video.volume = 0.5;
-        previousVolumeControlValue = video.volume;
+        previousVolume = {
+            state: 'low',
+            value: video.volume
+        };
     }
 
     /* Retrieve total duration of video and update total time text */
@@ -147,33 +163,30 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         currentTimeTxt.innerHTML = convertedTime;
     }
 
-    /* Update volume control UI */
-    function updateVolumeUI() {
-        var gradient = ['to right'];
-        gradient.push('#ccc ' + (volumeCtrl.value * 100) + '%');
-        gradient.push('rgba(255, 255, 255, 0.3) ' + (volumeCtrl.value * 100) + '%');
-        gradient.push('rgba(255, 255, 255, 0.3) 100%');
-        volumeCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
-    }
-
     /* Update zoom control UI */
     function updateZoomUI() {
-        var gradient = ['to right'];
-        gradient.push('#ccc ' + (zoomCtrl.value * 100) + '%');
-        gradient.push('rgba(255, 255, 255, 0.3) ' + (zoomCtrl.value * 100) + '%');
-        gradient.push('rgba(255, 255, 255, 0.3) 100%');
-        zoomCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+        zoomCtrl.value = convertScaleToPercent(ctx.getTransform().a, maxZoom);
+        updateSliderUI(zoomCtrl);
     }
-    
+
+    /* Update slider color when slider value changes - for zoomCtrl/volumeCtrl */
+    function updateSliderUI(element) {
+        var gradient = ['to right'];
+        gradient.push('#ccc ' + (element.value * 100) + '%');
+        gradient.push('rgba(255, 255, 255, 0.3) ' + (element.value * 100) + '%');
+        gradient.push('rgba(255, 255, 255, 0.3) 100%');
+        element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+    }
+
     /* General function to call zoom(clicks,x,y) from the UI Controls. */
     function zoomHelper(value) {
         var tx = ctx.getTransform().e;
         var ty = ctx.getTransform().f;
-        var old_s = ctx.getTransform().a;     
+        var old_s = ctx.getTransform().a;
         var x = cw/2;
-        var y = ch/2; 
-        updateZoomUI();
+        var y = ch/2;
         zoom(video, ctx, value, x, y, zoomCtrl, maxZoom, scaleFactor, cw, ch);
+        updateZoomUI();
     }
     /* Adjust zoom by adjusting the slider */
     function zoomAdjust() {
@@ -191,7 +204,14 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     function zoomOut() {
         zoomHelper(-1);
     }
-    
+
+    /* function to track key press events */
+    $(document).keyup(function(e) {
+        if (e.keyCode == 27) { // escape key maps to keycode `27`
+            if (isFullScreen)   // if escape key pressed on full screen, call function to update player size
+                isFullScreen = toggleFullScreen(fullscreenBtn, isFullScreen);
+        }
+    });
 };
 
 /* Play or pause the video */
@@ -215,47 +235,102 @@ function changeToPlayState(playPauseBtn, uiControls) {
 }
 
 /* Adjust volume using volume control and update UI and mute state */
-function volumeAdjust(previousVolumeControlValue, previousVolumeState, video, volumeBtn, volumeCtrl) {
-    previousVolumeControlValue = video.volume;
-    previousVolumeState = volumeBtn.className;
+function volumeAdjust(previousVolume, video, volumeBtn, volumeCtrl) {
     video.volume = volumeCtrl.value;
 
     if (video.volume > 0) {
         video.muted = false;
         if (video.volume > 0.5)
             volumeBtn.className = 'high';
-        else 
+        else
             volumeBtn.className = 'low';
     }
     else {
         video.muted = true;
         volumeBtn.className = 'off';
     }
+
+    // update previous state at the end so mute can be toggled correctly
+    previousVolume.value = video.volume;
+    previousVolume.state = volumeBtn.className;
 }
 
 /* Toggle mute on or off, saves previous states of volume and its value */
-function toggleMuteState(evt, video, volumeCtrl, previousVolumeState, previousVolumeControlValue) {
+function toggleMuteState(evt, video, volumeCtrl, previousVolume) {
+    // temporary variables to store current volume values
     var currentVolumeState = evt.target.className;
     var currentVolumeControlValue = video.volume;
 
     if (currentVolumeState == 'low' || currentVolumeState == 'high') {
-        previousVolumeState = currentVolumeState;
-        previousVolumeControlValue = currentVolumeControlValue;
         evt.target.className = 'off';
         video.muted = true;
         volumeCtrl.value = 0;
+        video.volume = 0;
     }
     else {
-        // if volume is already zero, do nothing on pressing mute button again
-        if (video.volume == 0)
-            return;   
-        else 
-            evt.target.className = previousVolumeState;
-        previousVolumeState = currentVolumeState;
+        evt.target.className = previousVolume.state;
         video.muted = false;
-        volumeCtrl.value = previousVolumeControlValue;
-        previousVolumeControlValue = currentVolumeControlValue;
+        volumeCtrl.value = previousVolume.value;
+        video.volume = previousVolume.value;
     }
+
+    // update previous state
+    previousVolume.state = currentVolumeState;
+    previousVolume.value = currentVolumeControlValue;
+}
+
+function toggleFullScreen(fullscreenBtn, isFullScreen) {
+    if (!isFullScreen) {
+        // set canvas player area to full screen
+        var player = document.getElementById('canvasPlayerArea');
+        if (player.webkitRequestFullScreen)
+            player.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);   // for chrome and safari
+
+        else if (player.mozRequestFullScreen)
+            player.mozRequestFullScreen();  // firefox
+
+        else if (player.msRequestFullScreen)
+            player.msRequestFullScreen();  // IE
+
+        else
+            player.requestFullscreen();     // standard
+
+        // adjust size of canvas player area to fill entire width & height
+        $('#canvasPlayerArea').width($(window).width());
+        $('#canvasPlayerArea').height($(window).height());
+
+        // add "exit" class to full screen button to change icon
+        fullscreenBtn.className = 'exit';
+        // add "fs-adjust" class to zoom control area to reposition zoom controls
+        $('#zoomBarControls').addClass('fs-adjust');
+
+        // update variable
+        isFullScreen = true;
+    }
+    else {
+        // exit from fullscreen
+        if (document.webkitExitFullscreen)
+            document.webkitExitFullscreen();
+        else if (document.mozCancelFullscreen)
+            document.mozCancelFullscreen();
+        else if (document.msExitFullscreen)
+            document.msExitFullscreen();
+        else
+            document.exitFullscreen();
+
+        // adjust size of canvas player area back to original size
+        $('#canvasPlayerArea').width(640);
+        $('#canvasPlayerArea').height(360);
+
+        // remove "exit" class from full screen button to change icon
+        fullscreenBtn.className = '';
+        // remove "fs-adjust" class from zoom control area to reposition zoom controls
+        $('#zoomBarControls').removeClass('fs-adjust');
+
+        // update variable
+        isFullScreen = false;
+    }
+    return isFullScreen;
 }
 
 /* Function to converts seconds to HH:MM:SS format */
