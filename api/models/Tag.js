@@ -6,7 +6,7 @@ module.exports = {
 		name: {
 			type: 'string',
 			required: true,
-			primaryKey: true
+			unique: true
 		},	
 
 		videoWithTags: {
