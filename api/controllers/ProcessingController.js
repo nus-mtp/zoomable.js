@@ -12,7 +12,8 @@ module.exports = {
 	*	Content: {dir: ':dir'}
 	**/
 	run: function (req, res) {
-		VideoProcessing.automateProcessing({dir: req.param('dir')});
+		console.log(req.param('dir'));
+		VideoProcessingService.automateProcessing({dir: req.param('dir')});
 	}
 };
 
