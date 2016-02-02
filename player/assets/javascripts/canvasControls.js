@@ -1,4 +1,4 @@
-var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn) {
+var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn, fullscreenBtn) {
     var ctx = canvas.getContext('2d');
     var scaleFactor = 1.1;
     var zoomFactor = 1;
@@ -69,6 +69,7 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
 
     // an object variable to store volume to toggle between states
     var previousVolume;
+    var isFullScreen = false;
 
     /* create event listeners for canvas controls */
     function setCanvasControlsListeners() {
@@ -102,6 +103,9 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         zoomCtrl.addEventListener('change',zoomAdjust,false);
         zoomCtrl.addEventListener('mousemove',function(){
           updateSliderUI(zoomCtrl);
+        },false);
+        fullscreenBtn.addEventListener('click',function(){
+            isFullScreen = toggleFullScreen(fullscreenBtn, isFullScreen);
         },false);
 
         // Set default values for video volume
@@ -200,7 +204,14 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     function zoomOut() {
         zoomHelper(-1);
     }
-    
+
+    /* function to track key press events */
+    $(document).keyup(function(e) {
+        if (e.keyCode == 27) { // escape key maps to keycode `27`
+            if (isFullScreen)   // if escape key pressed on full screen, call function to update player size
+                isFullScreen = toggleFullScreen(fullscreenBtn, isFullScreen);
+        }
+    });
 };
 
 /* Play or pause the video */
@@ -266,6 +277,60 @@ function toggleMuteState(evt, video, volumeCtrl, previousVolume) {
     // update previous state
     previousVolume.state = currentVolumeState;
     previousVolume.value = currentVolumeControlValue;
+}
+
+function toggleFullScreen(fullscreenBtn, isFullScreen) {
+    if (!isFullScreen) {
+        // set canvas player area to full screen
+        var player = document.getElementById('canvasPlayerArea');
+        if (player.webkitRequestFullScreen)
+            player.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);   // for chrome and safari
+
+        else if (player.mozRequestFullScreen)
+            player.mozRequestFullScreen();  // firefox
+
+        else if (player.msRequestFullScreen)
+            player.msRequestFullScreen();  // IE
+
+        else
+            player.requestFullscreen();     // standard
+
+        // adjust size of canvas player area to fill entire width & height
+        $('#canvasPlayerArea').width($(window).width());
+        $('#canvasPlayerArea').height($(window).height());
+
+        // add "exit" class to full screen button to change icon
+        fullscreenBtn.className = 'exit';
+        // add "fs-adjust" class to zoom control area to reposition zoom controls
+        $('#zoomBarControls').addClass('fs-adjust');
+
+        // update variable
+        isFullScreen = true;
+    }
+    else {
+        // exit from fullscreen
+        if (document.webkitExitFullscreen)
+            document.webkitExitFullscreen();
+        else if (document.mozCancelFullscreen)
+            document.mozCancelFullscreen();
+        else if (document.msExitFullscreen)
+            document.msExitFullscreen();
+        else
+            document.exitFullscreen();
+
+        // adjust size of canvas player area back to original size
+        $('#canvasPlayerArea').width(640);
+        $('#canvasPlayerArea').height(360);
+
+        // remove "exit" class from full screen button to change icon
+        fullscreenBtn.className = '';
+        // remove "fs-adjust" class from zoom control area to reposition zoom controls
+        $('#zoomBarControls').removeClass('fs-adjust');
+
+        // update variable
+        isFullScreen = false;
+    }
+    return isFullScreen;
 }
 
 /* Function to converts seconds to HH:MM:SS format */
