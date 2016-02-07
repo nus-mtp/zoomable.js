@@ -4,139 +4,141 @@ var Player = function(vid,canv) {
     this.ctx = canvas.getContext('2d');
     this.scaleFactor = 1.1;
     this.zoomFactor = 1;
-    this.maxZoom = 7;
     this.dimensions = { cw:640, ch:360 };
-    this.lastX, lastY, dragStart, dragged, mouseactions, scroll, controls, volume, seek;
+    this.last, dragStart, dragged, mouseactions, scroll, controls, volume, seek, zoom, transforms, util;
 
     this.init = function() {
-        this.mouseactions = new MouseActions();
-        this.scroll = new Scroll();
-        this.controls = new Controls();
-        this.volume = new Volume();
-        this.seek = new Seek();
+        this.mouseactions = new MouseActions(this);
+        this.scroll = new Scroll(this);
+        this.controls = new Controls(this);
+        this.volume = new Volume(this);
+        this.seek = new Seek(this);
+        this.zoom = new Zoom(this);
+        this.transforms = new Transforms(this);
+        this.util = new Util(this);
         this.video.addEventListener('play', function(){
-            draw(this,ctx,cw,ch);
+            player.transforms.draw();
         },false);
         this.controls.init();
-        //trackTransforms(ctx);
-        //redraw(video,ctx,cw,ch);	
-        this.lastX = canvas.width/2;
-        this.lastY = canvas.height/2;
-        this.canvas.addEventListener('mousedown',mouseActions.mouseDown,false);
-        this.canvas.addEventListener('mousemove',mouseActions.mouseMove,false);
-        this.canvas.addEventListener('mouseup',mouseActions.mouseUp,false);
-        //canvas.addEventListener('DOMMouseScroll',handleScroll,false);
-        //canvas.addEventListener('mousewheel',handleScroll,false);
+        this.transforms.trackTransforms();
+        player.transforms.redraw();	
+        this.last = { x: canvas.width/2, y: canvas.height/2 };
         this.volume.setVolume(0.5); //set default vol of video
     };
     
     var MouseActions = function(player) {
+        player.canvas.addEventListener('mousedown',mouseDown,false);
+        player.canvas.addEventListener('mousemove',mouseMove,false);
+        player.canvas.addEventListener('mouseup',mouseUp,false); 
+        
         this.mouseDown = function(evt){
             document.body.style.mozUserSelect = 
                 document.body.style.webkitUserSelect = 
                 document.body.style.userSelect = 'none';
-            player.lastX = evt.offsetX || (evt.pageX - player.canvas.offsetLeft);
-            player.lastY = evt.offsetY || (evt.pageY - player.canvas.offsetTop);
-            player.dragStart = player.ctx.transformedPoint(lastX,lastY);
+            player.last.x = evt.offsetX || (evt.pageX - player.canvas.offsetLeft);
+            player.last.y = evt.offsetY || (evt.pageY - player.canvas.offsetTop);
+            player.dragStart = player.ctx.transformedPoint(player.last.x,player.last.y);
             player.dragged = false;
         };
         this.mouseMove = function(evt){
-            var lastX = evt.offsetX || (evt.pageX - this.canvas.offsetLeft);
-            var lastY = evt.offsetY || (evt.pageY - this.canvas.offsetTop);
-            this.dragged = true;
-            if (this.dragStart){
-                //this.translate(video, ctx, dragStart, lastX, lastY, cw, ch);
+            player.last.x = evt.offsetX || (evt.pageX - player.canvas.offsetLeft);
+            player.last.y = evt.offsetY || (evt.pageY - player.canvas.offsetTop);
+            player.dragged = true;
+            if (player.dragStart){
+                player.transforms.translate();
             }
         };
         this.mouseUp = function(evt){
-            this.dragStart = null;
+            player.dragStart = null;
         }
     };
     
     var Scroll = function(player) {
+        canvas.addEventListener('DOMMouseScroll',handleScroll,false);
+        canvas.addEventListener('mousewheel',handleScroll,false);
+        
         this.handle = function(evt){
             var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
                 if (delta) {
-                    //updateZoomUI();
                     //updateSliderUI(zoomCtrl);
-                    zoom(video, ctx, delta, lastX, lastY, 
-                         zoomCtrl, maxZoom, scaleFactor, cw, ch);
-                    updateZoomUI();
+                    player.zoom.zoom(delta, player.last.x, player.last.y);
+                    player.controls.updateZoomUI();
                 }
                 return evt.preventDefault() && false;
             }
     };
 
     var Controls = function(player) {
-        this.playPauseBtn = null; 
-        this.uiControls: null;
-        this.currentTimeTxt: null;
-        this.totalTimeTxt: null;
-        this.seekCtrl: null;
-        this.volumeBtn: null; 
-        this.volumeCtrl: null; 
-        this.zoomOutBtn: null; 
-        this.zoomCtrl: null;
-        this.zoomInBtn: null;
+      
+        /* binds to UI and adds listeners for controls*/
+        this.playPauseBtn = document.getElementById('playPauseBtn');
+        this.uiControls = document.getElementById('uiControls');
+        this.currentTimeTxt = document.getElementById('currentTimeTxt');
+        this.totalTimeTxt = document.getElementById('totalTimeTxt');
+        this.seekCtrl = document.getElementById('seekCtrl');
+        this.volumeBtn = document.getElementById('volumeBtn');
+        this.volumeCtrl = document.getElementById('volumeCtrl');
+        this.zoomOutBtn = document.getElementById('zoomOutBtn');
+        this.zoomCtrl = document.getElementById('zoomCtrl');
+        this.zoomInBtn = document.getElementById('zoomInBtn');
 
-        this.init = function() {
-            /* binds to UI and adds listeners for controls*/
-            this.playPauseBtn = document.getElementById('playPauseBtn');
-            this.uiControls = document.getElementById('uiControls');
-            this.currentTimeTxt = document.getElementById('currentTimeTxt');
-            this.totalTimeTxt = document.getElementById('totalTimeTxt');
-            this.seekCtrl = document.getElementById('seekCtrl');
-            this.volumeBtn = document.getElementById('volumeBtn');
-            this.volumeCtrl = document.getElementById('volumeCtrl');
-            this.zoomOutBtn = document.getElementById('zoomOutBtn');
-            this.zoomCtrl = document.getElementById('zoomCtrl');
-            this.zoomInBtn = document.getElementById('zoomInBtn');
-
-            playPauseBtn.addEventListener('click',function(){
-                playPauseVideo(video);
-            },false);
-            video.addEventListener('pause',function(){
-                changeToPauseState(playPauseBtn, uiControls);
-            },false);
-            video.addEventListener('play',function(){
-                changeToPlayState(playPauseBtn, uiControls);
-            },false);
-            volumeBtn.addEventListener('click',function(){
-                toggleMuteState(event, video, volumeCtrl, previousVolume);
-                updateSliderUI(volumeCtrl);
-            },false);
-            volumeCtrl.addEventListener('change',function(){
-                volumeAdjust(previousVolume, video, volumeBtn, volumeCtrl);
-                updateSliderUI(volumeCtrl);
-            },false);
-            video.addEventListener('volumechange',updateSliderUI(volumeCtrl),false);
-            volumeCtrl.addEventListener('mousemove',function(){
-              updateSliderUI(volumeCtrl);
-            },false);
-            zoomInBtn.addEventListener('click',zoomIn,false);
-            zoomOutBtn.addEventListener('click',zoomOut,false);
-            zoomCtrl.addEventListener('change',zoomAdjust,false);
-            zoomCtrl.addEventListener('mousemove',function(){
-              updateSliderUI(zoomCtrl);
-            },false);
-        };
+        this.playPauseBtn.addEventListener('click',this.playPauseVideo,false);
+        player.video.addEventListener('pause',this.changeToPauseState,false);
+        player.video.addEventListener('play',this.changeToPlayState,false);
+        this.volumeBtn.addEventListener('click',function(){
+            player.volume.toggleMuteState(event);
+            this.updateSliderUI(this.volumeCtrl);
+        },false);
+        this.volumeCtrl.addEventListener('change',function(){
+            player.volume.volumeAdjust();
+            this.updateSliderUI(this.volumeCtrl);
+        },false);
+        player.video.addEventListener('volumechange',function(){ 
+            this.updateSliderUI(this.volumeCtrl)
+        },false);
+        this.volumeCtrl.addEventListener('mousemove',function(){
+          this.updateSliderUI(this.volumeCtrl);
+        },false);
+        this.zoomInBtn.addEventListener('click',player.zoom.zoomIn,false);
+        this.zoomOutBtn.addEventListener('click',player.zoom.zoomOut,false);
+        this.zoomCtrl.addEventListener('change',player.zoom.zoomAdjust,false);
+        this.zoomCtrl.addEventListener('mousemove',function(){
+          this.updateSliderUI(this.zoomCtrl);
+        },false);
         
+        /* Play or pause the video */
+        this.playPauseVideo = function() {
+            if(player.video.paused) player.video.play();
+            else player.video.pause();
+        }
+
+        /* Updates icon to "play" button during pause state, show UI controls bar */
+        this.changeToPauseState = function() {
+            this.playPauseBtn.className = 'play';
+            this.uiControls.className = '';
+        }
+
+        /* Updates icon to "pause" button during play state, hide UI controls bar */
+        this.changeToPlayState = function() {
+            this.playPauseBtn.className = 'pause';
+            this.uiControls.className = 'hideOnHover';
+        }
         /* Retrieve total duration of video and update total time text */
         this.getVideoLength = function() {
-            var convertedTotalTime = convertSecondsToHMS(video.duration);
-            totalTimeTxt.innerHTML = convertedTotalTime;
+            var convertedTotalTime = player.util.convertSecondsToHMS(player.video.duration);
+            this.totalTimeTxt.innerHTML = convertedTotalTime;
         };
     
         /* Convert and update current time text */
         this.updateCurrentTimeText = function(time) {
-            var convertedTime = convertSecondsToHMS(time);
-            currentTimeTxt.innerHTML = convertedTime;
+            var convertedTime = player.util.convertSecondsToHMS(time);
+            this.currentTimeTxt.innerHTML = convertedTime;
         };
         
         /* Update zoom control UI */
         this.updateZoomUI = function() {
-            zoomCtrl.value = convertScaleToPercent(ctx.getTransform().a, maxZoom);
-            updateSliderUI(zoomCtrl);
+            this.zoomCtrl.value = player.util.convertScaleToPercent(ctx.getTransform().a);
+            this.updateSliderUI(this.zoomCtrl);
         };
 
         /* Update slider color when slider value changes - for zoomCtrl/volumeCtrl */
@@ -156,22 +158,45 @@ var Player = function(vid,canv) {
             value: video.volume
         };
         this.setVolume = function(val) { 
-            video.volume = val; 
+            player.video.volume = val; 
         };
-        this.volumeAdjust = function(previousVolume, video, volumeBtn, volumeCtrl) {
-            video.volume = volumeCtrl.value;
-            if (video.volume > 0) {
-                video.muted = false;
-                if (video.volume > 0.5) volumeBtn.className = 'high';
-                else volumeBtn.className = 'low';
+        this.volumeAdjust = function() {
+            player.video.volume = player.controls.volumeCtrl.value;
+            if (player.video.volume > 0) {
+                player.video.muted = false;
+                if (player.video.volume > 0.5) player.controls.volumeBtn.className = 'high';
+                else player.controls.volumeBtn.className = 'low';
             } else {
-                video.muted = true;
-                controls.volumeBtn.className = 'off';
+                player.video.muted = true;
+                player.controls.volumeBtn.className = 'off';
             }
             // update previous state at the end so mute can be toggled correctly
-            this.previousVolume.value = video.volume;
-            this.previousVolume.state = volumeBtn.className;
-        }; 
+            this.previousVolume.value = player.video.volume;
+            this.previousVolume.state = player.volumeBtn.className;
+        };
+        
+        this.toggleMuteState = function(evt) {
+            // temporary variables to store current volume values
+            var currentVolumeState = evt.target.className;
+            var currentVolumeControlValue = player.video.volume;
+
+            if (currentVolumeState == 'low' || currentVolumeState == 'high') {
+                evt.target.className = 'off';
+                player.video.muted = true;
+                player.controls.volumeCtrl.value = 0;
+                player.video.volume = 0;
+            }
+            else {
+                evt.target.className = this.previousVolume.state;
+                player.video.muted = false;
+                player.controls.volumeCtrl.value = this.previousVolume.value;
+                player.video.volume = this.previousVolume.value;
+            }
+
+            // update previous state
+            this.previousVolume.state = currentVolumeState;
+            this.previousVolume.value = currentVolumeControlValue;
+        }
     };
     
     var Seek = function(player){
@@ -197,21 +222,222 @@ var Player = function(vid,canv) {
             }
             controls.seekCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
 
-            this.updateCurrentTimeText(video.currentTime);
+            player.controls.updateCurrentTimeText(video.currentTime);
         };
          /* Change current video time and text according to seek control value */
         this.setVideoTime = function(){
-            var seekTo = video.duration * controls.seekCtrl.value;
-            video.currentTime = seekTo;
-
-            this.updateCurrentTimeText(video.currentTime);
+            var seekTo = player.video.duration * player.controls.seekCtrl.value;
+            player.video.currentTime = seekTo;
+            player.controls.updateCurrentTimeText(video.currentTime);
         };
-        
-        this.updateCurrentTimeText = function(time) {
-            var convertedTime = convertSecondsToHMS(time);
-            currentTimeTxt.innerHTML = convertedTime;
-        };
+    
     };
+    
+    var Zoom = function(player) {
+        this.maxZoom = 7;
+        
+        /* Zooms into the position x, y with the amount clicks */
+        function zoom(clicks, x, y){
+            //tt(ctx);
+            var pt = player.ctx.transformedPoint(x, y);
+            var factor = Math.pow(player.scaleFactor,clicks);
+            var tx = player.ctx.getTransform().e;
+            var ty = player.ctx.getTransform().f;
+            var s = player.ctx.getTransform().a;
+            if (factor*s >= 1 && factor*s <= player.maxZoom) {
+                player.ctx.translate(pt.x,pt.y);
+                player.ctx.scale(factor,factor);
+                player.ctx.translate(-pt.x,-pt.y);
+                player.controls.zoomCtrl.value = player.util.convertScaleToPercent(player.ctx.getTransform().a, player.maxZoom);
+                player.transforms.refit();
+            }
+            player.transforms.redraw(); 
+        } 
+        
+        /* General function to call zoom(clicks,x,y) from the UI Controls. */
+        function zoomHelper(value) {
+            var tx = player.ctx.getTransform().e;
+            var ty = player.ctx.getTransform().f;
+            var old_s = ctx.getTransform().a;
+            var x = player.dimensions.cw/2;
+            var y = player.dimensions.ch/2;
+            zoom(value, x, y);
+            player.controls.updateZoomUI();
+        }
+        /* Adjust zoom by adjusting the slider */
+        this.adjust = function() {
+            var zoomPercent = zoomCtrl.value;
+            var new_s = player.util.convertPercentToScale(zoomPercent);
+            var old_s = ctx.getTransform().a;
+            var delta_clicks = Math.log(new_s/old_s) /Math.log(scaleFactor);
+            zoomHelper(delta_clicks); 
+        }
+
+        /* Adjust zoom by clicking zoom in and out buttons */
+        this.in = function() {
+            zoomHelper(1);
+        }
+        this.out = function() {
+            zoomHelper(-1);
+        }        
+    }
+    
+    var Transforms = function(player) {
+        this.xform = svg.createSVGMatrix();
+        this.savedTransforms = [];
+        this.trackTransforms = function(){
+            var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
+            this.xform = svg.createSVGMatrix();
+            player.ctx.getTransform = function(){ return this.xform; };
+
+            var save = player.ctx.save;
+            player.ctx.save = function(){
+                this.savedTransforms.push(xform.translate(0,0));
+                return save.call(player.ctx);
+            };
+            var restore = player.ctx.restore;
+            player.ctx.restore = function(){
+                this.xform = savedTransforms.pop();
+                return restore.call(player.ctx);
+            };
+
+            var scale = player.ctx.scale;
+            player.ctx.scale = function(sx,sy){
+                this.xform = this.xform.scaleNonUniform(sx,sy);
+                return scale.call(player.ctx,sx,sy);
+            };
+            var rotate = player.ctx.rotate;
+            player.ctx.rotate = function(radians){
+                this.xform = xform.rotate(radians*180/Math.PI);
+                return rotate.call(player.ctx,radians);
+            };
+            var translate = player.ctx.translate;
+            player.ctx.translate = function(dx,dy){
+                this.xform = xform.translate(dx,dy);
+                return translate.call(player.ctx,dx,dy);
+            };
+            var transform = player.ctx.transform;
+            player.ctx.transform = function(a,b,c,d,e,f){
+                var m2 = svg.createSVGMatrix();
+                m2.a=a; m2.b=b; m2.c=c; m2.d=d; m2.e=e; m2.f=f;
+                this.xform = this.xform.multiply(m2);
+                return transform.call(player.ctx,a,b,c,d,e,f);
+            };
+            var setTransform = player.ctx.setTransform;
+            player.ctx.setTransform = function(a,b,c,d,e,f){
+                this.xform.a = a;
+                this.xform.b = b;
+                this.xform.c = c;
+                this.xform.d = d;
+                this.xform.e = e;
+                this.xform.f = f;
+                return setTransform.call(player.ctx,a,b,c,d,e,f);
+            };
+            var pt  = svg.createSVGPoint();
+            player.ctx.transformedPoint = function(x,y){
+                pt.x=x; pt.y=y;
+                return pt.matrixTransform(this.xform.inverse());
+            }
+        }
+        
+        /* Checks if the viewport borders intersect with the canvas borders
+        ** If it intersects, then scale/translate back the canvas accordingly to fit the viewport.*/
+        this.refit = function() {
+            var tx = player.ctx.getTransform().e;
+            var ty = player.ctx.getTransform().f;
+            var s = player.ctx.getTransform().a;
+            console.log("zoom: " + s);
+            if (s < 1 || s > player.maxZoom) {
+                player.ctx.scale(1/s, 1/s);    
+            }
+            if (tx > 0 ) {
+                player.ctx.translate(-tx,0);
+            }
+            if (ty > 0) {
+                player.ctx.translate(0,-ty);
+            }
+            if (tx+player.dimensions.cw*s < player.dimensions.cw) {
+                var dx = player.dimensions.cw - tx-player.dimensions.cw*s;
+                var sum =tx+player.dimensions.cw*s;
+                player.ctx.translate(dx, 0);
+            } 
+            if (ty+player.dimensions.ch*s < player.dimensions.ch) {
+                var dy = player.dimensions.ch - ty-player.dimensions.ch*s;
+                player.ctx.translate(0, dy);
+            }
+        }
+        this.draw = function() {
+            //if(v.paused || v.ended) return false;
+            player.ctx.drawImage(player.video,0,0,player.dimensions.cw,player.dimensions.ch);
+            setTimeout(this.draw,20);
+        }
+
+        this.redraw = function(){
+            // Clear the entire canvas
+            var p1 = player.ctx.transformedPoint(0,0);
+            var p2 = player.ctx.transformedPoint(player.canvas.width,player.canvas.height);
+            //ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+            player.ctx.fillStyle = 'rgb(0,0,0)';
+            player.ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+            // Alternatively:
+            // ctx.save();
+            // ctx.setTransform(1,0,0,1,0,0);
+            // ctx.clearRect(0,0,canvas.width,canvas.height);
+            // ctx.restore();
+            this.draw();
+        }
+
+        this.translate = function() {
+            var pt = ctx.transformedPoint(player.last.x,player.last.y);
+            var dx = pt.x-player.dragStart.x;
+            var dy = pt.y-player.dragStart.y;
+            var tx = player.ctx.getTransform().e;
+            var ty = player.ctx.getTransform().f;
+            var flag = 0;
+            var s = player.ctx.getTransform().a;
+            if (tx+dx <= 0 && tx+player.dimensions.cw*s+dx > player.dimensions.cw) { 
+                    player.ctx.translate(dx,0);
+                    flag = 1;
+            }
+            if (ty+dy <= 0 && ty+player.dimensions.ch*s+dy > player.dimensions.ch) {
+                    player.ctx.translate(0,dy);
+                    flag = 1;
+            }
+           /* if (flag = 0) {
+                ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
+            }*/
+            this.redraw();   
+        }
+    }
+    
+    var Util = function(player) {
+        /* Helper methods to convert between the slider values and transformation matrix values */
+        this.convertPercentToScale = function(percent) {
+            var range = player.maxZoom - 1;
+            return percent*range + 1;
+        }
+        this.convertScaleToPercent = function(scale) {
+            var range = player.maxZoom - 1;
+            return (scale-1)/range;
+        }
+        /* Function to converts seconds to HH:MM:SS format */
+        this.convertSecondsToHMS = function(timeInSeconds) {
+            var formattedTime = '';
+            var hours = Math.floor(timeInSeconds / 3600);
+            var mins = Math.floor((timeInSeconds / 60) % 60);
+            var secs = Math.floor(timeInSeconds % 60);
+
+            if (secs < 10) 
+                secs = '0' + secs;
+            if (mins < 10)
+                mins = '0' + mins;
+
+            formattedTime = hours+':'+mins+':'+secs;
+
+            return formattedTime; 
+        }
+    }
+    
     
 }
 document.addEventListener('DOMContentLoaded', function() { var zoomable = new Player(document.getElementById('video'), document.getElementById('canvas')); }, false);
