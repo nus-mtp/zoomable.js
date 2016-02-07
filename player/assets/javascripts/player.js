@@ -5,7 +5,17 @@ var Player = function(vid,canv) {
     this.scaleFactor = 1.1;
     this.zoomFactor = 1;
     this.dimensions = { cw:640, ch:360 };
-    this.last, dragStart, dragged, mouseactions, scroll, controls, volume, seek, zoom, transforms, util;
+    this.last;
+    this.dragStart;
+    this.dragged;
+    this.mouseactions;
+    this.scroll;
+    this.controls;
+    this.volume;
+    this.seek;
+    this.zoom;
+    this.transforms;
+    this.util;
 
     this.init = function() {
         this.mouseactions = new MouseActions(this);
