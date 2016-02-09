@@ -20,6 +20,18 @@ module.exports = {
 			columnName: 'encrypted_password'
 		},
 
+		lastLoggedIn: {
+			type: 'datetime',
+			defaultsTo: function() {return new Date(); }
+		},
+
+		email: {
+			type: 'string',
+			email: true,
+			required: true,
+			unique: true
+		},
+
 		// 0 for admin, 1 for normal user
 		permission: {
 			type: 'integer',
