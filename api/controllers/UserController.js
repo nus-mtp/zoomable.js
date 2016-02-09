@@ -51,8 +51,43 @@ module.exports = {
    * `UserController.signup()`
    */
   signup: function (req, res) {
-    return res.json({
-      todo: 'signup() is not implemented yet!'
+    Passwords.encryptPassword({
+      // Encrypt with BCrypt algo
+      password: req.param('password'),
+      difficulty: 10,
+    }).exec({
+      error: function(err) {
+        return res.negotiate(err);
+      },
+
+      success: function(encryptedPassword) {
+        User.create({
+          username: req.param('username'),
+          encryptedPassword: encryptedPassword
+        }).exec(function(err, newUser) {
+          if (err) {
+            console.log("err: ", err);
+            console.log("err.invalidAttributes: ", err.invalidAttributes);
+
+            // If this is a uniqueness error about the email attribute,
+            // send back an easily parseable status code.
+            if (err.invalidAttributes && err.invalidAttributes.email && err.invalidAttributes.email[0]
+              && err.invalidAttributes.email[0].rule === 'unique') {
+                return res.emailAddressInUse();
+            }
+
+            return res.negotitate(err);
+          }
+
+          // Log user in
+          req.session.me = newUser.id;
+
+          // Send back the id of the new user
+          return res.json({
+            id: newUser.id
+          });
+        });
+      }
     });
   },
 
