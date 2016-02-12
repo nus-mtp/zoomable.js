@@ -290,7 +290,7 @@ var Player = function(vid,canv) {
     
     var Transforms = function(player) {
         player.video.addEventListener('play', function(){
-            this.draw();
+            player.transforms.draw();
         },false);
         var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
         this.xform = svg.createSVGMatrix();
