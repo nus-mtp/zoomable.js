@@ -392,7 +392,7 @@ var Player = function(vid,canv) {
         this.draw = function() {
             //if(v.paused || v.ended) return false;
             player.ctx.drawImage(player.video,0,0,player.dimensions.cw,player.dimensions.ch);
-            setTimeout(this.draw,20);
+            setTimeout(player.transforms.draw,20);
         }
 
         this.redraw = function(){
