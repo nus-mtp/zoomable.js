@@ -5,7 +5,7 @@
       <!-- EDIT PAGE HEADER -->
       <h2 class="page-header">
         <md-icon class="header-icon"></md-icon>
-        <span class="md-headline header-title">{{ video.title }}</span>
+        <span class="md-headline header-title">{{ originalVideoTitle }}</span>
       </h2>
 
       <!-- EDIT PAGE CONTENT -->
@@ -23,9 +23,9 @@
                   <div flex="60">
                 <!-- TODO: Uncomment after server side can auto generate image directory
                 <span ng-show="video.thumbnailDir">
-                  <img class="small-video-player" ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+                  <img class="small-video-player" ng-src="{{ video.thumbnail }}" alt="{{ originalVideoTitle }}" />
                 </span> -->
-                <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
+                <img ng-src="{{ defaultImagePath }}" alt="{{ originalVideoTitle }}" />
                   </div>
                   <div flex="40">
                     <div layout="column">
@@ -39,15 +39,15 @@
                           <p class="title">Video Information</p>
                           <p>
                             <span class="field">Time Uploaded:</span>
-                            <span class="value">{{video.createdAt | date:'MMMM d, y h:mma'}}</span>
+                            <span class="value">{{ video.createdAt | date:'MMMM d, y h:mma' }}</span>
                           </p>
                           <p>
                             <span class="field">Video Duration:</span>
-                            <span class="value">???</span>
+                            <span class="value">{{ video.duration }}</span>
                           </p>
                           <p class="embed-link-area">
                             <span class="field">Embed Link:</span>
-                            <input class="embed-value" value="{{video.videoDir}}" readonly="readonly"/>
+                            <input class="embed-value" value="{{ video.videoDir }}" readonly="readonly"/>
                             <md-button class="md-icon-button" aria-label="Copy" md-ink-ripple="false" md-no-ink ng-click="copyEmbedLink(video.videoDir)">
                               <md-icon class="copy-btn" md-svg-icon="images/ic_insert_link_black_24px.svg"></md-icon>
                             </md-button>
@@ -67,13 +67,13 @@
                     </md-input-container>
                     <md-input-container class="md-block">
                       <label>Description</label>
-                      <input name="videoDescription" ng-model="video.videoDescription" />
+                      <input name="videoDescription" ng-model="video.description" />
                     </md-input-container>
                     <div layout="row">
                       <div flex="80">
                         <md-input-container class="md-block">
                           <label>Tags</label>
-                          <input name="videoTags" ng-model="video.videoTags" />
+                          <input name="videoTags" ng-model="video.tags" />
                         </md-input-container>
                       </div>
                       <div flex="20">
