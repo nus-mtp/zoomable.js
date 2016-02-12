@@ -27,7 +27,7 @@ var Player = function(vid,canv) {
         this.transforms = new Transforms(this);
         this.util = new Util(this);
         this.video.addEventListener('play', function(){
-            player.transforms.draw();
+            this.transforms.draw();
         },false);
         this.transforms.trackTransforms();
         this.transforms.redraw();	
