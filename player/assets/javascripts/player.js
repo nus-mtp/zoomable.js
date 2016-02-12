@@ -20,26 +20,25 @@ var Player = function(vid,canv) {
     this.init = function() {
         this.mouseactions = new MouseActions(this);
         this.scroll = new Scroll(this);
-        this.controls = new Controls(this);
         this.volume = new Volume(this);
         this.seek = new Seek(this);
         this.zoom = new Zoom(this);
+        this.controls = new Controls(this);
         this.transforms = new Transforms(this);
         this.util = new Util(this);
         this.video.addEventListener('play', function(){
             player.transforms.draw();
         },false);
-        this.controls.init();
         this.transforms.trackTransforms();
-        player.transforms.redraw();	
+        this.transforms.redraw();	
         this.last = { x: canvas.width/2, y: canvas.height/2 };
         this.volume.setVolume(0.5); //set default vol of video
     };
     
     var MouseActions = function(player) {
-        player.canvas.addEventListener('mousedown',mouseDown,false);
-        player.canvas.addEventListener('mousemove',mouseMove,false);
-        player.canvas.addEventListener('mouseup',mouseUp,false); 
+        player.canvas.addEventListener('mousedown',this.mouseDown,false);
+        player.canvas.addEventListener('mousemove',this.mouseMove,false);
+        player.canvas.addEventListener('mouseup',this.mouseUp,false); 
         
         this.mouseDown = function(evt){
             document.body.style.mozUserSelect = 
@@ -64,8 +63,8 @@ var Player = function(vid,canv) {
     };
     
     var Scroll = function(player) {
-        canvas.addEventListener('DOMMouseScroll',handleScroll,false);
-        canvas.addEventListener('mousewheel',handleScroll,false);
+        canvas.addEventListener('DOMMouseScroll',this.handleScroll,false);
+        canvas.addEventListener('mousewheel',this.handleScroll,false);
         
         this.handle = function(evt){
             var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
@@ -97,23 +96,23 @@ var Player = function(vid,canv) {
         player.video.addEventListener('play',this.changeToPlayState,false);
         this.volumeBtn.addEventListener('click',function(){
             player.volume.toggleMuteState(event);
-            this.updateSliderUI(this.volumeCtrl);
+            player.controls.updateSliderUI(this.volumeCtrl);
         },false);
         this.volumeCtrl.addEventListener('change',function(){
             player.volume.volumeAdjust();
-            this.updateSliderUI(this.volumeCtrl);
+            player.controls.updateSliderUI(this.volumeCtrl);
         },false);
         player.video.addEventListener('volumechange',function(){ 
-            this.updateSliderUI(this.volumeCtrl)
+            player.controls.updateSliderUI(player.controls.volumeCtrl)
         },false);
         this.volumeCtrl.addEventListener('mousemove',function(){
-          this.updateSliderUI(this.volumeCtrl);
+          player.controls.updateSliderUI(this.volumeCtrl);
         },false);
         this.zoomInBtn.addEventListener('click',player.zoom.zoomIn,false);
         this.zoomOutBtn.addEventListener('click',player.zoom.zoomOut,false);
         this.zoomCtrl.addEventListener('change',player.zoom.zoomAdjust,false);
         this.zoomCtrl.addEventListener('mousemove',function(){
-          this.updateSliderUI(this.zoomCtrl);
+          player.controls.updateSliderUI(this.zoomCtrl);
         },false);
         
         /* Play or pause the video */
@@ -293,10 +292,10 @@ var Player = function(vid,canv) {
     }
     
     var Transforms = function(player) {
+        var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
         this.xform = svg.createSVGMatrix();
         this.savedTransforms = [];
         this.trackTransforms = function(){
-            var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
             this.xform = svg.createSVGMatrix();
             player.ctx.getTransform = function(){ return this.xform; };
 
@@ -346,7 +345,7 @@ var Player = function(vid,canv) {
             var pt  = svg.createSVGPoint();
             player.ctx.transformedPoint = function(x,y){
                 pt.x=x; pt.y=y;
-                return pt.matrixTransform(this.xform.inverse());
+                return pt.matrixTransform(player.transforms.xform.inverse());
             }
         }
         
@@ -450,5 +449,6 @@ var Player = function(vid,canv) {
     
     
 }
-document.addEventListener('DOMContentLoaded', function() { var zoomable = new Player(document.getElementById('video'), document.getElementById('canvas')); }, false);
+document.addEventListener('DOMContentLoaded', function() { var zoomable = new Player(document.getElementById('video'), document.getElementById('canvas'));
+                                                         zoomable.init() }, false);
     
