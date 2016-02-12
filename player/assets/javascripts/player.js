@@ -26,9 +26,6 @@ var Player = function(vid,canv) {
         this.controls = new Controls(this);
         this.transforms = new Transforms(this);
         this.util = new Util(this);
-        this.video.addEventListener('play', function(){
-            this.transforms.draw();
-        },false);
         this.transforms.trackTransforms();
         this.transforms.redraw();	
         this.last = { x: canvas.width/2, y: canvas.height/2 };
@@ -91,9 +88,16 @@ var Player = function(vid,canv) {
         this.zoomCtrl = document.getElementById('zoomCtrl');
         this.zoomInBtn = document.getElementById('zoomInBtn');
 
-        this.playPauseBtn.addEventListener('click',this.playPauseVideo,false);
-        player.video.addEventListener('pause',this.changeToPauseState,false);
-        player.video.addEventListener('play',this.changeToPlayState,false);
+        player.video.addEventListener('loadedmetadata',this.getVideoLength,false);
+        this.playPauseBtn.addEventListener('click',function(){
+            player.controls.playPauseVideo(this.playPauseVideo);
+        },false);
+        player.video.addEventListener('pause',function(){
+            player.controls.changeToPauseState(this.playPauseBtn, this.uiControls);
+        },false);
+        player.video.addEventListener('play',function(){
+            player.controls.changeToPlayState(this.playPauseBtn, this.uiControls);
+        },false);
         this.volumeBtn.addEventListener('click',function(){
             player.volume.toggleMuteState(event);
             player.controls.updateSliderUI(this.volumeCtrl);
@@ -117,8 +121,12 @@ var Player = function(vid,canv) {
         
         /* Play or pause the video */
         this.playPauseVideo = function() {
-            if(player.video.paused) player.video.play();
-            else player.video.pause();
+            if(player.video.paused) {
+                player.video.play();
+            }
+            else {
+                player.video.pause();
+            }
         }
 
         /* Updates icon to "play" button during pause state, show UI controls bar */
@@ -210,6 +218,9 @@ var Player = function(vid,canv) {
     
     var Seek = function(player){
         /* Update seek control value and current time text */
+        player.video.addEventListener('timeupdate',this.updateSeekTime,false);
+        seekCtrl.addEventListener('change',this.setVideoTime,false);
+
         this.updateSeekTime = function(){    
             var newTime = video.currentTime/video.duration;
             var gradient = ['to right'];
