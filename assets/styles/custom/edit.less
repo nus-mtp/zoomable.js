@@ -3,7 +3,7 @@
  */
 
 #edit {
-    a.md-button.cancel-btn,
+    button.md-button.cancel-btn,
     button.md-button.save-btn {
         margin: 0px 0px 0px 10px;
     }
@@ -83,8 +83,18 @@
         vertical-align: middle;
     }
 
+    #toast-area {
+        display: block;
+        height: 70px;
+        width: 100%;
+        z-index: 90;
+
+        button {
+            color: @color-white;
+        }
+    }
+
     .video-info {
-        margin-top: 60px;
         font-size: 13px;
 
         button.md-button.md-icon-button {

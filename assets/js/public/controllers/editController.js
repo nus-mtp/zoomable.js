@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('editController', function($scope, $stateParams, servicesAPI){
+angular.module('zoomableApp').controller('editController', function($scope, $stateParams, $mdToast, $mdDialog, $state, servicesAPI){
 
 	// VARIABLES
 	$scope.defaultImagePath = 'images/bunny.png';
@@ -33,6 +33,16 @@ angular.module('zoomableApp').controller('editController', function($scope, $sta
 				// update page header title with new title
 				$scope.originalVideoTitle = $scope.video.title;
 
+				// show toast if changes saved successfully
+				var toast = $mdToast.simple()
+					.content('Changes Saved!')
+					.action('OK').highlightAction(true)
+					.hideDelay(1500)
+					.position('top right')
+					.parent(document.getElementById('toast-area'));
+
+				$mdToast.show(toast);
+
 				// set form back to clean state to disable save button
 				$scope.videoForm.$setPristine();
 	    })
@@ -40,6 +50,30 @@ angular.module('zoomableApp').controller('editController', function($scope, $sta
 	      console.log('Error: ' + data);
 	    });
 	};
+
+	/* Show dialog when user click cancel when changes made */
+	$scope.showConfirm = function(ev) {
+		if ($scope.videoForm.$dirty) {
+			// Appending dialog to document.bod
+	    var confirm = $mdDialog.confirm()
+	      .title('Are you sure you want to leave this page?')
+	      .textContent('You have unsaved changes. Your changes will not be saved if you leave this page.')
+	      .ariaLabel('Confirm Navigation')
+	      .targetEvent(ev)
+	      .ok('Stay on this page')
+	      .cancel('Leave this page');
+	    $mdDialog.show(confirm).then(function() {
+				// if user stay on page, do nothing
+			}, function() {
+				// if user leave page, redirect to dashboard page
+				$state.go('dashboard');
+			});
+		}
+		else {
+			// just redirect to dashboard page if no changes made
+			$state.go('dashboard');
+		}
+  };
 
 	/* Copy embed link to system clipboard */
 	$scope.copyEmbedLink = function(link) {
