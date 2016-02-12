@@ -35,8 +35,7 @@ module.exports = {
 		// 0 for admin, 1 for normal user
 		permission: {
 			type: 'integer',
-			defaultTo: 1,
-			required: true
+			defaultTo: 1
 		}
 	},
 }

@@ -63,7 +63,8 @@ module.exports = {
       success: function(encryptedPassword) {
         User.create({
           username: req.param('username'),
-          encryptedPassword: encryptedPassword
+          encryptedPassword: encryptedPassword,
+          email: req.param('email')
         }).exec(function(err, newUser) {
           if (err) {
             console.log("err: ", err);
@@ -87,7 +88,7 @@ module.exports = {
             id: newUser.id
           });
         });
-      }
+      },
     });
   },
 
