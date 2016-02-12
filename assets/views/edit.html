@@ -31,8 +31,8 @@
                     <div layout="column">
                       <div flex>
                         <div layout="row" layout-align="end start">
-                          <md-button class="md-raised md-primary save-btn">Save</md-button>
                           <md-button class="md-raised cancel-btn" ui-sref="dashboard">Cancel</md-button>
+                          <md-button class="md-raised md-primary save-btn" ng-click="saveChanges()" ng-disabled="videoForm.$pristine || !videoForm.$valid">Save</md-button>
                         </div>
                       </div>
                       <div flex layout-margin class="video-info">

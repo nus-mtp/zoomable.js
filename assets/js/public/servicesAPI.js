@@ -11,6 +11,9 @@ angular.module('zoomableApp').factory('servicesAPI', function($http) {
     },
     delete : function(id) {
       return $http.delete('/api/video/' + id);
+    },
+    update : function(id, videoData) {
+      return $http.put('/api/video/' + id, videoData);
     }
   }
 });
