@@ -70,11 +70,8 @@
                     <input name="videoDescription" ng-model="video.description" />
                   </md-input-container>
                   <div layout="row">
-                    <div flex="80">
-                      <md-input-container class="md-block">
-                        <label>Tags</label>
-                        <input name="videoTags" ng-model="video.tags" />
-                      </md-input-container>
+                    <div flex="80" class="input-chips">
+                      <md-chips ng-model="tags" readonly="false" placeholder="+Tag" delete-button-label="Remove Tag" secondary-placeholder="Add a tag">
                     </div>
                     <div flex="20">
                       <div class="custom-button-set">
@@ -132,6 +129,6 @@
 
       </md-tabs>
     </md-card>
-    
+
   </md-content>
 </div>
