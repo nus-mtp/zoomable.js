@@ -12,6 +12,8 @@ module.exports = {
 
   /**
    * `UserController.login()`
+   * Usage: POST /api/user/login
+   * Content: {username: ':username', password: ':password'}
    */
   login: function (req, res) {
     // Look for user using given username
@@ -49,6 +51,8 @@ module.exports = {
 
   /**
    * `UserController.signup()`
+   * Usage: POST /api/user/signup
+   * Content: {username: ':username', password: ':password', email: ':emailaddress'}
    */
   signup: function (req, res) {
     Passwords.encryptPassword({
@@ -94,6 +98,7 @@ module.exports = {
 
   /**
    * `UserController.logout()`
+   * Usage: GET /api/user/logout
    */
   logout: function (req, res) {
     // Look up the user record from the database which is
