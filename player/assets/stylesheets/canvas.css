@@ -4,6 +4,9 @@
 	height: 360px;
 }
 
+#uiControls {
+	width: inherit;
+}
 #uiControls.hideOnHover {
 	opacity: 0;
 	transition: opacity 0.4s;
@@ -13,16 +16,19 @@
 }
 
 #canvas {
-	width: 640px;
-	height: 360px; 
-	position: relative; 
+	width: inherit;
+	height: inherit;
+	position: relative;
 	z-index: 0;
 }
 
 #zoomBarControls {
 	position: absolute;
-	top: 50%;
-	left: 86%;
+	/*top: 50%;
+	left: 86%;*/
+	top: 75%;
+	right: -100px;
+	transform-origin: 0% 0%;
 	z-index: 10;
 	background-color: rgba(0, 0, 0, 0.5);
 	width: 135px;
@@ -32,6 +38,11 @@
 	-moz-transform: rotate(270deg);		/* firefox */
 	display: flex;
 	justify-content: space-between;
+}
+
+#zoomBarControls.fs-adjust {
+	top: 65%;
+	right: -90px;
 }
 
 #zoomBarControls button {
@@ -55,7 +66,7 @@
 	bottom: 36px;
 	left: 0px;
 	z-index: 10;
-	width: 640px;
+	width: inherit;
 	height: 12px;
 	background-color: rgba(0, 0, 0, 0.5);
 	justify-content: space-around;
@@ -67,15 +78,15 @@
 	display: flex;
 	bottom: 0;
 	left: 0;
-	width: 610px;
+	width: inherit;
 	height: 36px;
 	background-color: rgba(0, 0, 0, 0.5);
-	padding: 0px 15px 0px 15px;
 	justify-content: space-between;
 }
 
 .flexChild {
 	display: flex;
+	padding: 0px 15px;
 }
 
 #bottomBarControls button {
@@ -132,6 +143,9 @@
 #fullscreenBtn {
 	background: url(../images/ic_fullscreen.svg) no-repeat;
 }
+#fullscreenBtn.exit {
+	background: url(../images/ic_fullscreen_exit.svg) no-repeat;
+}
 
 #timeTxt {
 	padding: 12px 8px 0px 5px;
@@ -159,14 +173,14 @@
 
 	/* removes webkit default styling */
   	-webkit-appearance: none;
-  	
+
 	border-radius: 6px;
 	background-color: rgba(255, 255, 255, 0.3);
 	outline: none;
 }
 
 #seekCtrl {
-	width: 620px;
+	width: calc(100% - 3%);
 	height: 5px;
 	margin: 0px;
 
@@ -245,4 +259,3 @@
 	height: 12px;
 	border-radius: 8px;
 }
-
