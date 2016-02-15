@@ -31,6 +31,8 @@ var jsFilesToInject = [
   'js/dependencies/angular-messages.js',
   'js/dependencies/angular-animate.js',
   'js/dependencies/angular-aria.js',
+  'js/dependencies/clipboard.js',
+  'js/dependencies/ngclipboard.js',
   'js/public/zoomableApp.js',
   'js/public/appRoutes.js',
   'js/public/directives.js',

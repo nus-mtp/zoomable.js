@@ -76,12 +76,6 @@ angular.module('zoomableApp').controller('editController', function($scope, $sta
 		}
   };
 
-	/* Copy embed link to system clipboard */
-	$scope.copyEmbedLink = function(link) {
-		console.log(link);
-		// TO BE IMPLEMENTED
-	}
-
 	/* Update video privacy field */
 	$scope.updatePrivacy = function(privacy) {
 		$scope.video.privacy = privacy;

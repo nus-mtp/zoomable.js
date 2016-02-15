@@ -47,9 +47,10 @@
                         </p>
                         <p class="embed-link-area">
                           <span class="field">Embed Link:</span>
-                          <input class="embed-value" value="{{ video.videoDir }}" readonly="readonly"/>
-                          <md-button class="md-icon-button" aria-label="Copy" md-ink-ripple="false" md-no-ink ng-click="copyEmbedLink(video.videoDir)">
+                          <input id="embedURL" value="{{ video.videoDir }}" readonly="readonly"/>
+                          <md-button class="md-icon-button" aria-label="Copy" md-ink-ripple="false" md-no-ink ngclipboard data-clipboard-target="#embedURL" ng-click="copyEmbedLink(video.videoDir)">
                             <md-icon class="copy-btn" md-svg-icon="images/ic_insert_link_black_24px.svg"></md-icon>
+                            <md-tooltip md-direction="bottom">Copy</md-tooltip>
                           </md-button>
                         </p>
                     </div>
