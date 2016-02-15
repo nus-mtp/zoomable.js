@@ -1,15 +1,22 @@
 <div ng-controller="dashboardController" ng-cloak class="dashboard" md-no-ink="">
   <md-content layout-padding>
 
-    <div flex-xs flex-gt-xs="100" layout="column">
+    <div flex-xs flex-gt-xs="100" layout-align="start center">
       <!-- DASHBOARD HEADER -->
-      <h2 class="page-header">
-        <md-icon class="header-icon"></md-icon>
-        <span class="md-headline header-title">My Videos
-          <span ng-show="videoList.length" class="video-count">{{ videoList.length }}</span>
-          <span ng-hide="videoList.length" class="video-count">0</span>
-        </span>
-      </h2>
+      <div layout="row" layout-align="space-between center">
+        <div flex class="page-header">
+          <md-icon class="header-icon"></md-icon>
+          <span class="md-headline header-title">My Videos
+            <span ng-show="videoList.length" class="video-count">{{ videoList.length }}</span>
+            <span ng-hide="videoList.length" class="video-count">0</span>
+          </span>
+        </div>
+        <div flex="1">
+            <input class="ng-hide" id="file-input" type="file" multiple="multiple" data-dbinf-on-files-selected="uploadVideoFile(selectedFileList)" file-model="videoFile">
+            <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file">
+            <label for="file-input">Upload</label></md-button>
+        </div>
+      </div>
 
       <md-card>
         <!-- ACTION BUTTONS -->
