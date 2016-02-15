@@ -32,7 +32,6 @@ module.exports = {
 	    // 0 for self only, 1 for public
 	    privacy: {
 	    	type: 'integer', 
-	    	required: true,
 	    	defaultsTo: 1
 	    },
 

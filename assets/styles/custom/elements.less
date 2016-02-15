@@ -2,9 +2,13 @@
  * elements.less
  */
 
+body {
+    min-width: 800px;
+}
+
 md-card {
     display: block;     // override default card styling to inherit height of children
-    margin-bottom: 24px;    // add bottom margin below card
+    padding: 0px !important;
 }
 
 md-card-header {        // override default card header styling
@@ -14,6 +18,7 @@ md-card-header {        // override default card header styling
 
 md-content.layout-padding {
     top: @navbar-height;
+    padding: 16px;
 }
 
 .page-header {
