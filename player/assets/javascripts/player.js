@@ -167,7 +167,7 @@ var Player = function(vid,canv) {
         
         /* Update zoom control UI */
         this.updateZoomUI = function() {
-            this.zoomCtrl.value = player.util.convertScaleToPercent(player.ctx.getTransform().a);
+            this.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.getTransform().a);
             console.log(this.zoomCtrl.value);
             this.updateSliderUI(this.zoomCtrl);
         };
@@ -276,9 +276,9 @@ var Player = function(vid,canv) {
             //tt(ctx);
             var pt = player.ctx.transformedPoint(x, y);
             var factor = Math.pow(player.scaleFactor,clicks);
-            var tx = player.ctx.getTransform().e;
-            var ty = player.ctx.getTransform().f;
-            var s = player.ctx.getTransform().a;
+            var tx = player.transforms.getTransform().e;
+            var ty = player.transforms.getTransform().f;
+            var s = player.transforms.getTransform().a;
             if (factor*s >= 1 && factor*s <= player.maxZoom) {
                 player.ctx.translate(pt.x,pt.y);
                 player.ctx.scale(factor,factor);
@@ -291,9 +291,9 @@ var Player = function(vid,canv) {
         
         /* General function to call zoom(clicks,x,y) from the UI Controls. */
         function zoomHelper(value) {
-            var tx = player.ctx.getTransform().e;
-            var ty = player.ctx.getTransform().f;
-            var old_s = player.ctx.getTransform().a;
+            var tx = player.transforms.getTransform().e;
+            var ty = player.transforms.getTransform().f;
+            var old_s = player.transforms.getTransform().a;
             var x = player.dimensions.cw/2;
             var y = player.dimensions.ch/2;
             zoom(value, x, y);
@@ -303,8 +303,8 @@ var Player = function(vid,canv) {
         this.adjust = function() {
             var zoomPercent = player.controls.zoomCtrl.value;
             var new_s = player.util.convertPercentToScale(zoomPercent);
-            var old_s = player.ctx.getTransform().a;
-            var delta_clicks = Math.log(new_s/old_s) / Math.log(scaleFactor);
+            var old_s = player.transforms.getTransform().a;
+            var delta_clicks = Math.log(new_s/old_s) / Math.log(player.scaleFactor);
             zoomHelper(delta_clicks); 
         }
 
@@ -326,50 +326,51 @@ var Player = function(vid,canv) {
         this.savedTransforms = [];
         this.xform = svg.createSVGMatrix();
 
-        player.ctx.getTransform = function(){ 
+        this.getTransform = function(){ 
             return this.xform; 
         };
 
-        var save = player.ctx.save;
-        player.ctx.save = function(){
-            this.savedTransforms.push(xform.translate(0,0));
+        this.save = function(){
+            var save = player.ctx.save;
+            this.savedTransforms.push(this.xform.translate(0,0));
             return save.call(player.ctx);
         };
     
-        var restore = player.ctx.restore;
-        player.ctx.restore = function(){
+        this.restore = function(){
+            var restore = player.ctx.restore;
+
             this.xform = savedTransforms.pop();
             return restore.call(player.ctx);
         };
 
-        var scale = player.ctx.scale;
-        player.ctx.scale = function(sx,sy){
+        this.scale = function(sx,sy){
+            var scale = player.ctx.scale;
             this.xform = this.xform.scaleNonUniform(sx,sy);
             return scale.call(player.ctx,sx,sy);
         };
     
-        var rotate = player.ctx.rotate;
-        player.ctx.rotate = function(radians){
+        this.rotate = function(radians){
+            var rotate = player.ctx.rotate;
             this.xform = xform.rotate(radians*180/Math.PI);
             return rotate.call(player.ctx,radians);
         };
     
-        var translate = player.ctx.translate;
-        player.ctx.translate = function(dx,dy){
-            this.xform = xform.translate(dx,dy);
+        this.translate = function(dx,dy){
+            var translate = player.ctx.translate;
+            this.xform = this.xform.translate(dx,dy);
             return translate.call(player.ctx,dx,dy);
         };
     
-        var transform = player.ctx.transform;
-        player.ctx.transform = function(a,b,c,d,e,f){
+        this.transform = function(a,b,c,d,e,f){
+            var transform = player.ctx.transform;
             var m2 = svg.createSVGMatrix();
             m2.a=a; m2.b=b; m2.c=c; m2.d=d; m2.e=e; m2.f=f;
             this.xform = this.xform.multiply(m2);
             return transform.call(player.ctx,a,b,c,d,e,f);
         };
         
-        var setTransform = player.ctx.setTransform;
-        player.ctx.setTransform = function(a,b,c,d,e,f){
+        this.setTransform = function(a,b,c,d,e,f){
+            var setTransform = player.ctx.setTransform;
             this.xform.a = a;
             this.xform.b = b;
             this.xform.c = c;
@@ -379,8 +380,8 @@ var Player = function(vid,canv) {
             return setTransform.call(player.ctx,a,b,c,d,e,f);
         };
         
-        var pt  = svg.createSVGPoint();
         player.ctx.transformedPoint = function(x,y){
+            var pt  = svg.createSVGPoint();
             pt.x=x; pt.y=y;
             return pt.matrixTransform(player.transforms.xform.inverse());
         }
