@@ -34,14 +34,17 @@ var Player = function(vid,canv,x_coord,y_coord) {
     
     var MouseActions = function(player) {
         player.canvas.addEventListener('mousedown',function(){
-            player.mouseactions.mouseDown(player);
+            this.mouseactions.mouseDown(player);
         },false);
         player.canvas.addEventListener('mousemove',function(){
-            player.mouseactions.mouseMove(player);
+            this.mouseactions.mouseMove(player);
         },false);
         player.canvas.addEventListener('mouseup',function(){
-            player.mouseactions.mouseUp(player);
+            this.mouseactions.mouseUp(player);
         },false); 
+        player.canvas.addEventListener('mousedown',this.mouseDown,false);
+        player.canvas.addEventListener('mousemove',this.mouseMove,false);
+        player.canvas.addEventListener('mouseup',this.mouseUp,false); 
         
         this.mouseDown = function(evt){
             document.body.style.mozUserSelect = 
@@ -235,13 +238,13 @@ var Player = function(vid,canv,x_coord,y_coord) {
     var Seek = function(player){
         /* Update seek control value and current time text */
         player.video.addEventListener('timeupdate',this.updateSeekTime,false);
-        seekCtrl.addEventListener('change',this.setVideoTime,false);
+        player.controls.seekCtrl.addEventListener('change',this.setVideoTime,false);
 
         this.updateSeekTime = function(){    
-            var newTime = video.currentTime/video.duration;
+            var newTime = player.video.currentTime/player.video.duration;
             var gradient = ['to right'];
-            var buffered = video.buffered;
-            seekCtrl.value = newTime;
+            var buffered = player.video.buffered;
+            player.controls.seekCtrl.value = newTime;
             if (buffered.length == 0) {
                 gradient.push('rgba(255, 255, 255, 0.1) 0%');
             } else {
@@ -256,9 +259,9 @@ var Player = function(vid,canv,x_coord,y_coord) {
                 gradient.push('rgba(255, 255, 255, 0.4) ' + (bufferEndFraction * 100) + '%');
                 gradient.push('rgba(255, 255, 255, 0.1) ' + (bufferEndFraction * 100) + '%');
             }
-            controls.seekCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+            player.controls.seekCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
 
-            player.controls.updateCurrentTimeText(video.currentTime);
+            player.controls.updateCurrentTimeText(player.video.currentTime);
         };
          /* Change current video time and text according to seek control value */
         this.setVideoTime = function(){
@@ -337,8 +340,8 @@ var Player = function(vid,canv,x_coord,y_coord) {
             return save.call(player.ctx);
         };
     
-        var restore = player.ctx.restore;
-        player.ctx.restore = function(){
+        this.restore = function(){
+            var restore = player.ctx.restore;
             this.xform = savedTransforms.pop();
             return restore.call(player.ctx);
         };
