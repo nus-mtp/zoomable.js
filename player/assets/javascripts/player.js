@@ -21,9 +21,9 @@ var Player = function(vid,canv,x_coord,y_coord) {
     this.init = function() {
         this.scroll = new Scroll(this);
         this.volume = new Volume(this);
-        this.seek = new Seek(this);
         this.zoom = new Zoom(this);
         this.controls = new Controls(this);
+        this.seek = new Seek(this);
         this.transforms = new Transforms(this);
         this.util = new Util(this);
         this.transforms.redraw();	
@@ -69,8 +69,8 @@ var Player = function(vid,canv,x_coord,y_coord) {
     };
     
     var Scroll = function(player) {
-        canvas.addEventListener('DOMMouseScroll',this.handleScroll,false);
-        canvas.addEventListener('mousewheel',this.handleScroll,false);
+        canvas.addEventListener('DOMMouseScroll',this.handle,false);
+        canvas.addEventListener('mousewheel',this.handle,false);
         
         this.handle = function(evt){
             var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
