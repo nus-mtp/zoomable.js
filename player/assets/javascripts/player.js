@@ -59,8 +59,8 @@ var Player = function(vid,canv) {
     };
     
     var Scroll = function(player) {
-        canvas.addEventListener('DOMMouseScroll',this.handleScroll,false);
-        canvas.addEventListener('mousewheel',this.handleScroll,false);
+        canvas.addEventListener('DOMMouseScroll',this.handle,false);
+        canvas.addEventListener('mousewheel',this.handle,false);
         
         this.handle = function(evt){
             var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
