@@ -1,3 +1,4 @@
+
 var Player = function(vid,canv) {
     this.video = vid;
     this.canvas = canv;
@@ -22,6 +23,7 @@ var Player = function(vid,canv) {
         this.volume = new Volume(this);
         this.zoom = new Zoom(this);
         this.controls = new Controls(this);
+        this.transforms = new Transforms(this);
         this.seek = new Seek(this);
         this.transforms = new Transforms(this);
         this.mouseactions = new MouseActions(this);
@@ -32,11 +34,12 @@ var Player = function(vid,canv) {
     };
     
     var MouseActions = function(player) {
-        player.canvas.addEventListener('mousedown',this.mouseDown,false);
-        player.canvas.addEventListener('mousemove',this.mouseMove,false);
-        player.canvas.addEventListener('mouseup',this.mouseUp,false); 
+        player.canvas.addEventListener('mousedown',function(event) { player.mouseactions.mouseDown(event); },false);
+        player.canvas.addEventListener('mousemove',function(event) { player.mouseactions.mouseMove(event); },false);
+        player.canvas.addEventListener('mouseup',function(event) { player.mouseactions.mouseUp(event); },false); 
         
         this.mouseDown = function(evt){
+            console.log("HIHI")
             document.body.style.mozUserSelect = 
                 document.body.style.webkitUserSelect = 
                 document.body.style.userSelect = 'none';
@@ -59,8 +62,8 @@ var Player = function(vid,canv) {
     };
     
     var Scroll = function(player) {
-        canvas.addEventListener('DOMMouseScroll',this.handle,false);
-        canvas.addEventListener('mousewheel',this.handle,false);
+        canvas.addEventListener('DOMMouseScroll',function(event) { player.scroll.handle(event); },false);
+        canvas.addEventListener('mousewheel',function(event) { player.scroll.handle(event); },false);
         
         this.handle = function(evt){
             var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
@@ -227,10 +230,10 @@ var Player = function(vid,canv) {
     
     var Seek = function(player){
         /* Update seek control value and current time text */
-        player.video.addEventListener('timeupdate',this.updateSeekTime,false);
-        player.controls.seekCtrl.addEventListener('change',this.setVideoTime,false);
+        player.video.addEventListener('timeupdate',function() { player.seek.updateSeekTime(); },false);
+        player.controls.seekCtrl.addEventListener('change',function() { player.seek.setVideoTime(); },false);
 
-        this.updateSeekTime = function(){    
+        this.updateSeekTime = function(){ 
             var newTime = player.video.currentTime/player.video.duration;
             var gradient = ['to right'];
             var buffered = player.video.buffered;
@@ -239,9 +242,9 @@ var Player = function(vid,canv) {
                 gradient.push('rgba(255, 255, 255, 0.1) 0%');
             } else {
                 // NOTE: the fallback to zero eliminates NaN.
-                var bufferStartFraction = (buffered.start(0) / video.duration) || 0;
-                var bufferEndFraction = (buffered.end(0) / video.duration) || 0;
-                var playheadFraction = (video.currentTime / video.duration) || 0;
+                var bufferStartFraction = (buffered.start(0) / player.video.duration) || 0;
+                var bufferEndFraction = (buffered.end(0) / player.video.duration) || 0;
+                var playheadFraction = (player.video.currentTime / player.video.duration) || 0;
                 gradient.push('rgba(255, 255, 255, 0.1) ' + (bufferStartFraction * 100) + '%');
                 gradient.push('rgba(255, 255, 255, 0.7) ' + (bufferStartFraction * 100) + '%');
                 gradient.push('rgba(255, 255, 255, 0.7) ' + (playheadFraction * 100) + '%');
@@ -255,9 +258,12 @@ var Player = function(vid,canv) {
         };
          /* Change current video time and text according to seek control value */
         this.setVideoTime = function(){
+            console.log(player.controls.seekCtrl);
+            console.log(player.video.duration);
+
             var seekTo = player.video.duration * player.controls.seekCtrl.value;
             player.video.currentTime = seekTo;
-            player.controls.updateCurrentTimeText(video.currentTime);
+            player.controls.updateCurrentTimeText(player.video.currentTime);
         };
     
     };
