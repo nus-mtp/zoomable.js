@@ -54,7 +54,7 @@ var Player = function(vid,canv) {
             player.last.y = evt.offsetY || (evt.pageY - player.canvas.offsetTop);
             player.dragged = true;
             if (player.dragStart){
-                player.transforms.translate();
+                player.transforms.outerTranslate();
             }
         };
         this.mouseUp = function(evt){
@@ -276,10 +276,11 @@ var Player = function(vid,canv) {
             var tx = player.transforms.xform.e;
             var ty = player.transforms.xform.f;
             var s = player.transforms.xform.a;
-            if (factor*s >= 1 && factor*s <= player.maxZoom) {
-                player.ctx.translate(pt.x,pt.y);
-                player.ctx.scale(factor,factor);
-                player.ctx.translate(-pt.x,-pt.y);
+            if (factor*s >= 1 && factor*s <= this.maxZoom) {
+                player.transforms.translate(pt.x,pt.y);
+                player.transforms.scale(factor,factor);
+                console.log('factor: ' + factor);
+                player.transforms.translate(-pt.x,-pt.y);
                 player.controls.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.xform.a);
                 player.transforms.refit();
             }
@@ -325,7 +326,7 @@ var Player = function(vid,canv) {
 
         var save = player.ctx.save;
         player.ctx.save = function(){
-            this.savedTransforms.push(xform.translate(0,0));
+            this.savedTransforms.push(this.xform.translate(0,0));
             return save.call(player.ctx);
         };
     
@@ -335,34 +336,35 @@ var Player = function(vid,canv) {
             return restore.call(player.ctx);
         };
 
-        var scale = player.ctx.scale;
-        player.ctx.scale = function(sx,sy){
+        this.scale = function(sx,sy){
+            console.log("" + sx + ", " + sy);
+            var scale = player.ctx.scale;
             this.xform = this.xform.scaleNonUniform(sx,sy);
             return scale.call(player.ctx,sx,sy);
         };
     
-        var rotate = player.ctx.rotate;
-        player.ctx.rotate = function(radians){
-            this.xform = xform.rotate(radians*180/Math.PI);
+        this.rotate = function(radians){
+            var rotate = player.ctx.rotate;
+            this.xform = this.xform.rotate(radians*180/Math.PI);
             return rotate.call(player.ctx,radians);
         };
     
-        var translate = player.ctx.translate;
-        player.ctx.translate = function(dx,dy){
-            this.xform = xform.translate(dx,dy);
+        this.translate = function(dx,dy){
+            var translate = player.ctx.translate;
+            this.xform = this.xform.translate(dx,dy);
             return translate.call(player.ctx,dx,dy);
         };
     
-        var transform = player.ctx.transform;
-        player.ctx.transform = function(a,b,c,d,e,f){
+        this.transform = function(a,b,c,d,e,f){
+            var transform = player.ctx.transform;
             var m2 = svg.createSVGMatrix();
             m2.a=a; m2.b=b; m2.c=c; m2.d=d; m2.e=e; m2.f=f;
             this.xform = this.xform.multiply(m2);
             return transform.call(player.ctx,a,b,c,d,e,f);
         };
         
-        var setTransform = player.ctx.setTransform;
-        player.ctx.setTransform = function(a,b,c,d,e,f){
+        this.setTransform = function(a,b,c,d,e,f){
+            var setTransform = player.ctx.setTransform;
             this.xform.a = a;
             this.xform.b = b;
             this.xform.c = c;
@@ -384,23 +386,23 @@ var Player = function(vid,canv) {
             var tx = player.transforms.xform.e;
             var ty = player.transforms.xform.f;
             var s = player.transforms.xform.a;
-            if (s < 1 || s > player.maxZoom) {
-                player.ctx.scale(1/s, 1/s);    
+            if (s < 1 || s > player.zoom.maxZoom) {
+                this.scale(1/s, 1/s);    
             }
             if (tx > 0 ) {
-                player.ctx.translate(-tx,0);
+                this.translate(-tx,0);
             }
             if (ty > 0) {
-                player.ctx.translate(0,-ty);
+                this.translate(0,-ty);
             }
             if (tx+player.dimensions.cw*s < player.dimensions.cw) {
                 var dx = player.dimensions.cw - tx-player.dimensions.cw*s;
                 var sum =tx+player.dimensions.cw*s;
-                player.ctx.translate(dx, 0);
+                this.translate(dx, 0);
             } 
             if (ty+player.dimensions.ch*s < player.dimensions.ch) {
                 var dy = player.dimensions.ch - ty-player.dimensions.ch*s;
-                player.ctx.translate(0, dy);
+                this.translate(0, dy);
             }
         }
 
@@ -425,7 +427,7 @@ var Player = function(vid,canv) {
             this.draw();
         }
 
-        this.translate = function() {
+        this.outerTranslate = function() {
             var pt = player.ctx.transformedPoint(player.last.x,player.last.y);
             var dx = pt.x-player.dragStart.x;
             var dy = pt.y-player.dragStart.y;
@@ -434,11 +436,11 @@ var Player = function(vid,canv) {
             var flag = 0;
             var s = player.transforms.xform.a;
             if (tx+dx <= 0 && tx+player.dimensions.cw*s+dx > player.dimensions.cw) { 
-                    player.ctx.translate(dx,0);
+                    this.translate(dx,0);
                     flag = 1;
             }
             if (ty+dy <= 0 && ty+player.dimensions.ch*s+dy > player.dimensions.ch) {
-                    player.ctx.translate(0,dy);
+                    this.translate(0,dy);
                     flag = 1;
             }
            /* if (flag = 0) {
