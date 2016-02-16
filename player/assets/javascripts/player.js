@@ -24,23 +24,17 @@ var Player = function(vid,canv) {
         this.zoom = new Zoom(this);
         this.controls = new Controls(this);
         this.transforms = new Transforms(this);
+        this.mouseactions = new MouseActions(this);
         this.util = new Util(this);
         this.transforms.redraw();	
         this.last = { x: canvas.width/2, y: canvas.height/2 };
         this.volume.setVolume(0.5); //set default vol of video
-        this.mouseactions = new MouseActions(this);
     };
     
     var MouseActions = function(player) {
-        player.canvas.addEventListener('mousedown',function(){
-            player.mouseactions.mouseDown(player);
-        },false);
-        player.canvas.addEventListener('mousemove',function(){
-            player.mouseactions.mouseMove(player);
-        },false);
-        player.canvas.addEventListener('mouseup',function(){
-            player.mouseactions.mouseUp(player);
-        },false); 
+        player.canvas.addEventListener('mousedown',player.mouseactions.mouseDown,false);
+        player.canvas.addEventListener('mousemove',player.mouseactions.mouseMove,false);
+        player.canvas.addEventListener('mouseup',player.mouseactions.mouseUp,false); 
         
         this.mouseDown = function(evt){
             document.body.style.mozUserSelect = 
