@@ -1,5 +1,6 @@
 
 var Player = function(vid,canv) {
+
     this.video = vid;
     this.canvas = canv;
     this.ctx = canv.getContext('2d');
@@ -26,20 +27,20 @@ var Player = function(vid,canv) {
         this.transforms = new Transforms(this);
         this.seek = new Seek(this);
         this.transforms = new Transforms(this);
-        this.mouseactions = new MouseActions(this);
         this.util = new Util(this);
         this.transforms.redraw();	
         this.last = { x: canvas.width/2, y: canvas.height/2 };
         this.volume.setVolume(0.5); //set default vol of video
+        this.mouseactions = new MouseActions(this);
     };
     
     var MouseActions = function(player) {
         player.canvas.addEventListener('mousedown',function(event) { player.mouseactions.mouseDown(event); },false);
         player.canvas.addEventListener('mousemove',function(event) { player.mouseactions.mouseMove(event); },false);
         player.canvas.addEventListener('mouseup',function(event) { player.mouseactions.mouseUp(event); },false); 
+
         
         this.mouseDown = function(evt){
-            console.log("HIHI")
             document.body.style.mozUserSelect = 
                 document.body.style.webkitUserSelect = 
                 document.body.style.userSelect = 'none';
@@ -164,7 +165,7 @@ var Player = function(vid,canv) {
         
         /* Update zoom control UI */
         this.updateZoomUI = function() {
-            this.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.getTransform().a);
+            this.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.xform.a);
             console.log(this.zoomCtrl.value);
             this.updateSliderUI(this.zoomCtrl);
         };
@@ -183,14 +184,13 @@ var Player = function(vid,canv) {
     var Volume = function(player){
         this.previousVolume = { 
             state: 'low',
-            value: video.volume
+            value: player.video.volume
         };
         this.setVolume = function(val) { 
             player.video.volume = val; 
         };
         this.volumeAdjust = function() {
             player.video.volume = player.controls.volumeCtrl.value;
-            console.log(player.video.volume);
             if (player.video.volume > 0) {
                 player.video.muted = false;
                 if (player.video.volume > 0.5) player.controls.volumeBtn.className = 'high';
@@ -258,9 +258,6 @@ var Player = function(vid,canv) {
         };
          /* Change current video time and text according to seek control value */
         this.setVideoTime = function(){
-            console.log(player.controls.seekCtrl);
-            console.log(player.video.duration);
-
             var seekTo = player.video.duration * player.controls.seekCtrl.value;
             player.video.currentTime = seekTo;
             player.controls.updateCurrentTimeText(player.video.currentTime);
@@ -272,39 +269,39 @@ var Player = function(vid,canv) {
         this.maxZoom = 7;
         
         /* Zooms into the position x, y with the amount clicks */
-        function zoom(clicks, x, y){
+        this.zoom = function(clicks, x, y){
             //tt(ctx);
             var pt = player.ctx.transformedPoint(x, y);
             var factor = Math.pow(player.scaleFactor,clicks);
-            var tx = player.transforms.getTransform().e;
-            var ty = player.transforms.getTransform().f;
-            var s = player.transforms.getTransform().a;
+            var tx = player.transforms.xform.e;
+            var ty = player.transforms.xform.f;
+            var s = player.transforms.xform.a;
             if (factor*s >= 1 && factor*s <= player.maxZoom) {
                 player.ctx.translate(pt.x,pt.y);
                 player.ctx.scale(factor,factor);
                 player.ctx.translate(-pt.x,-pt.y);
-                player.controls.zoomCtrl.value = player.util.convertScaleToPercent(player.ctx.getTransform().a);
+                player.controls.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.xform.a);
                 player.transforms.refit();
             }
             player.transforms.redraw(); 
         } 
         
-        /* General function to call zoom(clicks,x,y) from the UI Controls. */
+        /* Private function to call zoom(clicks,x,y) from the UI Controls. */
         function zoomHelper(value) {
-            var tx = player.transforms.getTransform().e;
-            var ty = player.transforms.getTransform().f;
-            var old_s = player.transforms.getTransform().a;
+            var tx = player.transforms.xform.e;
+            var ty = player.transforms.xform.f;
+            var old_s = player.transforms.xform.a;
             var x = player.dimensions.cw/2;
             var y = player.dimensions.ch/2;
-            zoom(value, x, y);
+            player.zoom.zoom(value, x, y);
             player.controls.updateZoomUI();
         }
         /* Adjust zoom by adjusting the slider */
         this.adjust = function() {
             var zoomPercent = player.controls.zoomCtrl.value;
             var new_s = player.util.convertPercentToScale(zoomPercent);
-            var old_s = player.transforms.getTransform().a;
-            var delta_clicks = Math.log(new_s/old_s) / Math.log(player.scaleFactor);
+            var old_s = player.transforms.xform.a;
+            var delta_clicks = Math.log(new_s/old_s) / Math.log(scaleFactor);
             zoomHelper(delta_clicks); 
         }
 
@@ -326,13 +323,9 @@ var Player = function(vid,canv) {
         this.savedTransforms = [];
         this.xform = svg.createSVGMatrix();
 
-        this.getTransform = function(){ 
-            return this.xform; 
-        };
-
-        this.save = function(){
-            var save = player.ctx.save;
-            this.savedTransforms.push(this.xform.translate(0,0));
+        var save = player.ctx.save;
+        player.ctx.save = function(){
+            this.savedTransforms.push(xform.translate(0,0));
             return save.call(player.ctx);
         };
     
@@ -342,34 +335,34 @@ var Player = function(vid,canv) {
             return restore.call(player.ctx);
         };
 
-        this.scale = function(sx,sy){
-            var scale = player.ctx.scale;
+        var scale = player.ctx.scale;
+        player.ctx.scale = function(sx,sy){
             this.xform = this.xform.scaleNonUniform(sx,sy);
             return scale.call(player.ctx,sx,sy);
         };
     
-        this.rotate = function(radians){
-            var rotate = player.ctx.rotate;
+        var rotate = player.ctx.rotate;
+        player.ctx.rotate = function(radians){
             this.xform = xform.rotate(radians*180/Math.PI);
             return rotate.call(player.ctx,radians);
         };
     
-        this.translate = function(dx,dy){
-            var translate = player.ctx.translate;
-            this.xform = this.xform.translate(dx,dy);
+        var translate = player.ctx.translate;
+        player.ctx.translate = function(dx,dy){
+            this.xform = xform.translate(dx,dy);
             return translate.call(player.ctx,dx,dy);
         };
     
-        this.transform = function(a,b,c,d,e,f){
-            var transform = player.ctx.transform;
+        var transform = player.ctx.transform;
+        player.ctx.transform = function(a,b,c,d,e,f){
             var m2 = svg.createSVGMatrix();
             m2.a=a; m2.b=b; m2.c=c; m2.d=d; m2.e=e; m2.f=f;
             this.xform = this.xform.multiply(m2);
             return transform.call(player.ctx,a,b,c,d,e,f);
         };
         
-        this.setTransform = function(a,b,c,d,e,f){
-            var setTransform = player.ctx.setTransform;
+        var setTransform = player.ctx.setTransform;
+        player.ctx.setTransform = function(a,b,c,d,e,f){
             this.xform.a = a;
             this.xform.b = b;
             this.xform.c = c;
@@ -379,8 +372,8 @@ var Player = function(vid,canv) {
             return setTransform.call(player.ctx,a,b,c,d,e,f);
         };
         
+        var pt  = svg.createSVGPoint();
         player.ctx.transformedPoint = function(x,y){
-            var pt  = svg.createSVGPoint();
             pt.x=x; pt.y=y;
             return pt.matrixTransform(player.transforms.xform.inverse());
         }
@@ -388,10 +381,9 @@ var Player = function(vid,canv) {
         /* Checks if the viewport borders intersect with the canvas borders
         ** If it intersects, then scale/translate back the canvas accordingly to fit the viewport.*/
         this.refit = function() {
-            var tx = player.ctx.getTransform().e;
-            var ty = player.ctx.getTransform().f;
-            var s = player.ctx.getTransform().a;
-            console.log("zoom: " + s);
+            var tx = player.transforms.xform.e;
+            var ty = player.transforms.xform.f;
+            var s = player.transforms.xform.a;
             if (s < 1 || s > player.maxZoom) {
                 player.ctx.scale(1/s, 1/s);    
             }
@@ -437,10 +429,10 @@ var Player = function(vid,canv) {
             var pt = player.ctx.transformedPoint(player.last.x,player.last.y);
             var dx = pt.x-player.dragStart.x;
             var dy = pt.y-player.dragStart.y;
-            var tx = player.ctx.getTransform().e;
-            var ty = player.ctx.getTransform().f;
+            var tx = player.transforms.xform.e;
+            var ty = player.transforms.xform.f;
             var flag = 0;
-            var s = player.ctx.getTransform().a;
+            var s = player.transforms.xform.a;
             if (tx+dx <= 0 && tx+player.dimensions.cw*s+dx > player.dimensions.cw) { 
                     player.ctx.translate(dx,0);
                     flag = 1;
@@ -483,9 +475,23 @@ var Player = function(vid,canv) {
             return formattedTime; 
         }
     }
-    
-    
 }
-document.addEventListener('DOMContentLoaded', function() { var zoomable = new Player(document.getElementById('video'), document.getElementById('canvas'));
-                                                         zoomable.init() }, false);
-    
+
+document.addEventListener('DOMContentLoaded', function() {
+    var zoomable = new Player(document.getElementById('video'), document.getElementById('canvas')); 
+    zoomable.init();
+}, false);
+
+/*
+var vidCount = 1;
+document.addEventListener('DOMContentLoaded', function() {
+    // To loop through the rows while we are on a column
+    for(var rowNum = 0; rowNum < 3; rowNum++) {
+        // To loop through the columns while we are on a row
+        for(var colNum = 0; colNum < 4; colNum++) {
+            var zoomable = new Player(document.getElementById('video_' + vidCount), document.getElementById('canvas'), colNum*160, rowNum*120); 
+            zoomable.init()
+            vidCount++;
+        }
+    }  
+}, false);*/
