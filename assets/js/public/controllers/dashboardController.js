@@ -12,6 +12,8 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     var PUBLIC = 0;
     var PRIVATE = 1;
     var DELETE = 2;
+    var videoData = {};
+    var uploadUrl = '/upload';
 
     $scope.model = {
         selectedVideoList : []
@@ -154,5 +156,26 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         $mdDialog.hide(answer);
       };
     }
+
+    $scope.uploadVideoFile = function (filelist) {
+        for (var i = 0; i < filelist.length; ++i) {
+            var file = filelist.item(i);
+
+            videoData = {
+              title : file.name,
+              videoDir : uploadUrl,
+              thumbnailDir : uploadUrl
+            };            
+
+            servicesAPI.create(videoData)
+            .success(function(data) {
+                videoData = {};
+                getVideoList(); 
+            })
+            .error(function(data) {
+              console.log('Error: ' + data);
+            });               
+        }
+    };
 
 });
