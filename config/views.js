@@ -30,9 +30,9 @@ module.exports.views = {
   *                                                                           *
   ****************************************************************************/
 
-  /* Remove ejs as engine, using HTML instead
+  // Remove ejs as engine, using Jade instead
   engine: 'ejs',
-  */
+  
 
   /****************************************************************************
   *                                                                           *
