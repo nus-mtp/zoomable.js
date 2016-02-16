@@ -34,7 +34,6 @@ var jsFilesToInject = [
   'js/dependencies/clipboard.js',
   'js/dependencies/ngclipboard.js',
   'js/public/zoomableApp.js',
-  'js/public/appRoutes.js',
   'js/public/directives.js',
   'js/public/controllers/dashboardController.js',
   'js/public/controllers/loginController.js',
