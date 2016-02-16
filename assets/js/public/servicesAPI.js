@@ -20,9 +20,6 @@ angular.module('zoomableApp').factory('servicesAPI', function($http) {
     },
     login : function(accountData) {
       return $http.post('/api/user/login', accountData);
-    },
-    logout : function() {
-      return $http.get('/api/user/logout');
     }
   }
 });
