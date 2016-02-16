@@ -8,11 +8,11 @@
         <form name="loginForm">
           <div class="field-area">
             <p class="error-message" ng-model="errorMsg">{{errorMsg}}</p>
-            <input placeholder="Email" required name="userEmail" ng-model="email" ng-if="isCreate" type="email"/>
-            <input placeholder="Username" required name="userName" ng-model="username" type="text"/>
-            <input placeholder="Password" required name="userPassword" ng-model="password" type="password"/>
+            <input placeholder="Email" name="userEmail" ng-model="emailAddress" ng-show="isCreate" type="email"/>
+            <input placeholder="Username" name="userName" ng-model="username" type="text"/>
+            <input placeholder="Password" name="userPassword" ng-model="password" type="password"/>
             <a href="" class="forgot-password-link">Forgot Password</a>
-            <button type="submit" name="submitBtn" ng-click="submitForm()" ng-disabled="loginForm.$pristine || !loginForm.$valid">
+            <button type="submit" name="submitBtn" ng-click="submitForm()" ng-disabled="loginForm.$pristine || hasEmptyFields()">
               {{isCreate ? 'Create Account' : 'Login'}}
             </button>
             <a href="" class="create-account-link" ng-click="isCreate = !isCreate; errorMsg = ''">
