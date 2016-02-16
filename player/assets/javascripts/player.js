@@ -6,7 +6,7 @@ var Player = function(vid,canv) {
     this.ctx = canv.getContext('2d');
     this.scaleFactor = 1.1;
     this.zoomFactor = 1;
-    this.dimensions = { cw:640, ch:360 };
+    this.dimensions = { cw:canvas.width, ch:canvas.height };
     this.last;
     this.dragStart;
     this.dragged;
@@ -166,7 +166,6 @@ var Player = function(vid,canv) {
         /* Update zoom control UI */
         this.updateZoomUI = function() {
             this.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.xform.a);
-            console.log(this.zoomCtrl.value);
             this.updateSliderUI(this.zoomCtrl);
         };
 
@@ -279,7 +278,6 @@ var Player = function(vid,canv) {
             if (factor*s >= 1 && factor*s <= this.maxZoom) {
                 player.transforms.translate(pt.x,pt.y);
                 player.transforms.scale(factor,factor);
-                console.log('factor: ' + factor);
                 player.transforms.translate(-pt.x,-pt.y);
                 player.controls.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.xform.a);
                 player.transforms.refit();
@@ -337,7 +335,6 @@ var Player = function(vid,canv) {
         };
 
         this.scale = function(sx,sy){
-            console.log("" + sx + ", " + sy);
             var scale = player.ctx.scale;
             this.xform = this.xform.scaleNonUniform(sx,sy);
             return scale.call(player.ctx,sx,sy);
@@ -390,18 +387,17 @@ var Player = function(vid,canv) {
                 this.scale(1/s, 1/s);    
             }
             if (tx > 0 ) {
-                this.translate(-tx,0);
+                this.translate(-tx/s,0);
             }
             if (ty > 0) {
-                this.translate(0,-ty);
+                this.translate(0,-ty/s);
             }
             if (tx+player.dimensions.cw*s < player.dimensions.cw) {
-                var dx = player.dimensions.cw - tx-player.dimensions.cw*s;
-                var sum =tx+player.dimensions.cw*s;
+                var dx = (player.dimensions.cw - tx-player.dimensions.cw*s)/s;
                 this.translate(dx, 0);
             } 
             if (ty+player.dimensions.ch*s < player.dimensions.ch) {
-                var dy = player.dimensions.ch - ty-player.dimensions.ch*s;
+                var dy = (player.dimensions.ch - ty-player.dimensions.ch*s)/s;
                 this.translate(0, dy);
             }
         }
@@ -415,7 +411,7 @@ var Player = function(vid,canv) {
         this.redraw = function(){
             // Clear the entire canvas
             var p1 = player.ctx.transformedPoint(0,0);
-            var p2 = player.ctx.transformedPoint(player.canvas.width,player.canvas.height);
+            var p2 = player.ctx.transformedPoint(player.dimensions.cw,player.dimensions.ch);
             //ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
             player.ctx.fillStyle = 'rgb(0,0,0)';
             player.ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
@@ -423,7 +419,8 @@ var Player = function(vid,canv) {
             // ctx.save();
             // ctx.setTransform(1,0,0,1,0,0);
             // ctx.clearRect(0,0,canvas.width,canvas.height);
-            // ctx.restore();
+            // ctx.restore();   
+            player.transforms.refit();
             this.draw();
         }
 
@@ -435,6 +432,7 @@ var Player = function(vid,canv) {
             var ty = player.transforms.xform.f;
             var flag = 0;
             var s = player.transforms.xform.a;
+
             if (tx+dx <= 0 && tx+player.dimensions.cw*s+dx > player.dimensions.cw) { 
                     this.translate(dx,0);
                     flag = 1;
