@@ -50,7 +50,6 @@ module.exports = {
     Video.destroy({
       id: req.param('id')
     }).exec(function (err, video) {
-      console.log(req.body.videoId);
       if (err) throw err;
       res.json(video);
     });
