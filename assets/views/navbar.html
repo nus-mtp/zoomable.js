@@ -1,4 +1,4 @@
-<div ng-show="user" ng-controller="loginController">
+<div ng-show="isLoggedIn()" ng-controller="loginController">
   <!-- Navbar shows only when user is logged in -->
 
   <md-toolbar id="navbar">
@@ -24,12 +24,12 @@
       <!-- Third Group: Upload & Profile Button -->
       <span layout="row" layout-align="space-between center">
         <md-menu md-position-mode="target-right target" >
-          <md-button aria-label="Open demo menu" class="md-flat" ng-click="$mdOpenMenu($event)">{{username}}
+          <md-button aria-label="Open demo menu" class="md-flat" ng-click="$mdOpenMenu($event)">{{showUsername()}}
             <md-icon md-menu-origin md-svg-src="images/ic_arrow_drop_down_white_24px.svg"></md-icon>
           </md-button>
           <md-menu-content width="3">
             <md-menu-item ng-repeat="item in profileItems">
-              <md-button ng-click="ctrl.announceClick($index)">
+              <md-button ng-click="setDropdownValue(item)">
                   <div layout="row">
                     <p flex>{{item}}</p>
                   </div>
@@ -38,7 +38,7 @@
           </md-menu-content>
         </md-menu>
       </span>
-      
+
     </div>
   </md-toolbar>
 </div>
