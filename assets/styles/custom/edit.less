@@ -1,0 +1,175 @@
+/**
+ * edit.less
+ */
+
+#edit {
+    .input-chips {
+        margin-top: 10px;
+
+        .md-chips {
+            padding-bottom: 3px;
+
+            /* do not group these rules */
+            *::-webkit-input-placeholder {
+                color: fade(@color-black, 26%);
+            }
+            *:-moz-placeholder {
+                /* FF 4-18 */
+                color: fade(@color-black, 26%);
+            }
+            *::-moz-placeholder {
+                /* FF 19+ */
+                color: fade(@color-black, 26%);
+            }
+            *:-ms-input-placeholder {
+                /* IE 10+ */
+                color: fade(@color-black, 26%);
+            }
+
+            &.md-focused {
+                box-shadow: 0 1px @color-primary;
+            }
+        }
+
+        .md-chip.md-focused {
+            background-color: @color-primary;
+        }
+    }
+
+    button.md-button.cancel-btn,
+    button.md-button.save-btn {
+        margin: 0px 0px 0px 10px;
+    }
+
+    .custom-button-set {
+        margin-left: 20px;
+
+        label {
+            color: fade(@color-black, 54%);
+            font-size: 12px;
+        }
+
+        .privacy-buttons {
+            margin-top: 5px;
+            padding-left: 3px;
+
+            .custom-switch {
+                border: 1px solid fade(@color-black, 10%);
+                border-radius: 3px;
+                justify-content: space-around;
+                height: 35px;
+
+                .custom-btn {
+                    color: fade(@color-black, 30%);
+                    display: inline-block;
+                    height: inherit;
+                    font-size: 14px;
+                    font-weight: 500;
+                    padding-top: 8px;
+                    text-align: center;
+                    text-transform: uppercase;
+
+                    span.text {
+                        pointer-events: none;
+                    }
+
+                    &:focus {
+                        outline: 0;
+                    }
+
+                    &:hover {
+                        cursor: pointer;
+                    }
+
+                    &.selected {
+                        background-color: fade(@color-button-primary, 25%);
+                        color: @color-button-primary;
+                    }
+                }
+            }
+        }
+    }
+
+    .form-padding {
+        padding: 15px 5px 0px 5px;
+    }
+
+    .md-chips {
+        padding-bottom: 5px;
+    }
+
+    md-icon.tab-icon {
+        width: 20px;
+        opacity: 0.54;
+    }
+
+    md-input-container.md-block {
+        margin-bottom: 5px;
+    }
+
+    md-tab-item.md-tab.md-active {
+        color: fade(@color-black, 54%);
+    }
+
+    md-tabs md-ink-bar {
+        color: @color-button-primary;
+        background: @color-button-primary;
+    }
+
+    .tab-header {
+        vertical-align: middle;
+    }
+
+    #toast-area {
+        display: block;
+        height: 70px;
+        width: 100%;
+        z-index: 90;
+
+        button {
+            color: @color-white;
+        }
+    }
+
+    .video-info {
+        font-size: 13px;
+
+        button.md-button.md-icon-button {
+            height: 20px;
+            margin: 0px 0px 0px 5px;
+            padding: 0px;
+            width: 20px;
+
+            .copy-btn {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        .embed-link-area {
+            span {
+                padding-top: 9px;
+            }
+            input {
+                width: 225px;
+            }
+        }
+
+        .field {
+            color: fade(@color-black, 87%);
+            float: left;
+            font-weight: 300;
+            width: 110px;
+        }
+
+        .title {
+            color: fade(@color-black, 54%);
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .value {
+            color: @color-black;
+        }
+    }
+}

@@ -1,5 +1,5 @@
 /**
- * Compress CSS files.
+ * To run jasmine test (Not working currently due to phantomJS not support html5 <video> tag)
  *
  * ---------------------------------------------------------------
  *
