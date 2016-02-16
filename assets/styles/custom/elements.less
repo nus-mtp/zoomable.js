@@ -1,0 +1,33 @@
+/**
+ * elements.less
+ */
+
+body {
+    min-width: 800px;
+}
+
+md-card {
+    display: block;     // override default card styling to inherit height of children
+    padding: 0px !important;
+}
+
+md-card-header {        // override default card header styling
+    display: block !important;
+    padding: 0px !important;
+}
+
+md-content.layout-padding {
+    top: @navbar-height;
+    padding: 16px;
+}
+
+.page-header {
+    md-icon.header-icon {
+        background-image: url(../../images/ic_movie_black_24px.svg);
+        margin: 0px 10px 0px 20px;
+    }
+
+    .header-title {
+        vertical-align: middle;
+    }
+}

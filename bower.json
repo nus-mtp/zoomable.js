@@ -20,6 +20,11 @@
     "shaka-player": "https://cdnjs.cloudflare.com/ajax/libs/shaka-player/1.6.2/shaka-player.compiled.js",
     "jasmine": "jasmine#2.4.1",
     "jasmine-ajax": "~3.2.0",
-    "jasmine-jquery": "~2.1.1"
+    "jasmine-jquery": "~2.1.1",
+    "angular": "~1.4.9",
+    "angular-ui-router": "~0.2.16",
+    "angular-material": "~1.0.3",
+    "ngclipboard": "^1.1.0",
+    "clipboard": "^1.5.8"
   }
 }
