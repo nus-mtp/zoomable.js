@@ -11,4 +11,5 @@ script: grunt test
 
 branches:
   only:
-    - fixTravis
+    - develop
+    - master
