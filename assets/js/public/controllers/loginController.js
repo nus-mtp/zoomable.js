@@ -1,43 +1,10 @@
-angular.module('zoomableApp').controller('loginController', function($scope, $state, servicesAPI, authService){
-
-  // VARIABLES FOR NAVBAR
-  $scope.profileItems = ['Settings', 'Log Out'];
-
-  // VARIABLES FOR LOGIN FORM
+angular.module('zoomableApp').controller('loginController', function($scope, $state, servicesAPI){
+  // VARIABLES
   $scope.username = '';
   $scope.password = '';
   $scope.emailAddress = '';
   $scope.isCreate = false;
   $scope.errorMsg = '';
-
-  // FUNCTIONS FOR NAVBAR
-  $scope.isLoggedIn = function() {
-    return authService.isAuthenticated();
-  };
-
-  $scope.showUsername = function() {
-    return authService.getUsername();
-  }
-
-  $scope.setDropdownValue = function(value) {
-    if (value == 'Log Out') {
-      logoutUser();
-    }
-    // TODO for value == 'Settings'
-  }
-
-  function logoutUser() {
-    servicesAPI.logout()
-    .success(function(data) {
-      // update user authentication info
-      authService.setStatusAndUsername(false, '');
-      // redirect to login page
-      $state.go('login');
-    })
-    .error(function(data) {
-      console.log('Error: ' + data);
-    })
-  }
 
   // FUNCTIONS FOR LOGIN FORM
   $scope.submitForm = function() {
@@ -51,11 +18,8 @@ angular.module('zoomableApp').controller('loginController', function($scope, $st
       // create a new account for new user
 			servicesAPI.createAccount(accountData)
 	    .success(function(data) {
-        // successful creation
-        // update user authentication info
-        authService.setStatusAndUsername(true, $scope.username);
         // redirect to dashboard page
-        $state.go('dashboard');
+        window.location = '/';
 	    })
 	    .error(function(data) {
 	      console.log('Error: ' + data);
@@ -71,10 +35,8 @@ angular.module('zoomableApp').controller('loginController', function($scope, $st
       // check if user entered correct username and password
       servicesAPI.login(accountData)
 	    .success(function(data) {
-        // update user authentication info
-        authService.setStatusAndUsername(true, $scope.username);
         // redirect to dashboard page
-        $state.go('dashboard');
+        window.location = '/';
 	    })
 	    .error(function(data) {
 	      console.log('Error: ' + data);

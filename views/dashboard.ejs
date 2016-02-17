@@ -1,3 +1,5 @@
+<!-- DASHBOARD EDIT VIDEO VIEW -->
+
 <div ng-controller="dashboardController" ng-cloak class="dashboard" md-no-ink="">
   <md-content layout-padding>
     <div flex-xs flex-gt-xs="100" layout-align="start center">
@@ -11,48 +13,48 @@
           </span>
         </div>
         <div flex="1">
-            <input class="ng-hide" id="file-input" type="file" multiple="multiple" data-dbinf-on-files-selected="uploadVideoFile(selectedFileList)" file-model="videoFile">
-            <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file">
-            <label for="file-input">Upload</label></md-button>
+          <input class="ng-hide" id="file-input" type="file" multiple="multiple" data-dbinf-on-files-selected="uploadVideoFile(selectedFileList)" file-model="videoFile">
+          <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file">
+            <label for="file-input">Upload</label>
+          </md-button>
         </div>
       </div>
 
-    <md-card>
-      <!-- ACTION BUTTONS -->
-      <md-card-header>
-        <md-card-actions layout="row" layout-align="space-between center">
-          <div flex class="action-btns-left">
-            <md-card-icon-actions>
-              <md-checkbox class="select-all" ng-model="master" ng-change="isSelectAll()" aria-label="Select All"></md-checkbox>
-              <md-button ng-click="showConfirm($event,buttonState)" ng-repeat="buttonState in buttonStates">
-                {{ buttonState }}
-              </md-button>
-            </md-card-icon-actions>
-          </div>
+      <md-card>
+        <!-- ACTION BUTTONS -->
+        <md-card-header>
+          <md-card-actions layout="row" layout-align="space-between center">
+            <div flex class="action-btns-left">
+              <md-card-icon-actions>
+                <md-checkbox class="select-all" ng-model="master" ng-change="isSelectAll()" aria-label="Select All"></md-checkbox>
+                <md-button ng-click="showConfirm($event,buttonState)" ng-repeat="buttonState in buttonStates">
+                  {{ buttonState }}
+                </md-button>
+              </md-card-icon-actions>
+            </div>
 
-          <div flex="1" class="action-btns-right">
-            <md-input-container>
-              <label>Video</label>
-              <md-select ng-model="userFilterState">
-                <md-option ng-repeat="filterState in filterStates" value="{{ filterState }}" ng-click="updateFilterState(filterState)">{{ filterState }}</md-option>
-              </md-select>
-            </md-input-container>
-          </div>
-        </md-card-actions>
-      </md-card-header>
+            <div flex="1" class="action-btns-right">
+              <md-input-container>
+                <label>Video</label>
+                <md-select ng-model="userFilterState">
+                  <md-option ng-repeat="filterState in filterStates" value="{{ filterState }}" ng-click="updateFilterState(filterState)">{{ filterState }}</md-option>
+                </md-select>
+              </md-input-container>
+            </div>
+          </md-card-actions>
+        </md-card-header>
 
-      <md-divider></md-divider>
+        <md-divider></md-divider>
 
-      <!-- VIDEO CONTENT -->
-      <md-card-content>
-        <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType" ng-show="videoList.length">
+        <!-- VIDEO CONTENT -->
+        <md-card-content>
+          <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType" ng-show="videoList.length">
             <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
-            <a ui-sref="edit({ videoId: video.id })">
-
+            <a href="/edit/{{ video.id }}">
               <!-- TODO: Uncomment after server side can auto generate image directory
               <span ng-show="video.thumbnailDir">
-                <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
-              </span> -->
+              <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+            </span> -->
               <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
             </a>
 
@@ -77,15 +79,15 @@
               <span ng-show"video.views">{{ video.views }}</span>
               View
             </div>
-        </md-list-item>
+          </md-list-item>
 
-        <md-list-item ng-hide="videoList.length" layout="row" layout-align="center center">
-          No Video Yet
-        </md-list-item>
-      </md-card-content>
+          <md-list-item ng-hide="videoList.length" layout="row" layout-align="center center">
+            No Video Yet
+          </md-list-item>
+        </md-card-content>
 
-    </md-card>
+      </md-card>
 
-
+    </div>
   </md-content>
 </div>

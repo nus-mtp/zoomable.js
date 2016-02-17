@@ -1,21 +1,15 @@
-angular.module('zoomableApp').controller('editController', function($scope, $stateParams, $mdToast, $mdDialog, $state, servicesAPI){
-
+angular.module('zoomableApp').controller('editController', function($scope, $mdToast, $mdDialog, $state, servicesAPI){
 	// VARIABLES
 	$scope.defaultImagePath = 'images/bunny.png';
-	$scope.video_id = $stateParams.videoId;
 	$scope.originalVideoTitle = '';
+	$scope.video = {};
 	$scope.tags = [];
 
-	/* Get video object by video id */
-	servicesAPI.getOne($scope.video_id)
-	.success(function(data) {
-		$scope.video = data;
+	$scope.init = function() {
+		$scope.video = window.SAILS_LOCALS.video;
 		// prevent page header from changing when title is being edited
 		$scope.originalVideoTitle = $scope.video.title;
-	})
-	.error(function(data) {
-		console.log('Error: ' + data);
-	});
+	}
 
 	/* Save changes made to video fields */
 	/* Frontend checks ensure this ftn only called when there are changes & form is valid */
@@ -67,12 +61,12 @@ angular.module('zoomableApp').controller('editController', function($scope, $sta
 				// if user stay on page, do nothing
 			}, function() {
 				// if user leave page, redirect to dashboard page
-				$state.go('dashboard');
+				window.location = '/';
 			});
 		}
 		else {
 			// just redirect to dashboard page if no changes made
-			$state.go('dashboard');
+			window.location = '/';
 		}
   };
 
