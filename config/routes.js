@@ -32,11 +32,14 @@ module.exports.routes = {
   *                                                                          *
   ***************************************************************************/
 
-  /* Added 'index.html' as view. Routing now done via appRoutes.js
-  '/': {
-    view: 'homepage'
-  }
-  */
+  // '/': {
+  //   view: 'homepage'
+  // }
+
+  // server rendered webpages
+  'GET /': 'PageController.showHomePage',
+  'GET /edit/:id': 'PageController.showEditPage',
+
 
   /***************************************************************************
   *                                                                          *

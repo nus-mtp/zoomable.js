@@ -33,7 +33,8 @@ module.exports = function(grunt) {
 				cwd: './libs',
 				src: ['angular/angular.js', 'angular-ui-router/release/angular-ui-router.js',
 				'angular-aria/angular-aria.js', 'angular-animate/angular-animate.js',
-				'angular-material/angular-material.js'],
+				'angular-material/angular-material.js', 'angular-messages/angular-messages.js',
+				'clipboard/dist/clipboard.js', 'ngclipboard/dist/ngclipboard.js'],
 				flatten: true,
 				dest: '.tmp/public/js/dependencies'
 			}]

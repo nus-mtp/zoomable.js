@@ -1,0 +1,9 @@
+[
+	{
+		"username": "test",
+		"encryptedPassword": "$2a$10$W/eIYPmTCKuMTF3mFYUk2.6dOFdyxOfxzHu5i3WGY8BcgI.btBO0S",
+		"email": "test@test.com",
+		"permission": "1",
+		"lastLoggedIn": "Fri Feb 12 2016 14:03:24 GMT+0800 (SGT)"
+	}
+]
