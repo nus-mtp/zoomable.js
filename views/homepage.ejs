@@ -1,74 +1,29 @@
-<html>
-    <head>
-        <!-- META TAGS -->
-        <meta charset="UTF-8" />
-        <meta name="Zoomable" content="yes" />
-        <!-- Viewport mobile tag for sensible mobile support -->
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <!-- META TAGS END -->
+<!-- LOGIN VIEW -->
 
-        <base href="/" />
-        <title>Zoomable</title>
+<div ng-controller="loginController" ng-cloak id="login">
+  <md-content layout-padding>
 
-        <!--STYLES-->
-        <link rel="stylesheet" href="/styles/angular-material.css">
-        <link rel="stylesheet" href="/styles/importer.css">
-        <!--STYLES END-->
+    <md-card>
+      <div class="card-contents">
+        <div class="logo" aria-label="Logo"></div>
+        <div class="description">An open source JavaScript/HTML5 video server and player with zoom and pan features.</div>
+        <form name="loginForm">
+          <div class="field-area">
+            <p class="error-message" ng-model="errorMsg">{{errorMsg}}</p>
+            <input placeholder="Email" name="userEmail" ng-model="emailAddress" ng-show="isCreate" type="email"/>
+            <input placeholder="Username" name="userName" ng-model="username" type="text"/>
+            <input placeholder="Password" name="userPassword" ng-model="password" type="password"/>
+            <a href="" class="forgot-password-link">Forgot Password</a>
+            <button type="submit" name="submitBtn" ng-click="submitForm()" ng-disabled="loginForm.$pristine || hasEmptyFields()">
+              {{isCreate ? 'Create Account' : 'Login'}}
+            </button>
+            <a href="" class="create-account-link" ng-click="isCreate = !isCreate; errorMsg = ''">
+              {{isCreate ? 'Back' : 'Create New Account'}}
+            </a>
+          </div>
+        </form>
+      </div>
+    </md-card>
 
-        <!--SCRIPTS-->
-        <script src="/js/dependencies/sails.io.js"></script>
-        <script src="/js/dependencies/angular.js"></script>
-        <script src="/js/dependencies/angular-ui-router.js"></script>
-        <script src="/js/dependencies/angular-material.js"></script>
-        <script src="/js/dependencies/angular-messages.js"></script>
-        <script src="/js/dependencies/angular-animate.js"></script>
-        <script src="/js/dependencies/angular-aria.js"></script>
-        <script src="/js/dependencies/clipboard.js"></script>
-        <script src="/js/dependencies/ngclipboard.js"></script>
-        <script src="/js/public/zoomableApp.js"></script>
-        <script src="/js/public/directives.js"></script>
-        <script src="/js/public/controllers/dashboardController.js"></script>
-        <script src="/js/public/controllers/loginController.js"></script>
-        <script src="/js/public/controllers/editController.js"></script>
-        <script src="/js/public/servicesAPI.js"></script>
-        <!--SCRIPTS END-->
-
-        <!--Added this so the client has access to the csrf tag and it's grabbed first service side on every page -->
-        <script type="text/javascript">
-        window.SAILS_LOCALS = {
-            _csrf: "<%= _csrf %>"
-        };
-        </script>
-    </head>
-
-    <body ng-app="zoomableApp">
-        <!-- show login view -->
-        <div ng-controller="loginController" ng-cloak id="login">
-          <md-content layout-padding>
-
-            <md-card>
-              <div class="card-contents">
-                <div class="logo" aria-label="Logo"></div>
-                <div class="description">An open source JavaScript/HTML5 video server and player with zoom and pan features.</div>
-                <form name="loginForm">
-                  <div class="field-area">
-                    <p class="error-message" ng-model="errorMsg">{{errorMsg}}</p>
-                    <input placeholder="Email" name="userEmail" ng-model="emailAddress" ng-show="isCreate" type="email"/>
-                    <input placeholder="Username" name="userName" ng-model="username" type="text"/>
-                    <input placeholder="Password" name="userPassword" ng-model="password" type="password"/>
-                    <a href="" class="forgot-password-link">Forgot Password</a>
-                    <button type="submit" name="submitBtn" ng-click="submitForm()" ng-disabled="loginForm.$pristine || hasEmptyFields()">
-                        {{isCreate ? 'Create Account' : 'Login'}}
-                    </button>
-                    <a href="" class="create-account-link" ng-click="isCreate = !isCreate; errorMsg = ''">
-                        {{isCreate ? 'Back' : 'Create New Account'}}
-                    </a>
-                  </div>
-                </form>
-              </div>
-            </md-card>
-
-          </md-content>
-        </div>
-    </body>
-</html>
+  </md-content>
+</div>

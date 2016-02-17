@@ -1,193 +1,93 @@
-<html>
-<head>
-    <!-- META TAGS -->
-    <meta charset="UTF-8" />
-    <meta name="Zoomable" content="yes" />
-    <!-- Viewport mobile tag for sensible mobile support -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <!-- META TAGS END -->
+<!-- DASHBOARD EDIT VIDEO VIEW -->
 
-    <base href="/" />
-    <title>Zoomable</title>
-
-    <!--STYLES-->
-    <link rel="stylesheet" href="/styles/angular-material.css">
-    <link rel="stylesheet" href="/styles/importer.css">
-    <!--STYLES END-->
-
-    <!--SCRIPTS-->
-    <script src="/js/dependencies/sails.io.js"></script>
-    <script src="/js/dependencies/angular.js"></script>
-    <script src="/js/dependencies/angular-ui-router.js"></script>
-    <script src="/js/dependencies/angular-material.js"></script>
-    <script src="/js/dependencies/angular-messages.js"></script>
-    <script src="/js/dependencies/angular-animate.js"></script>
-    <script src="/js/dependencies/angular-aria.js"></script>
-    <script src="/js/dependencies/clipboard.js"></script>
-    <script src="/js/dependencies/ngclipboard.js"></script>
-    <script src="/js/public/zoomableApp.js"></script>
-    <script src="/js/public/directives.js"></script>
-    <script src="/js/public/controllers/dashboardController.js"></script>
-    <script src="/js/public/controllers/loginController.js"></script>
-    <script src="/js/public/controllers/editController.js"></script>
-    <script src="/js/public/servicesAPI.js"></script>
-    <!--SCRIPTS END-->
-
-    <!--Added this so the client has access to the csrf tag and it's grabbed first service side on every page -->
-    <script type="text/javascript">
-    window.SAILS_LOCALS = {
-        _csrf: '<%= _csrf %>',
-        me: <%- JSON.stringify(me) %>
-    };
-    </script>
-</head>
-
-<body ng-app="zoomableApp">
-    <!-- show navbar view -->
-    <div ng-controller="loginController">
-        <!-- Navbar shows only when user is logged in -->
-
-        <md-toolbar id="navbar">
-            <div layout="row" layout-align="space-between">
-                <!-- First Group: Menu & Home Button -->
-                <span layout layout-align="none center">
-                    <md-button class="md-icon-button" aria-label="Menu">
-                        <md-icon md-svg-src="images/ic_menu_white_24px.svg"></md-icon>
-                    </md-button>
-                    <md-button ng-href="/" class="home-btn" aria-label="Logo" md-no-ink></md-button>
-                </span>
-
-                <!-- Second Group: Search Area -->
-                <span class="search-container">
-                    <md-input-container md-no-float class="md-block">
-                        <input type="text" placeholder="Search"></input>
-                    </md-input-container>
-                    <md-button class="md-icon-button search-btn" aria-label="Search" md-no-ink>
-                        <md-icon md-svg-src="images/ic_search_white_24px.svg"></md-icon>
-                    </md-button>
-                </span>
-
-                <!-- Third Group: Upload & Profile Button -->
-                <span layout="row" layout-align="space-between center">
-                    <md-menu md-position-mode="target-right target" >
-                        <md-button aria-label="Open demo menu" class="md-flat" ng-click="$mdOpenMenu($event)"><%= me.username %>
-                            <md-icon md-menu-origin md-svg-src="images/ic_arrow_drop_down_white_24px.svg"></md-icon>
-                        </md-button>
-                        <md-menu-content width="3">
-                            <md-menu-item>
-                                <md-button ng-click="">
-                                    <div layout="row">
-                                        <p flex>Settings</p>
-                                    </div>
-                                </md-button>
-                            </md-menu-item>
-                            <md-menu-item>
-                                <md-button class="dropdown-link">
-                                    <div layout="row">
-                                        <a href="/api/user/logout" flex>Log Out</a>
-                                    </div>
-                                </md-button>
-                            </md-menu-item>
-                        </md-menu-content>
-                    </md-menu>
-                </span>
-
-            </div>
-        </md-toolbar>
-    </div>
-
-
-    <!-- show dashboard view -->
-    <div ng-controller="dashboardController" ng-cloak class="dashboard" md-no-ink="">
-        <md-content layout-padding>
-            <div flex-xs flex-gt-xs="100" layout-align="start center">
-                <!-- DASHBOARD HEADER -->
-                <div layout="row" layout-align="space-between center">
-                    <div flex class="page-header">
-                        <md-icon class="header-icon"></md-icon>
-                        <span class="md-headline header-title">My Videos
-                            <span ng-show="videoList.length" class="video-count">{{ videoList.length }}</span>
-                            <span ng-hide="videoList.length" class="video-count">0</span>
-                        </span>
-                    </div>
-                    <div flex="1">
-                        <input class="ng-hide" id="file-input" type="file" multiple="multiple" data-dbinf-on-files-selected="uploadVideoFile(selectedFileList)" file-model="videoFile">
-                        <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file">
-                            <label for="file-input">Upload</label></md-button>
-                        </div>
-                    </div>
-
-                    <md-card>
-                        <!-- ACTION BUTTONS -->
-                        <md-card-header>
-                            <md-card-actions layout="row" layout-align="space-between center">
-                                <div flex class="action-btns-left">
-                                    <md-card-icon-actions>
-                                        <md-checkbox class="select-all" ng-model="master" ng-change="isSelectAll()" aria-label="Select All"></md-checkbox>
-                                        <md-button ng-click="showConfirm($event,buttonState)" ng-repeat="buttonState in buttonStates">
-                                            {{ buttonState }}
-                                        </md-button>
-                                    </md-card-icon-actions>
-                                </div>
-
-                                <div flex="1" class="action-btns-right">
-                                    <md-input-container>
-                                        <label>Video</label>
-                                        <md-select ng-model="userFilterState">
-                                            <md-option ng-repeat="filterState in filterStates" value="{{ filterState }}" ng-click="updateFilterState(filterState)">{{ filterState }}</md-option>
-                                        </md-select>
-                                    </md-input-container>
-                                </div>
-                            </md-card-actions>
-                        </md-card-header>
-
-                        <md-divider></md-divider>
-
-                        <!-- VIDEO CONTENT -->
-                        <md-card-content>
-                            <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType" ng-show="videoList.length">
-                                <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
-                                <a href="/edit/{{ video.id }}">
-
-                                    <!-- TODO: Uncomment after server side can auto generate image directory
-                                    <span ng-show="video.thumbnailDir">
-                                    <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
-                                </span> -->
-                                <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
-                            </a>
-
-                            <div class="md-list-item-text" layout="column">
-                                <h3>{{ video.title }}</h3>
-                                <h4>
-                                    {{ video.createdAt | date:'medium'}}
-                                    <span ng-if="video.privacy">
-                                        <md-icon md-svg-icon="{{ iconPrivacyPath }}" class="small"></md-icon>
-                                    </span>
-                                </h4>
-                                <p>
-                                    <span ng-if="video.tags.length">
-                                        <md-icon md-svg-icon="{{ iconTagPath }}" class="small"></md-icon>
-                                        {{ video.tags }}
-                                    </span>
-                                </p>
-                            </div>
-
-                            <div class="md-secondary">
-                                <md-icon class="md-avatar-icon" md-svg-icon="{{ iconViewPath }}"></md-icon>
-                                <span ng-show"video.views">{{ video.views }}</span>
-                                View
-                            </div>
-                        </md-list-item>
-
-                        <md-list-item ng-hide="videoList.length" layout="row" layout-align="center center">
-                            No Video Yet
-                        </md-list-item>
-                    </md-card-content>
-
-                </md-card>
-
-            </md-content>
+<div ng-controller="dashboardController" ng-cloak class="dashboard" md-no-ink="">
+  <md-content layout-padding>
+    <div flex-xs flex-gt-xs="100" layout-align="start center">
+      <!-- DASHBOARD HEADER -->
+      <div layout="row" layout-align="space-between center">
+        <div flex class="page-header">
+          <md-icon class="header-icon"></md-icon>
+          <span class="md-headline header-title">My Videos
+            <span ng-show="videoList.length" class="video-count">{{ videoList.length }}</span>
+            <span ng-hide="videoList.length" class="video-count">0</span>
+          </span>
         </div>
+        <div flex="1">
+          <input class="ng-hide" id="file-input" type="file" multiple="multiple" data-dbinf-on-files-selected="uploadVideoFile(selectedFileList)" file-model="videoFile">
+          <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file">
+            <label for="file-input">Upload</label>
+          </md-button>
+        </div>
+      </div>
 
-    </body>
-    </html>
+      <md-card>
+        <!-- ACTION BUTTONS -->
+        <md-card-header>
+          <md-card-actions layout="row" layout-align="space-between center">
+            <div flex class="action-btns-left">
+              <md-card-icon-actions>
+                <md-checkbox class="select-all" ng-model="master" ng-change="isSelectAll()" aria-label="Select All"></md-checkbox>
+                <md-button ng-click="showConfirm($event,buttonState)" ng-repeat="buttonState in buttonStates">
+                  {{ buttonState }}
+                </md-button>
+              </md-card-icon-actions>
+            </div>
+
+            <div flex="1" class="action-btns-right">
+              <md-input-container>
+                <label>Video</label>
+                <md-select ng-model="userFilterState">
+                  <md-option ng-repeat="filterState in filterStates" value="{{ filterState }}" ng-click="updateFilterState(filterState)">{{ filterState }}</md-option>
+                </md-select>
+              </md-input-container>
+            </div>
+          </md-card-actions>
+        </md-card-header>
+
+        <md-divider></md-divider>
+
+        <!-- VIDEO CONTENT -->
+        <md-card-content>
+          <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType" ng-show="videoList.length">
+            <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
+            <a href="/edit/{{ video.id }}">
+              <!-- TODO: Uncomment after server side can auto generate image directory
+              <span ng-show="video.thumbnailDir">
+              <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+            </span> -->
+              <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
+            </a>
+
+            <div class="md-list-item-text" layout="column">
+              <h3>{{ video.title }}</h3>
+              <h4>
+                {{ video.createdAt | date:'medium'}}
+                <span ng-if="video.privacy">
+                  <md-icon md-svg-icon="{{ iconPrivacyPath }}" class="small"></md-icon>
+                </span>
+              </h4>
+              <p>
+                <span ng-if="video.tags.length">
+                  <md-icon md-svg-icon="{{ iconTagPath }}" class="small"></md-icon>
+                  {{ video.tags }}
+                </span>
+              </p>
+            </div>
+
+            <div class="md-secondary">
+              <md-icon class="md-avatar-icon" md-svg-icon="{{ iconViewPath }}"></md-icon>
+              <span ng-show"video.views">{{ video.views }}</span>
+              View
+            </div>
+          </md-list-item>
+
+          <md-list-item ng-hide="videoList.length" layout="row" layout-align="center center">
+            No Video Yet
+          </md-list-item>
+        </md-card-content>
+
+      </md-card>
+
+    </div>
+  </md-content>
+</div>
