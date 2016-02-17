@@ -2,13 +2,17 @@ var request = require('supertest');
 
 describe('VideoController', function () {
 	var credentials = { username: 'test', password: 'testtesttest'};
-	var agent = request.agent('http://localhost:1337');
+	var vid1 = {title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
+	var vid2 = {title: 'Mission Possible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
+	var vid3 = {title: 'Finding Nemo', videoDir: '/video/2', thumbnailDir: '/video/2/a.jpg'};
 
 	describe('#create', function () {
+		var agent = request.agent('http://localhost:1337');
+
 		it('should not create a new Video object before login', function (done) {
 			request(sails.hooks.http.app)
 			.post('/api/video')
-			.send({ title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'})
+			.send(vid1)
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
@@ -29,7 +33,7 @@ describe('VideoController', function () {
 
 				agent
 				.post('/api/video')
-				.send({ title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'})
+				.send(vid1)
 				.set('Accept', 'application/json')
 				.expect(200)
 				.end(function (videoCreateErr, videoCreateRes) {
@@ -43,39 +47,137 @@ describe('VideoController', function () {
 	});
 
 	describe('#read', function () {
+		var agent = request.agent('http://localhost:1337');
+
+		it('should not read Video object based on the id before login', function (done) {
+			request(sails.hooks.http.app)
+			.get('/api/video/1')
+			.expect(403)
+			.end(function (err, res) {
+				if (err) done(err);
+				
+				(res.text).should.match('You are not permitted to perform this action.');
+				done();
+			});
+		});
+
 		it('should return a Video object based on the id given after login', function (done) {
 			agent
-			.get('/api/video/1')
-			.set('Accept', 'application/json')
+			.post('/api/user/login')
+			.send(credentials)
 			.expect(200)
-			.end(function (videoCreateErr, videoCreateRes) {
-				if (videoCreateErr)  done(videoCreateErr);
+			.end(function (signinErr, signinRes) {
+				agent
+				.get('/api/video/1')
+				.set('Accept', 'application/json')
+				.expect(200)
+				.end(function (videoCreateErr, videoCreateRes) {
+					if (videoCreateErr)  done(videoCreateErr);
 					
-				(videoCreateRes.body.title).should.equal('Mission Impossible');
-				done();
+					(videoCreateRes.body.title).should.equal('Mission Impossible');
+					done();
+				});
 			});
 		});
 	});
 
 	describe('#readAll', function () {
+		var agent = request.agent('http://localhost:1337');
+
+		it('should not read list of all Video object before login', function (done) {
+			request(sails.hooks.http.app)
+			.get('/api/video/')
+			.expect(403)
+			.end(function (err, res) {
+				if (err) done(err);
+				
+				(res.text).should.match('You are not permitted to perform this action.');
+				done();
+			});
+		});
+
 		it('should return a list of all Video object after login', function (done) {
 			agent
-			.get('/api/video')
-			.set('Accept', 'application/json')
-			.expect(200, done);
+			.post('/api/user/login')
+			.send(credentials)
+			.expect(200)
+			.end(function (signinErr, signinRes) {
+				agent
+				.get('/api/video')
+				.set('Accept', 'application/json')
+				.expect(200, done);
+			});
+		});
+	});
+	
+	describe('#update', function () {
+		var agent = request.agent('http://localhost:1337');
+
+		it('should not read update Video object based on the id given before login', function (done) {
+			request(sails.hooks.http.app)
+			.put('/api/video/1')
+			.send(vid2)
+			.expect(403)
+			.end(function (err, res) {
+				if (err) done(err);
+				
+				(res.text).should.match('You are not permitted to perform this action.');
+				done();
+			});
+		});
+
+		it('should update Video object based on the id given after login', function (done) {
+			agent
+			.post('/api/user/login')
+			.send(credentials)
+			.expect(200)
+			.end(function (err, res) {
+				agent
+				.put('/api/video/1')
+				.send(vid2)
+				.set('Accept', 'application/json')
+				.expect(200)
+				.end(function (err, res) {
+					if (err) done(err);
+					
+					res.body[0].should.be.instanceof(Object).and.have.property('title', 'Mission Possible');
+					done();
+				});
+			});	
 		});
 	});
 
 	describe('#destroy', function () {
+		var agent = request.agent('http://localhost:1337');
+
+		it('should not read delete Video object based on the id given before login', function (done) {
+			request(sails.hooks.http.app)
+			.delete('/api/video/1')
+			.expect(403)
+			.end(function (err, res) {
+				if (err) done(err);
+				
+				(res.text).should.match('You are not permitted to perform this action.');
+				done();
+			});
+		});
+
 		it('should destroy the Video object based on the id given after login', function (done) {
 			agent
-			.delete('/api/video/1')
-			.end(function (videoDeleteErr, videoDeleteRes) {
-				if (videoDeleteErr) done (videoDeleteErr);
-				
+			.post('/api/user/login')
+			.send(credentials)
+			.expect(200)
+			.end(function (err, res) {
 				agent
-				.get('/api/video/1')
-				.expect(404, done);
+				.delete('/api/video/1')
+				.end(function (videoDeleteErr, videoDeleteRes) {
+					if (videoDeleteErr) done (videoDeleteErr);
+					
+					// Try to find the deleted video
+					agent
+					.get('/api/video/1')
+					.expect(404, done);
+				});
 			});
 		});
 	});
