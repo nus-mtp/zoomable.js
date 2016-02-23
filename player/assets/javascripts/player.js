@@ -1,5 +1,5 @@
 
-var Player = function(vid,canv) {
+var Player = function(vid,canv,coords,dims) {
 
     this.video = vid;
     this.canvas = canv;
@@ -28,7 +28,7 @@ var Player = function(vid,canv) {
         this.seek = new Seek(this);
         this.transforms = new Transforms(this);
         this.util = new Util(this);
-        this.transforms.redraw();	
+        this.transforms.draw();	
         this.last = { x: canvas.width/2, y: canvas.height/2 };
         this.volume.setVolume(0.5); //set default vol of video
         this.mouseactions = new MouseActions(this);
@@ -404,7 +404,7 @@ var Player = function(vid,canv) {
 
         this.draw = function() {
             //if(v.paused || v.ended) return false;
-            player.ctx.drawImage(player.video,0,0,player.dimensions.cw,player.dimensions.ch);
+            player.ctx.drawImage(player.video,coords.x,coords.y,dims.width,dims.height);
             setTimeout(player.transforms.draw,20);
         }
 

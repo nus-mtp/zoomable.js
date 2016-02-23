@@ -6,126 +6,19 @@
     <link rel="stylesheet" type="text/css" href="assets/stylesheets/canvas.css" >    
     <script src="../libs/jquery/dist/jquery.min.js"></script>
     <script src="../libs/shaka-player/index.js" type="text/javascript"></script>
-    <!--script src="assets/javascripts/initMultiShakaPlayer.js"></script-->
-    <script src="assets/javascripts/initShakaPlayer.js"></script>
-    <!--script src="assets/javascripts/initCanvasPlayer.js"></script>
-    <script src="assets/javascripts/canvasControls.js"></script-->
     <script src="assets/javascripts/player.js"></script>
+    <script src="assets/javascripts/zoomableControl.js"></script>
 </head>
 <body>
 <table>
   <tbody>
     <tr style="display:table-row;">
-    <td>Video Source:</td>
-        <td colspan="2">
-          <select id="mpdSource">
-          <option value="http://yt-dash-mse-test.commondatastorage.googleapis.com/media/car-20120827-manifest.mpd">Car</option>
-          <option value="http://yt-dash-mse-test.commondatastorage.googleapis.com/media/motion-20120802-manifest.mpd">Motion</option>
-          <option value="http://yt-dash-mse-test.commondatastorage.googleapis.com/media/oops-20120802-manifest.mpd">Oops</option>
-          <option value="http://zoomable.comp.nus.edu.sg/puppey/puppy_dash.mpd">Puppy</option>
-          <option value="">Squirrel</option>
-          </select>
-    </td>
-    <td><button onclick="initShakaPlayer()">Load</button></td>
+    <td><button onclick="Zoomable()">Load</button></td>
     <tr> 
   </tbody>
 </table>
 
-<video id="video"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
->
-       Your browser does not support HTML5 video.
-</video>
-<!--video id="video_2"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R1C2.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_3"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R1C3.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_4"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R1C4.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_5"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R2C1.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_6"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R2C2.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_7"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R2C3.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_8"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R2C4.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_9"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R3C1.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_10"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R3C2.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_11"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R3C3.mpd">
-  Your browser does not support HTML5 video.
-</video>
-<video id="video_12"
-       width="640" height="360"
-       crossorigin="anonymous"
-       controls
-       style="display:none"
-       src="http://localhost/TEST/squirrel_video/squirrel_video_mpd_R3C4.mpd">
-  Your browser does not support HTML5 video.
-</video-->
+<div id="zoomableVidElements", style="display:none"></div>
 
 <div id="canvasPlayerArea">
   <canvas id="canvas" width="640px" height="360px"></canvas>
