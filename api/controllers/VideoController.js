@@ -95,13 +95,13 @@ module.exports = {
   },
 
   /**
-   * `VideoController.uploadVideo()`
-   * Usage: POST /api/video/uploadVideo
+   * `VideoController.upload()`
+   * Usage: POST /api/video/upload
    * Content: {id: ':id', video: 'attach video file here'}
   **/
-  uploadVideo: function (req, res) {
+  upload: function (req, res) {
     req.file('video').upload({
-      dirname: sails.config.appPath + '/vid/' + req.param('id')
+      dirname: sails.config.appPath + '/assets/vid/' + req.param('id')
     }, function (err, uploadedFiles) {
       if (err) return res.negotiate(err); 
       
