@@ -110,11 +110,21 @@ module.exports = {
         return res.badRequest('No file was uploaded');
       }
 
-      return res.json({
-        message: uploadedFiles.length + ' file(s) uploaded successfully!',
-        files: uploadedFiles,
-        textParams: req.params.all()
+      // Update the Video Model's videoDir based on the video ID
+      Video.update({
+        id: req.param('id')
+      },  {
+        videoDir: uploadedFiles[0].fd
+      }).exec(function (err, updatedVideo) {
+        return res.json({
+          message: uploadedFiles.length + ' file(s) uploaded successfully!',
+          // Only upload 1 video per time
+          files: uploadedFiles[0],
+          textParams: req.params.all(),
+          video: updatedVideo[0]
+        });
       });
+      
     });
   }
 };
