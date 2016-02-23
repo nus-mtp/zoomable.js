@@ -3,15 +3,15 @@ var Zoomable = function(canvas, player_list) {
     
     init_players(player_list);
     
-    this.time = ;
+    this.time;
     this.players = []; //array of player objects
-    this.play = ;
-    this.pause = ;
-    this.seek = ;
-    this.volume = ;
+    this.play;
+    this.pause;
+    this.seek;
+    this.volume;
     this.controls = new Controls(this);
-    this.zoom = ;
-    this.pan = ;
+    this.zoom;
+    this.pan;
     
     var Play = function() {};
     var Pause = function() {};
@@ -86,3 +86,7 @@ var Zoomable = function(canvas, player_list) {
     }
     
 }
+
+
+/**  ZOOMABLE **/
+var zoomable = new Zoomable(document.getElementById('canvas'),)
