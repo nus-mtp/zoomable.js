@@ -89,6 +89,12 @@ module.exports = {
 
       });
     });
-  }
+  },
 
+  showPlayerPage: function (req, res) {
+      return res.view('player', {
+        user: [],
+        video: []
+      });
+  }
 };
