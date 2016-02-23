@@ -92,6 +92,30 @@ module.exports = {
       if (err) throw err;
       res.json(video.videoDir);
     });
+  },
+
+  /**
+   * `VideoController.uploadVideo()`
+   * Usage: POST /api/video/uploadVideo
+   * Content: {id: ':id', video: 'attach video file here'}
+  **/
+  uploadVideo: function (req, res) {
+    req.file('video').upload({
+      dirname: sails.config.appPath + '/vid/' + req.param('id')
+    }, function (err, uploadedFiles) {
+      if (err) return res.negotiate(err); 
+      
+      // If no files were uploaded, respond with an error.
+      if (uploadedFiles.length === 0){
+        return res.badRequest('No file was uploaded');
+      }
+
+      return res.json({
+        message: uploadedFiles.length + ' file(s) uploaded successfully!',
+        files: uploadedFiles,
+        textParams: req.params.all()
+      });
+    });
   }
 };
 
