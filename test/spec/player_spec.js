@@ -1,10 +1,10 @@
 describe("Video player controls", function() {
   // declare gobal variables
-  var video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn;
+  var video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn, fullscreenBtn;
 
   beforeEach(function() {
     // set all required elements
-    setFixtures('<video id="video" src="https://www.youtube.com/watch?v=pY1_HrhwaXU"></video><canvas id="canvas"></canvas><button id="playPauseBtn"></button><input id="seekCtrl" value="0"></input><div id="uiControls"></div><span id="currentTimeTxt"></span><button id="volumeBtn"></button><input id="volumeCtrl" value="0.5"></input><button id="zoomInBtn"></button><button id="zoomOutBtn"></button><input id="zoomCtrl" value="0"></input>');
+    setFixtures('<video id="video" src="https://www.youtube.com/watch?v=pY1_HrhwaXU"></video><canvas id="canvas"></canvas><button id="playPauseBtn"></button><input id="seekCtrl" value="0"></input><div id="uiControls"></div><span id="currentTimeTxt"></span><button id="volumeBtn"></button><input id="volumeCtrl" value="0.5"></input><button id="zoomInBtn"></button><button id="zoomOutBtn"></button><input id="zoomCtrl" value="0"></input><button id="fullscreenBtn"></button>');
     // initialise variables
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
@@ -18,8 +18,9 @@ describe("Video player controls", function() {
     zoomOutBtn = document.getElementById('zoomOutBtn');
     zoomCtrl = document.getElementById('zoomCtrl');
     zoomInBtn = document.getElementById('zoomInBtn');
+    fullscreenBtn = document.getElementById('fullscreenBtn');
     // call function to create controls
-    createCanvasControls(video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn);
+    createCanvasControls(video, canvas, playPauseBtn, uiControls, currentTimeTxt, totalTimeTxt, seekCtrl, volumeBtn, volumeCtrl, zoomOutBtn, zoomCtrl, zoomInBtn, fullscreenBtn);
   });
 
   it("should not start playing video on load", function() {

@@ -1,0 +1,81 @@
+/**
+ * navbar.less
+ */
+ 
+md-toolbar#navbar {
+  background-color: @color-primary;
+  position: fixed;
+  z-index: 99;
+
+  div {
+    padding: 6px 15px;
+  }
+
+  .home-btn {
+    background: url(../../images/zoomable_logo.svg) no-repeat;
+    background-position: center;
+    height: 24px;
+    width: 120px;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  .search-container {
+    height: 48px;
+    width: 250px;
+    padding-top: 5px;
+    position: relative;
+
+    .search-btn {
+      padding: 0px;
+      margin: 0px;
+      position: absolute;
+      right: 0;
+      width: 30px;
+      height: 30px;
+
+      &:hover {
+        opacity: 0.85;
+      }
+    }
+
+    md-input-container {
+      position: absolute;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      width: inherit;
+      height: inherit;
+
+      /* do not group these rules */
+      *::-webkit-input-placeholder {
+          color: fade(@color-white, 50%);
+      }
+      *:-moz-placeholder {
+          /* FF 4-18 */
+          color: fade(@color-white, 50%);
+      }
+      *::-moz-placeholder {
+          /* FF 19+ */
+          color: fade(@color-white, 50%);
+      }
+      *:-ms-input-placeholder {
+          /* IE 10+ */
+          color: fade(@color-white, 50%);
+      }
+
+      input {
+        color: @color-white;
+        border-color: fade(@color-white, 70%);
+        font-size: 15px;
+        padding-right: 28px;
+
+        &:focus {
+          border-color: @color-white;
+          border-bottom-width: thin;
+        }
+      }
+    }
+  }
+}
