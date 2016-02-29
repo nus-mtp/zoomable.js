@@ -1,4 +1,4 @@
-var Zoomable = function(canvas, player_list) {
+var Zoomable = function(canvas, mpd_list) {
     
     var VID_WIDTH = 160;
     var VID_HEIGHT = 120;
@@ -6,24 +6,43 @@ var Zoomable = function(canvas, player_list) {
     var NUM_ROWS = 3;
     var NUM_COLS = 4;
 
-    init_players(canvas, player_list);
-
     this.time;
 
     this.players = []; //array of player objects
-    this.play;
-    this.pause;
+    this.paused;
     this.seek;
     this.volume;
-    this.controls = new Controls(this);
-
     this.zoom;
     this.pan;
 
-    var Play = function() {};
-    var Pause = function() {};
+    this.init = function() {
+        init_players(this, canvas, mpd_list);
+        this.controls = new Controls(this);
+    };
+    
+    this.play = function() {
+        for(var i=0; i<NUM_PLAYERS; i++) {
+            var player = this.players[i];
+            player.video.play;
+            //Need to check all players not paused
+            //Use Q
+            //For now:
+            this.paused = false;
+        }
+    };
+    this.pause = function() {
+        for(var i=0; i<NUM_PLAYERS; i++) {
+            var player = this.players[i];
+            player.video.pause;
+            //Need to check that all players have been paused
+            //Use Q
+            //For now:
+            this.paused = true;
+        }        
+    };
     var Seek = function() {};
     var Volume = function() {};
+    
     var Controls = function(zoomable) {
       
         /* binds to UI and adds listeners for controls*/
@@ -37,38 +56,102 @@ var Zoomable = function(canvas, player_list) {
         this.zoomOutBtn = document.getElementById('zoomOutBtn');
         this.zoomCtrl = document.getElementById('zoomCtrl');
         this.zoomInBtn = document.getElementById('zoomInBtn');
+/*
+        zoomable.video.addEventListener('loadedmetadata',function(){
+            zoomable.controls.getVideoLength()
+        },false);*/
+        this.playPauseBtn.addEventListener('click',function(){
+            zoomable.controls.playPauseVideo(this.playPauseVideo);
+        },false);
+        //zoomable.video.addEventListener('pause',function(){
+        //    zoomable.controls.changeToPauseState(this.playPauseBtn, this.uiControls);
+        //},false);
+        //zoomable.video.addEventListener('play',function(){
+        //    zoomable.controls.changeToPlayState(this.playPauseBtn, this.uiControls);
+        //},false);
+        this.volumeBtn.addEventListener('click',function(){
+            //zoomable.volume.toggleMuteState(event);
+            zoomable.controls.updateSliderUI(zoomable.controls.volumeCtrl);
+        },false);
+        this.volumeCtrl.addEventListener('change',function(){
+            //zoomable.volume.volumeAdjust();
+            zoomable.controls.updateSliderUI(zoomable.controls.volumeCtrl);
+        },false);
+        //zoomable.video.addEventListener('volumechange',function(){
+        //    zoomable.controls.updateSliderUI(zoomable.controls.volumeCtrl);
+        //},false);
+        this.volumeCtrl.addEventListener('mousemove',function(){
+            zoomable.controls.updateSliderUI(zoomable.controls.volumeCtrl);
+        },false);
+        this.zoomInBtn.addEventListener('click',function(){
+            //zoomable.zoom.in();
+        },false);
+        this.zoomOutBtn.addEventListener('click',function(){
+            //zoomable.zoom.out();
+        },false);
+        this.zoomCtrl.addEventListener('change',function(){
+            //zoomable.zoom.adjust();
+        },false);
+        this.zoomCtrl.addEventListener('mousemove',function(){
+          zoomable.controls.updateSliderUI(zoomable.controls.zoomCtrl);
+        },false);
         
-        var q_array = [];
-        for (var i=0; i<NUM_PLAYERS; i++) {
-            q_array[i] = new Q.defer();
+        /* Play or pause the video */
+        this.playPauseVideo = function() {
+            if(zoomable.paused) {
+                zoomable.play();
+            }
+            else {
+                zoomable.pause();
+            }
         }
-        for (var j=0; i<NUM_PLAYERS; j++) {
-            var player = zoomable.players[i];
-            player.video.addEventListener('loadedmetadata',function(){
-                q_array[i].resolve(player.video.duration);
-            },false);
+
+        /* Updates icon to "play" button during pause state, show UI controls bar */
+        this.changeToPauseState = function() {
+            this.playPauseBtn.className = 'play';
+            this.uiControls.className = '';
         }
-        Q.allSettled(q_array).done(function(video_lengths) {
-            zoomable.controls.setVideoLength();
-            //player.controls.getVideoLength()
-        })
-        
-        
+
+        /* Updates icon to "pause" button during play state, hide UI controls bar */
+        this.changeToPlayState = function() {
+            this.playPauseBtn.className = 'pause';
+            this.uiControls.className = 'hideOnHover';
+        }
         /* Retrieve total duration of video and update total time text */
-        this.setVideoLength = function(durations) {
-            // Currently gets only the first duration. It should all be the same.
-            var convertedTotalTime = util.convertSecondsToHMS(durations[0]);
+        this.getVideoLength = function() {
+            var convertedTotalTime = zoomable.util.convertSecondsToHMS(zoomable.video.duration);
             this.totalTimeTxt.innerHTML = convertedTotalTime;
         };
     
+        /* Convert and update current time text */
+        this.updateCurrentTimeText = function(time) {
+            var convertedTime = zoomable.util.convertSecondsToHMS(time);
+            this.currentTimeTxt.innerHTML = convertedTime;
+        };
+        
+        /* Update zoom control UI */
+        this.updateZoomUI = function() {
+            this.zoomCtrl.value = zoomable.util.convertScaleToPercent(zoomable.transforms.xform.a);
+            this.updateSliderUI(this.zoomCtrl);
+        };
+
+        /* Update slider color when slider value changes - for zoomCtrl/volumeCtrl */
+        this.updateSliderUI = function(element) {
+            var gradient = ['to right'];
+            gradient.push('#ccc ' + (element.value * 100) + '%');
+            gradient.push('rgba(255, 255, 255, 0.3) ' + (element.value * 100) + '%');
+            gradient.push('rgba(255, 255, 255, 0.3) 100%');
+            element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+        };
         
     };
     var Zoom = function() {};
     var Pan = function() {};
+
     
 /** PRIVATE FUNCTIONS **/    
 
-    var init_players = function(canvas, player_list) {
+    var init_players = function(zoomable, canvas, mpd_list) {
         var vidCount = 1;
 
         // Install polyfills for the browser
@@ -77,7 +160,7 @@ var Zoomable = function(canvas, player_list) {
         // Inject the video elements into the HTML
         var vidHtmlEle;
         for(var i = 1; i <= NUM_PLAYERS; i++) {
-            vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + player_list[i - 1] + '">Your browser does not support HTML5 video.</video>';
+            vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + mpd_list[i - 1] + '">Your browser does not support HTML5 video.</video>';
         }
         document.getElementById('zoomableVidElements').innerHTML = vidHtmlEle;
 
@@ -97,7 +180,7 @@ var Zoomable = function(canvas, player_list) {
                     console.error(event);
                 });
                 // Construct a DashVideoSource to represent the DASH manifest
-                var mpdUrl = player_list[vidCount - 1];
+                var mpdUrl = mpd_list[vidCount - 1];
                 var estimator = new shaka.util.EWMABandwidthEstimator();
                 var src = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
                 // Load the src into the Shaka Player
@@ -106,13 +189,14 @@ var Zoomable = function(canvas, player_list) {
                 // To instaniate a new Player object for each Shaka video player
                 // ASSUME: video elements are already present in the HTML
                 var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
-                var dimensions = { width: VID_WIDTH, height: VID_HEIGHT }
-                var zoomablePlayer = new Player(vid, canvas, coords, dimensions); 
-                zoomablePlayer.init()
+                var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
+                var single_player = new Player(vid, canvas, coords, dimensions); 
+                single_player.init();
+                zoomable.players.push(single_player);
                 vidCount++;
             }
         }  
-    }
+    };
     
     var util = { 
         /* Function to converts seconds to HH:MM:SS format */
@@ -130,19 +214,23 @@ var Zoomable = function(canvas, player_list) {
             formattedTime = hours+':'+mins+':'+secs;
 
             return formattedTime; 
-        }    
-    } 
+        },    
+    };     
+    
+    
 }
+
 
 // The list of MPDs are hardcoded here for now, will eventually run a script to detect the relevant MPDs to retrieve
 var mpdList = [];
 for(var i = 1; i <= 3; i++) {
     for(var j = 1; j <= 4; j++) {
-        mpdList.push('http://zoomable.comp.nus.edu.sg/squirrel_segment/squirrel_video/squirrel_video_mpd_R' + i + 'C' + j + '.mpd');
+        mpdList.push('/../../../../../../TEST/squirrel_video/squirrel_video_mpd_R' + i + 'C' + j + '.mpd');
     }
+}
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    var initZoomableControls = new Zoomable(document.getElementById('canvas'), mpdList);
+    var zoomable = new Zoomable(document.getElementById('canvas'), mpdList);
+    zoomable.init();
 }, false);
->>>>>>> 3623811d12c9ec08eea1c985740f12d86ce0c65e

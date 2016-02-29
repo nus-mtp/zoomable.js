@@ -90,10 +90,10 @@ var Player = function(vid,canv,coords,dims) {
         this.zoomOutBtn = document.getElementById('zoomOutBtn');
         this.zoomCtrl = document.getElementById('zoomCtrl');
         this.zoomInBtn = document.getElementById('zoomInBtn');
-
+/*
         player.video.addEventListener('loadedmetadata',function(){
             player.controls.getVideoLength()
-        },false);
+        },false);*/
         this.playPauseBtn.addEventListener('click',function(){
             player.controls.playPauseVideo(this.playPauseVideo);
         },false);
@@ -477,10 +477,6 @@ var Player = function(vid,canv,coords,dims) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    var zoomable = new Player(document.getElementById('video'), document.getElementById('canvas')); 
-    zoomable.init();
-}, false);
 
 /*
 var vidCount = 1;
