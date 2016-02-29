@@ -72,13 +72,12 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                   .ariaLabel('Confirm Dialog')
                   .targetEvent(ev)
                   .ok('Confirm')
-                  .cancel('Cancel');
+                  .cancel('Cancel')
+                  .clickOutsideToClose(true);
             $mdDialog.show(confirm).then(function() {
-                    for(var i=0;i<$scope.model.selectedVideoList.length;i++) {
-                        servicesAPI.delete($scope.model.selectedVideoList[i]).then(function() {
-                            getVideoList();
-                        });
-                    }
+                for(var i=0;i<$scope.model.selectedVideoList.length;i++) {
+                    deleteVideo($scope.model.selectedVideoList[i]);
+                }
                 // Empty video list
                 $scope.model.selectedVideoList = [];
             });
@@ -131,7 +130,44 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
       };
     }
 
-    $scope.uploadVideoFile = function (filelist) {
+    $scope.showUpload = function (ev) {
+
+        var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+        $mdDialog.show({
+          controller: DialogController,
+          template:
+            '<md-dialog style="min-width:500px;min-height:200px">' +
+            '   <md-toolbar>' +
+            '       <div class="md-toolbar-tools">' +
+            '           <h2>Upload Video to Zoomable</h2>' +
+            '           <span flex></span>' +
+            '       <md-button class="md-icon-button" ng-click="cancel()">' +
+            '           <md-icon md-svg-src="images/ic_clear_white_24px.svg" aria-label="Close dialog"></md-icon>' +
+            '       </md-button>' +
+            '   </div>' +
+            '   </md-toolbar>' +
+            '   <md-dialog-content style="padding:50px;text-align:center">' +
+            '       <md-content>Choose videos to upload to Zoomable. You may select more than one video at a time. Recommended quality: HD and above.</md-content>' +
+            '       <md-dialog-actions style="justify-content:center;padding-top:30px"><input class="ng-hide" id="file-input" type="file" multiple="multiple" file-model="videoFile">' +
+            '           <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file" ng-click="test(\'why\')">' +
+            '           <label>Upload</label>' +
+            '           </md-button>' +
+            '       </md-dialog-actions>' +
+            '   </md-dialog-content>' +
+            '</md-dialog>',
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose:true,
+          fullscreen: useFullScreen
+        })
+        .then(function(test) {
+            console.log(test);
+        });
+
+    };
+
+    $scope.uploadVideoFile = function(filelist) {
+        console.log('here');
         for (var i = 0; i < filelist.length; ++i) {
             var file = filelist.item(i);
 
@@ -150,6 +186,10 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
               console.log('Error: ' + data);
             });
         }
-    };
+    }
+
+    $scope.test = function() {
+        console.log('test');
+    }
 
 });

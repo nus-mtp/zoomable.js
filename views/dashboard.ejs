@@ -12,7 +12,7 @@
             <span ng-hide="videoList.length" class="video-count">0</span>
           </span>
         </div>
-        <div flex="1">
+      <div flex="1">
           <input class="ng-hide" id="file-input" type="file" multiple="multiple" data-dbinf-on-files-selected="uploadVideoFile(selectedFileList)" file-model="videoFile">
           <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file">
             <label for="file-input">Upload</label>
@@ -69,7 +69,7 @@
             </a>
 
             <div class="md-list-item-text">
-              <h3>{{ video.title }}</h3>
+              <h3 class="video-title">{{ video.title }}</h3>
               <h4>
                 <span ng-show"video.views">{{ video.views }} Views </span>
                 &middot;
@@ -88,7 +88,7 @@
 
             <div class="md-secondary">
               <md-button class="md-raised" href="/edit/{{ video.id }}">Edit Video</md-button>
-              <md-button ng-click="deleteVideo(video.id)"><md-icon class="md-avatar-icon" md-svg-icon="images/ic_delete_black_24px.svg"></md-icon></md-button>
+              <md-button ng-click="deleteVideo(video.id)" aria-label="delete video"><md-icon class="md-avatar-icon" md-svg-icon="images/ic_delete_black_24px.svg"></md-icon></md-button>
             </div>
 
           </md-list-item>

@@ -19,6 +19,9 @@
 
     .md-avatar-icon {
         padding: 0 20px !important;
+        @media (max-width: 800px) {
+            padding: 0 10px !important;
+        }
     }
 
     md-checkbox.select-all {
@@ -48,5 +51,12 @@
 
     .video-item {
         padding-left: 15px;
+    }
+
+    .video-title {
+        width: 450px;
+        @media (max-width: 950px) {
+            width: 250px;
+        }
     }
 }
