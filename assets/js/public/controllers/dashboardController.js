@@ -16,13 +16,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
 
     getVideoList();
 
-    /* Delete Video */
-    $scope.deleteVideo = function(videoID) {
-        servicesAPI.delete(videoID).then(function() {
-            getVideoList();
-        });
-    }
-
     /* Checkbox Handler */
     $scope.isSelectAll = function() {
         $scope.model.selectedVideoList = [];
@@ -50,7 +43,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     }
 
     /* Dialog Handler for Delete Action */
-    $scope.showConfirmDelete = function(ev) {
+    $scope.showConfirmDeleteByCheckbox = function(ev) {
         // Check if at least 1 video is checked
         if($scope.model.selectedVideoList.length > 0) {
 
@@ -76,7 +69,9 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                   .clickOutsideToClose(true);
             $mdDialog.show(confirm).then(function() {
                 for(var i=0;i<$scope.model.selectedVideoList.length;i++) {
-                    deleteVideo($scope.model.selectedVideoList[i]);
+                    servicesAPI.delete($scope.model.selectedVideoList[i]).then(function() {
+                        getVideoList();
+                    });
                 }
                 // Empty video list
                 $scope.model.selectedVideoList = [];
@@ -84,6 +79,25 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         } else {
             return;
         }
+    };
+
+    /* Dialog Handler for Delete Action */
+    $scope.showConfirmDeleteByButton = function(ev,video) {
+        // Appending dialog to document.body to cover sidenav in docs app
+        var confirm = $mdDialog.confirm()
+              .title('Delete Video?')
+              .textContent('Are you sure you want to delete ' + video.title + ' video?')
+              .ariaLabel('Confirm Dialog')
+              .targetEvent(ev)
+              .ok('Confirm')
+              .cancel('Cancel')
+              .clickOutsideToClose(true);
+        $mdDialog.show(confirm).then(function() {
+            servicesAPI.delete(video.id).then(function() {
+                getVideoList();
+            });
+        });
+
     };
 
     /* Sort video list according to filter states */
@@ -131,7 +145,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     }
 
     $scope.showUpload = function (ev) {
-
         var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
         $mdDialog.show({
           controller: DialogController,
@@ -186,10 +199,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
               console.log('Error: ' + data);
             });
         }
-    }
-
-    $scope.test = function() {
-        console.log('test');
     }
 
 });
