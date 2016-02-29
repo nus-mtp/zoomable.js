@@ -1,5 +1,6 @@
 describe('dashboardController', function(){
   var scope; // use this scope in our tests
+  // mock video objects
   var vid1 = {title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
   var vid2 = {title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
 
@@ -22,69 +23,64 @@ describe('dashboardController', function(){
       // set selected video to 0
       scope.model.selectedVideoList = [];
       expect(scope.model.selectedVideoList.length).toEqual(0);
+
       // set check all videos to be true
       scope.master = true;
-
       // call function to select all videos
       scope.isSelectAll();
 
-      // should set all videos to be selected
+      // should set all videos selected to be true
       expect(scope.videoList[0].selected).toBe(true);
+      expect(scope.videoList[1].selected).toBe(true);
+      expect(scope.master).toBe(true);
       // should add all videos to selectedVideoList
       expect(scope.model.selectedVideoList.length).toEqual(2);
     });
     it('adds one video to selectedVideoList', function() {
       // set check all to false
       scope.master = false;
-      // set selected video to none
+      // set selected video to 0
       scope.model.selectedVideoList = [];
       // set total video in video list to 1
       scope.videoList = [vid1];
       // set current video
       scope.video = vid1;
 
-      // call function to select video
+      // set video selected to be true
       scope.video.selected = true;
+      // call function to select video
       scope.isLabelChecked();
 
-      // should add one video in selectedVideoList
-      expect(scope.model.selectedVideoList.length).toEqual(1);
+      // should set video selected in videolist to be true
+      expect(scope.videoList[0].selected).toBe(true);
       // should set check all to true since total video is 1
       expect(scope.master).toBe(true);
-
-      // call function to unselect video
-      scope.video.selected = false;
-      scope.isLabelChecked();
-
-      // should remove video in selectedVideoList
-      expect(scope.model.selectedVideoList.length).toEqual(0);
-      // should set check all to false since unselect one video
-      expect(scope.master).toBe(false);
+      // should add 1 video in selectedVideoList
+      expect(scope.model.selectedVideoList.length).toEqual(1);
     });
     it('remove all videos from selectedVideoList', function() {
-      // set videoList to have one video
+      // set videoList to 2 videos
       scope.videoList = [vid1,vid2];
       expect(scope.videoList.length).toEqual(2);
-      // set selected video to none
+      // set selected video to 2 videos
       scope.model.selectedVideoList = [vid1,vid2];
       expect(scope.model.selectedVideoList.length).toEqual(2);
+
       // set check all video to false
       scope.master = false;
-
       // call function to unselect all videos
       scope.isSelectAll();
 
       // should set all videos to be unselected
       expect(scope.videoList[0].selected).toBe(false);
       expect(scope.videoList[1].selected).toBe(false);
-
       // should remove all videos from selectedVideoList
       expect(scope.model.selectedVideoList.length).toEqual(0);
     });
     it('remove one video from selectedVideoList', function() {
-      // set total video in video list to 1
+      // set total video in video list to 2
       scope.videoList = [vid1,vid2];
-      // set selected video to none
+      // set selectedVideoList to 2
       scope.model.selectedVideoList = [vid1,vid2];
       // set current video
       scope.video = vid1;
@@ -93,7 +89,7 @@ describe('dashboardController', function(){
       scope.video.selected = false;
       scope.isLabelChecked();
 
-      // should remove one video from selectedVideoList
+      // should remove 1 video from selectedVideoList
       expect(scope.model.selectedVideoList.length).toEqual(1);
       // should set check all to false since remove 1 video
       expect(scope.master).toBe(false);
