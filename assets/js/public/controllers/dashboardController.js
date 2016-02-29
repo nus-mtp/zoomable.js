@@ -3,7 +3,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     // VARIABLES
     $scope.defaultImagePath = 'images/bunny.png';
     $scope.filterStates = ['Public','Private'];
-    $scope.sortStates = ['Lastest','Most Viewed'];
+    $scope.sortStates = ['Latest','Most Viewed'];
     $scope.userFilterState = '';
     $scope.userSortState = '';
     $scope.hasMouseover = 'hidden';
@@ -103,7 +103,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     /* Sort video list according to filter states */
     $scope.updateSortState = function (state) {
         $scope.userSortState = state;
-        if ($scope.userSortState === 'Lastest') {
+        if ($scope.userSortState === 'Latest') {
             $scope.sortType = '-createdAt';
         } else if ($scope.userSortState === 'Most Viewed') {
             $scope.sortType = '-views';
@@ -111,12 +111,12 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     };
 
     /* Sort video list according to filter states */
-    $scope.updateFitlerState = function (state) {
+    $scope.updateFilterState = function (state) {
         $scope.userFilterState = state;
         if ($scope.userFilterState === 'Public') {
-            $scope.filterType = 'privacy';
+            $scope.filterType = { privacy : 1 };
         } else if ($scope.userFilterState === 'Private') {
-            $scope.filterType = '-privacy';
+            $scope.filterType = { privacy : 0 };
         }
     };
 
@@ -129,19 +129,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         .error(function(data) {
           console.log('Error: ' + data);
         });
-    }
-
-    /* To display confirmation dialog */
-    function DialogController($scope, $mdDialog) {
-      $scope.hide = function() {
-        $mdDialog.hide();
-      };
-      $scope.cancel = function() {
-        $mdDialog.cancel();
-      };
-      $scope.answer = function(answer) {
-        $mdDialog.hide(answer);
-      };
     }
 
     $scope.showUpload = function (ev) {
@@ -176,11 +163,9 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         .then(function(test) {
             console.log(test);
         });
-
     };
 
     $scope.uploadVideoFile = function(filelist) {
-        console.log('here');
         for (var i = 0; i < filelist.length; ++i) {
             var file = filelist.item(i);
 
@@ -200,5 +185,4 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
             });
         }
     }
-
 });
