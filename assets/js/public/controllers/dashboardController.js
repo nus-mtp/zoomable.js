@@ -4,7 +4,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     $scope.defaultImagePath = 'images/bunny.png';
     $scope.filterStates = ['Public','Private'];
     $scope.sortStates = ['Lastest','Most Viewed'];
-    $scope.deleteButton = 'Delete Video';
     $scope.userFilterState = '';
     $scope.userSortState = '';
     $scope.hasMouseover = 'hidden';
