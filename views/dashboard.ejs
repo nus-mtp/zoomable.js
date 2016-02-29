@@ -87,7 +87,8 @@
             </div>
 
             <div class="md-secondary">
-              <md-icon style="visibility:{{hasMouseover}}" class="md-avatar-icon" md-svg-icon="images/ic_delete_black_24px.svg"></md-icon>
+              <md-button class="md-raised" href="/edit/{{ video.id }}">Edit Video</md-button>
+              <md-button ng-click="deleteVideo(video.id)"><md-icon class="md-avatar-icon" md-svg-icon="images/ic_delete_black_24px.svg"></md-icon></md-button>
             </div>
 
           </md-list-item>

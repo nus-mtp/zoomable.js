@@ -7,10 +7,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     $scope.userFilterState = '';
     $scope.userSortState = '';
     $scope.hasMouseover = 'hidden';
-
-    var PUBLIC = 0;
-    var PRIVATE = 1;
-    var DELETE = 2;
     var videoData = {};
     var uploadUrl = '/upload';
 
@@ -19,6 +15,13 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     }
 
     getVideoList();
+
+    /* Delete Video */
+    $scope.deleteVideo = function(videoID) {
+        servicesAPI.delete(videoID).then(function() {
+            getVideoList();
+        });
+    }
 
     /* Checkbox Handler */
     $scope.isSelectAll = function() {
