@@ -42,7 +42,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         }
     }
 
-    /* Dialog Handler for Delete Action */
+    /* Dialog Handler for delete action by checkbox */
     $scope.showConfirmDeleteByCheckbox = function(ev) {
         // Check if at least 1 video is checked
         if($scope.model.selectedVideoList.length > 0) {
@@ -54,14 +54,10 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                MESSAGE_VIDEO =  MESSAGE_VIDEO.substring(0, MESSAGE_VIDEO.length - 1);
             }
 
-            // DIALOGUE MESSAGES
-            var MESSAGE_TITLE_DELETE = 'Delete Video?';
-            var MESSAGE_TEXT_CONTENT_DELETE = 'Are you sure you want to delete ' + $scope.model.selectedVideoList.length + ' ' + MESSAGE_VIDEO + '?';
-
             // Appending dialog to document.body to cover sidenav in docs app
             var confirm = $mdDialog.confirm()
-                  .title(MESSAGE_TITLE_DELETE)
-                  .textContent(MESSAGE_TEXT_CONTENT_DELETE)
+                  .title('Delete Video?')
+                  .textContent('Are you sure you want to delete ' + $scope.model.selectedVideoList.length + ' ' + MESSAGE_VIDEO + '?')
                   .ariaLabel('Confirm Dialog')
                   .targetEvent(ev)
                   .ok('Confirm')
@@ -81,7 +77,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         }
     };
 
-    /* Dialog Handler for Delete Action */
+    /* Dialog Handler for delete action by button */
     $scope.showConfirmDeleteByButton = function(ev,video) {
         // Appending dialog to document.body to cover sidenav in docs app
         var confirm = $mdDialog.confirm()
@@ -120,7 +116,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         }
     };
 
-    /* GET Video Object */
+    /* Get a list of video from API */
     function getVideoList() {
         servicesAPI.get()
         .success(function(data) {
