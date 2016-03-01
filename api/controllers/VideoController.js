@@ -36,6 +36,7 @@ module.exports = {
    * Usage: GET /api/video
    */
   readAll: function (req, res) {
+    console.log(sails.getBaseUrl());
     Video.find().exec(function (err, videos) {
       if (err) throw err;
       res.json(videos);
