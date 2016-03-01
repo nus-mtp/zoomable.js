@@ -10,6 +10,8 @@
 # This script will be executed on the server side to automate the cropping and changing the resolution of videos into
 # the respective 360p, 480p, 720p and 1080p resolutions
 
+# Usage: video-processing.sh 'video-source-location'
+
 # Directory on the server where uploaded videos go to
 srclocation=$*
 # Extensions recognizable by FFMPEG and that can be processed
