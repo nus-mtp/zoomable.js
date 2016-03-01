@@ -6,6 +6,16 @@ angular.module('zoomableApp').controller('loginController', function($scope, $st
   $scope.isCreate = false;
   $scope.errorMsg = '';
 
+  // FUNCTIONS FOR NAVBAR
+  $scope.isVideoList = function() {
+    if (location.pathname == '/') {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   // FUNCTIONS FOR LOGIN FORM
   $scope.submitForm = function() {
     if ($scope.isCreate) {
