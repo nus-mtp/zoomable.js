@@ -62,30 +62,29 @@ as well as the Sails.js package:
 $ npm install -g sails
 ```
 
-### Setup
+### Step 3: Install the other dependencies and libraries
 
-Install the necessary packages.
-
+Running the npm and bower install commands will install the dependencies and libraries that the project requires. These dependencies and libraries are indicated inside package.json (for npm install) and bower.json (for bower install).
 ```bash
 $ npm install 
 $ bower install 
 ```
 
-### Task Automation
+### Step 4: Generate latest front-end assets
 
-Generate frontend assets using Grunt.
-
+Running the Grunt command will update the changes made to the front-end assets and compile it for further use later.
 ```bash
 $ grunt
 ```
 
-### Start server
+### Step 5: Starting the server
 
-Run on http://localhost:1337 .
-
+Start the server by running the Sails command:
 ```bash
 $ sails lift
 ```
+
+If this server is setup locally, open your browser and enter the url: http://localhost:1337 to visit the main webpage of the project.
 
 ## Usage
 `to be updated`
