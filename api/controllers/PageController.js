@@ -92,7 +92,7 @@ module.exports = {
   },
 
   showPlayerPage: function (req, res) {
-      return res.view('player', {
+      return res.view('fullplayer', {
         user: [],
         video: []
       });
