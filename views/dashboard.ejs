@@ -72,7 +72,7 @@
                 <span ng-show"video.views">{{ video.views }} Views </span>
                 &middot;
                 {{ video.createdAt | date:'medium'}}
-                <span ng-if="video.privacy">
+                <span ng-if="!video.privacy">
                   <md-icon md-svg-icon="images/ic_lock_black_24px.svg" class="small md-avatar-icon"></md-icon>
                 </span>
               </h4>
