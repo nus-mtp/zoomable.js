@@ -11,11 +11,7 @@ Pull a copy of this project from GitHub (link above) or download the project as 
 
 Note: Some of these commands may require permissions to install the relevant packages. As such adding 'sudo' before the actual command (e.g. npm) may help.
 
-#### Install Node.js on your machine
-
-[Node.js](http://nodejs.org)
-
-Install Node.js from https://nodejs.org/en/download/
+#### Install [Node.js](http://nodejs.org) on your machine
 
 If you have Homebrew installed on your machine (e.g. Mac OSX):
 ```bash
@@ -35,27 +31,21 @@ For example (Terminal on Mac OSX):
 $ cd Desktop\zoomable.js
 ```
 
-#### Install Grunt
-
-[Grunt](http://gruntjs.com/)
+#### Install [Grunt](http://gruntjs.com/)
 
 Run the Node Package Manager (npm) installation command for the Grunt package:
 ```bash
 $ npm install -g grunt-cli
 ``` 
 
-#### Install Bower
-
-[Bower](http://www.npmjs.com/package/bower)
+#### Install [Bower](http://www.npmjs.com/package/bower)
 
 and the Bower package:
 ```bash
 $ npm install -g bower
 ```
 
-#### Install Sails.js
-
-[Sails.js](http://sailsjs.org/get-started)
+#### Install [Sails.js](http://sailsjs.org/get-started)
 
 as well as the Sails.js package:
 ```bash
