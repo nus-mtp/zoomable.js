@@ -478,7 +478,8 @@ var Player = function(vid,canv) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    var zoomable = new Player(document.getElementById('video'), document.getElementById('canvas')); 
+    initShakaPlayer();
+    var zoomable = new Player(document.getElementById('video'), document.getElementById('canvas'));
     zoomable.init();
 }, false);
 

@@ -17,7 +17,9 @@ function initShakaPlayer() {
   });
 
   // Construct a DashVideoSource to represent the DASH manifest.
-  var mpdUrl = $('#mpdSource').val();
+  //var mpdUrl = $('#mpdSource').val();
+  // use a custom MPD source for now
+  var mpdUrl = 'http://yt-dash-mse-test.commondatastorage.googleapis.com/media/car-20120827-manifest.mpd';
   var estimator = new shaka.util.EWMABandwidthEstimator();
   var source = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
 
