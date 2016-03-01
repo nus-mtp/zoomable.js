@@ -12,9 +12,9 @@
       </span>
 
       <!-- Second Group: Search Area -->
-      <span class="search-container">
+      <span class="search-container" ng-show="isVideoList()">
         <md-input-container md-no-float class="md-block">
-          <input type="text" placeholder="Search"></input>
+          <input type="text" placeholder="Search" ng-change="searchVideoList()" ng-model="searchQuery"></input>
         </md-input-container>
         <md-button class="md-icon-button search-btn" aria-label="Search" md-no-ink>
           <md-icon md-svg-src="images/ic_search_white_24px.svg"></md-icon>

@@ -5,6 +5,24 @@ angular.module('zoomableApp').controller('loginController', function($scope, $st
   $scope.emailAddress = '';
   $scope.isCreate = false;
   $scope.errorMsg = '';
+  $scope.searchQuery = '';
+
+  // FUNCTIONS FOR NAVBAR
+
+  /* Function to control showing of search input in navbar */
+  $scope.isVideoList = function() {
+    if (location.pathname == '/') {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  /* Function to call search in dashboardController */
+  $scope.searchVideoList = function() {
+    $scope.$emit('searchEmit', $scope.searchQuery);
+  }
 
   // FUNCTIONS FOR LOGIN FORM
   $scope.submitForm = function() {
