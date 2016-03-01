@@ -16,6 +16,10 @@ video, canvas,
 	}
 }
 
+#canvasPlayerArea {
+	background-color: @color-black;
+}
+
 #uiControls {
 	width: 100%;
 
@@ -262,16 +266,14 @@ video, canvas,
 
 /* Fix styles when embed in edit page */
 #edit {
+	video, canvas,
+	#canvasPlayerArea {
+		width: 100%;
+		height: 100%;
+	}
+
 	#zoomBarControls {
-		top: 70%;
+		top: 68%;
 		right: -100px;
-	}
-
-	#seekBarControls {
-		bottom: 40px;
-	}
-
-	#bottomBarControls {
-		bottom: 4px;
 	}
 }
