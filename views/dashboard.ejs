@@ -72,7 +72,7 @@
                 <span ng-show"video.views">{{ video.views }} Views </span>
                 &middot;
                 {{ video.createdAt | date:'medium'}}
-                <span ng-if="video.privacy">
+                <span ng-if="!video.privacy">
                   <md-icon md-svg-icon="images/ic_lock_black_24px.svg" class="small md-avatar-icon"></md-icon>
                 </span>
               </h4>
@@ -86,7 +86,9 @@
 
             <div class="md-secondary">
               <md-button class="md-raised" href="/edit/{{ video.id }}">Edit Video</md-button>
-              <md-button ng-click="showConfirmDeleteByButton($event,video)" aria-label="delete video"><md-icon class="md-avatar-icon" md-svg-icon="images/ic_delete_black_24px.svg"></md-icon></md-button>
+              <md-button class="md-icon-button delete-btn" ng-click="showConfirmDeleteByButton($event,video)" aria-label="delete video">
+                <md-icon md-svg-icon="images/ic_delete_black_24px.svg"></md-icon>
+              </md-button>
             </div>
 
           </md-list-item>
