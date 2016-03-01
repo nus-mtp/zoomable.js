@@ -101,7 +101,7 @@ module.exports = {
   **/
   upload: function (req, res) {
     req.file('video').upload({
-      dirname: sails.config.appPath + '/assets/vid/' + req.param('id')
+      dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id')
     }, function (err, uploadedFiles) {
       if (err) return res.negotiate(err); 
       
