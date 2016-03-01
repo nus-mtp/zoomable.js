@@ -6,7 +6,7 @@
  */
 
 module.exports = {
-	
+
   /**
    * `VideoController.create()`
    * Usage: POST /api/video
@@ -73,7 +73,7 @@ module.exports = {
 
   /**
    * `VideoController.tags()`
-   * Usage: 
+   * Usage:
    */
   tags: function (req, res) {
     return res.json({
@@ -102,10 +102,11 @@ module.exports = {
   **/
   upload: function (req, res) {
     req.file('video').upload({
-      dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id')
+      dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id'),
+      maxBytes: 2 * 1000 * 1000 * 1000
     }, function (err, uploadedFiles) {
-      if (err) return res.negotiate(err); 
-      
+      if (err) return res.negotiate(err);
+
       // If no files were uploaded, respond with an error.
       if (uploadedFiles.length === 0){
         return res.badRequest('No file was uploaded');
@@ -125,8 +126,6 @@ module.exports = {
           video: updatedVideo[0]
         });
       });
-      
     });
   }
 };
-
