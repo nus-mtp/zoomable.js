@@ -21,11 +21,16 @@
           <md-tab-body>
             <md-content class="md-padding">
               <div layout="row"> <!-- start top row -->
-                <div flex="50">
+                <div flex="60">
                   <!-- TODO: Update video SRC after upload video to server is successful -->
-                  <%- partial('fullplayer.ejs') %>
+                  <div class="wrapper">
+                  	<div class="sixteen-by-nine aspect-ratio"></div>
+                  	<div class="content">
+                  		<%- partial('fullplayer.ejs') %>
+                  	</div>
+                  </div>
                 </div>
-                <div flex="50">
+                <div flex="40">
                   <div layout="column">
                     <div flex>
                       <div layout="row" layout-align="end start">
