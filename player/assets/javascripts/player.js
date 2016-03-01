@@ -1,7 +1,45 @@
 
-var Player = function(vid,canv,coords,dims) {
-
+var Slave = function(vid, canv, coords, dims) {
     this.video = vid;
+    this.canvas = canv;
+    this.ctx = canv.getContext('2d');
+    this.draw = function() {
+        //if(v.paused || v.ended) return false;
+    
+        player.ctx.drawImage(player.video,coords.x,coords.y,dims.width,dims.height);
+    };
+    this.redraw = function(){
+        // Clear the entire canvas
+        var p1 = player.ctx.transformedPoint(0,0);
+        var p2 = player.ctx.transformedPoint(player.dimensions.cw,player.dimensions.ch);
+        //ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+        player.ctx.fillStyle = 'rgb(0,0,0)';
+        player.ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+        // Alternatively:
+        // ctx.save();
+        // ctx.setTransform(1,0,0,1,0,0);
+        // ctx.clearRect(0,0,canvas.width,canvas.height);
+        // ctx.restore();   
+        player.transforms.refit();
+        this.draw();
+    };
+}
+
+var Player = function(canvas, mpd_list) {
+
+    var VID_WIDTH = 160;
+    var VID_HEIGHT = 120;
+    var NUM_SLAVES = 12;
+    var NUM_ROWS = 3;
+    var NUM_COLS = 4;
+    
+    this.time;
+    this.duration;
+
+    this.slaves = []; //array of slave objects
+    this.paused;
+    
+    //this.video = vid;
     this.canvas = canv;
     this.ctx = canv.getContext('2d');
     this.scaleFactor = 1.1;
@@ -407,6 +445,7 @@ var Player = function(vid,canv,coords,dims) {
             player.ctx.drawImage(player.video,coords.x,coords.y,dims.width,dims.height);
             setTimeout(player.transforms.draw,20);
         }
+        
 
         this.redraw = function(){
             // Clear the entire canvas
@@ -475,6 +514,52 @@ var Player = function(vid,canv,coords,dims) {
             return formattedTime; 
         }
     }
+    var init_players = function(zoomable, canvas, mpd_list) {
+        var vidCount = 1;
+
+        // Install polyfills for the browser
+        shaka.polyfill.installAll();
+
+        // Inject the video elements into the HTML
+        var vidHtmlEle;
+        for(var i = 1; i <= NUM_PLAYERS; i++) {
+            vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + mpd_list[i - 1] + '">Your browser does not support HTML5 video.</video>';
+        }
+        document.getElementById('zoomableVidElements').innerHTML = vidHtmlEle;
+
+        // There should be a '4 column by 3 row' orientation of video players
+        // To loop through the rows while we are on a column
+        for(var rowNum = 0; rowNum < NUM_ROWS; rowNum++) {
+            // To loop through the columns while we are on a row
+            for(var colNum = 0; colNum < NUM_COLS; colNum++) {
+                // Locate the video element
+                var vid = document.getElementById('video_' + vidCount);
+                // Construct the Shaka player to wrap around it
+                var shakaPlayer = new shaka.player.Player(vid);
+                // Attach the player to the window for debugging purposes (NEED TO CHECK IF CAN REMOVE)
+                window.player = shakaPlayer;
+                // Listen for errors from the Shaka Player
+                player.addEventListener('error', function(event) {
+                    console.error(event);
+                });
+                // Construct a DashVideoSource to represent the DASH manifest
+                var mpdUrl = mpd_list[vidCount - 1];
+                var estimator = new shaka.util.EWMABandwidthEstimator();
+                var src = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
+                // Load the src into the Shaka Player
+                player.load(src);
+
+                // To instaniate a new Player object for each Shaka video player
+                // ASSUME: video elements are already present in the HTML
+                var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
+                var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
+                var single_player = new Player(vid, canvas, coords, dimensions); 
+                single_player.init();
+                zoomable.players.push(single_player);
+                vidCount++;
+            }
+        }  
+    };
 }
 
 

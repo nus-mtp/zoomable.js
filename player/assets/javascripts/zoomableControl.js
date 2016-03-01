@@ -7,6 +7,7 @@ var Zoomable = function(canvas, mpd_list) {
     var NUM_COLS = 4;
 
     this.time;
+    this.duration;
 
     this.players = []; //array of player objects
     this.paused;
@@ -56,10 +57,17 @@ var Zoomable = function(canvas, mpd_list) {
         this.zoomOutBtn = document.getElementById('zoomOutBtn');
         this.zoomCtrl = document.getElementById('zoomCtrl');
         this.zoomInBtn = document.getElementById('zoomInBtn');
-/*
-        zoomable.video.addEventListener('loadedmetadata',function(){
-            zoomable.controls.getVideoLength()
-        },false);*/
+        function getVideoLength() {
+            
+            for (var i=0; i<NUM_PLAYERS; i++) {
+                var player = zoomable.players[i];
+                var promise = Q.
+                player.video.addEventListener('loadedmetadata',function(){
+                    zoomable.controls.getVideoLength()
+                },false);
+            }
+        }
+        
         this.playPauseBtn.addEventListener('click',function(){
             zoomable.controls.playPauseVideo(this.playPauseVideo);
         },false);
@@ -118,8 +126,19 @@ var Zoomable = function(canvas, mpd_list) {
             this.uiControls.className = 'hideOnHover';
         }
         /* Retrieve total duration of video and update total time text */
+        //NOT
+        //BEING
+        //CALLED
+        //YET
         this.getVideoLength = function() {
-            var convertedTotalTime = zoomable.util.convertSecondsToHMS(zoomable.video.duration);
+            var length = zoomable.players[0].video.duration;
+            for (var i=1; i<NUM_PLAYERS; i++) {
+                var player = zoomable.players[i];
+                var newlength = player.video.duration;
+                if (newlength != length) throw "Video part durations not equal."
+            }
+            zoomable.duration = length;
+            var convertedTotalTime = zoomable.util.convertSecondsToHMS(zoomable.duration);
             this.totalTimeTxt.innerHTML = convertedTotalTime;
         };
     
@@ -214,7 +233,7 @@ var Zoomable = function(canvas, mpd_list) {
             formattedTime = hours+':'+mins+':'+secs;
 
             return formattedTime; 
-        },    
+        },
     };     
     
     
