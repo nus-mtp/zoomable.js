@@ -9,52 +9,19 @@ Pull a copy of this project from GitHub (link above) or download the project as 
 
 ### Step 2: Installing the necessary pre-requisites
 
-Note: Some of these commands may require permissions to install the relevant packages. As such adding 'sudo' before the actual command (e.g. npm) may help.
+#### The following packages are required for using zoomable.js:
+[Node.js](http://nodejs.org) - For package installation
+[Grunt](http://gruntjs.com/) - For generating front-end assets
+[Bower](http://www.npmjs.com/package/bower) - For package installation
+[Sails.js](http://sailsjs.org/get-started) - For server creation
+[FFMPEG](https://ffmpeg.org/download.html) - For video conversion, thumnbnail generation
+[MP4Box](https://gpac.wp.mines-telecom.fr/downloads/) - For MPD creation for the videos
 
-#### Install [Node.js](http://nodejs.org) on your machine
+### Step 3: Install additional dependencies and libraries
 
-If you have Homebrew installed on your machine (e.g. Mac OSX):
-```bash
-$ brew install node
-```
-OR
+Run the npm and bower install commands to install the dependencies and libraries that the project requires. These dependencies and libraries are indicated inside package.json (for npm install) and bower.json (for bower install).
 
-If the MSI installer option is available for your OS:
-Download the MSI installer from the Node.js website and run the installer
-
-#### Redirecting the directory
-
-Change the current working directory from the command-line interface to that of the project folder
-
-For example (Terminal on Mac OSX):
-```bash
-$ cd Desktop\zoomable.js
-```
-
-#### Install [Grunt](http://gruntjs.com/)
-
-Run the Node Package Manager (npm) installation command for the Grunt package:
-```bash
-$ npm install -g grunt-cli
-``` 
-
-#### Install [Bower](http://www.npmjs.com/package/bower)
-
-and the Bower package:
-```bash
-$ npm install -g bower
-```
-
-#### Install [Sails.js](http://sailsjs.org/get-started)
-
-as well as the Sails.js package:
-```bash
-$ npm install -g sails
-```
-
-### Step 3: Install the other dependencies and libraries
-
-Running the npm and bower install commands will install the dependencies and libraries that the project requires. These dependencies and libraries are indicated inside package.json (for npm install) and bower.json (for bower install).
+For bash:
 ```bash
 $ npm install 
 $ bower install 
@@ -62,7 +29,7 @@ $ bower install
 
 ### Step 4: Generate latest front-end assets
 
-Running the Grunt command will update the changes made to the front-end assets and compile it for further use later.
+Run the Grunt command to update the changes made to the front-end assets and compile it for further use later.
 ```bash
 $ grunt
 ```
@@ -74,7 +41,7 @@ Start the server by running the Sails command:
 $ sails lift
 ```
 
-If this server is setup locally, open your browser and enter the url: http://localhost:1337 to visit the main webpage of the project.
+If this server is setup locally, open your browser and enter the url: [http://localhost:1337](http://localhost:1337) to visit the main webpage of the project.
 
 ## Usage
 `to be updated`
