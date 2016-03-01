@@ -181,4 +181,9 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
             });
         }
     }
+
+    /* Function to catch broadcast event from login controller to perform search on video list */
+    $scope.$on('searchBroadcast', function(event, query) {
+        $scope.filterType = query;
+    });
 });
