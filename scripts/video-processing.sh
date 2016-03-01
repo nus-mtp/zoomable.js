@@ -26,7 +26,7 @@ r="_R"
 c="C"
 
 # Looking for a file that ends in .mp4 and executes the FFMPEG commands to commence processing
-# Retrieve the video's directory location, including its name (e.g. /usr/bin/test.txt)
+# Retrieve the video's directory location, including its name (e.g. /vid/:vid_id/test.mp4)
 # ASSUMPTION: There is only 1 file in that directory with that specified extension
 vidloc=$(find "${srclocation}" -iname "*${srcext}")
 # Retrieve the parent directory of this file
