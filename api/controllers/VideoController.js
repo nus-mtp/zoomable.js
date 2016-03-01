@@ -101,7 +101,8 @@ module.exports = {
   **/
   upload: function (req, res) {
     req.file('video').upload({
-      dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id')
+      dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id'),
+      maxBytes: 2 * 1000 * 1000 * 1000
     }, function (err, uploadedFiles) {
       if (err) return res.negotiate(err); 
       

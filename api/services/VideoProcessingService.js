@@ -20,7 +20,6 @@ module.exports = {
     	// 		console.log(error)
     	// 	}
     	// })
-
         var command = spawn(sails.config.appPath + '/scripts/video-processing.sh', [dirPath]);
 
         command.stdout.on('data', function(chunk) {
@@ -35,7 +34,7 @@ module.exports = {
         command.on('close', function(chunk) {
             res.send("Complete processing the uploaded video!");
         });
-    	
+
     	// console.log(videoFile[0]);
     }
 };
