@@ -12,9 +12,9 @@
       </span>
 
       <!-- Second Group: Search Area -->
-      <span class="search-container">
+      <span class="search-container" ng-show="isVideoList()">
         <md-input-container md-no-float class="md-block">
-          <input type="text" placeholder="Search"></input>
+          <input type="text" placeholder="Search" ng-change="searchVideoList()" ng-model="searchQuery"></input>
         </md-input-container>
         <md-button class="md-icon-button search-btn" aria-label="Search" md-no-ink>
           <md-icon md-svg-src="images/ic_search_white_24px.svg"></md-icon>
@@ -24,7 +24,7 @@
       <!-- Third Group: Upload & Profile Button -->
       <span layout="row" layout-align="space-between center">
         <md-menu md-position-mode="target-right target" >
-          <md-button aria-label="Open demo menu" class="md-flat" ng-click="$mdOpenMenu($event)"><%= me.username %>
+          <md-button aria-label="Open demo menu" class="md-flat" ng-click="$mdOpenMenu($event)"><%= user.username %>
             <md-icon md-menu-origin md-svg-src="images/ic_arrow_drop_down_white_24px.svg"></md-icon>
           </md-button>
           <md-menu-content width="3">

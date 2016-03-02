@@ -2,16 +2,11 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
 
     // VARIABLES
     $scope.defaultImagePath = 'images/bunny.png';
-    $scope.iconPrivacyPath = 'images/ic_lock_black_24px.svg';
-    $scope.iconTagPath = 'images/ic_tag_black_24px.svg';    
-    $scope.iconViewPath = 'images/ic_remove_red_eye_black_24px.svg';
-    $scope.filterStates = ['Newest','Popular','Public','Private'];
-    $scope.buttonStates = ['Public','Private','Delete'];
+    $scope.filterStates = ['Public','Private'];
+    $scope.sortStates = ['Latest','Most Viewed'];
     $scope.userFilterState = '';
-    $scope.userButtonState = '';
-    var PUBLIC = 0;
-    var PRIVATE = 1;
-    var DELETE = 2;
+    $scope.userSortState = '';
+    $scope.hasMouseover = 'hidden';
     var videoData = {};
     var uploadUrl = '/upload';
 
@@ -19,7 +14,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         selectedVideoList : []
     }
 
-    getVideoList(); 
+    getVideoList();
 
     /* Checkbox Handler */
     $scope.isSelectAll = function() {
@@ -27,9 +22,9 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
 
         if($scope.master) {
             for(var i=0;i<$scope.videoList.length;i++) {
-                $scope.model.selectedVideoList.push($scope.videoList[i].id);  
+                $scope.model.selectedVideoList.push($scope.videoList[i].id);
             }
-        } 
+        }
 
         angular.forEach($scope.videoList, function (video) {
             video.selected = $scope.master;
@@ -44,96 +39,84 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
             $scope.master = false;
             var index = $scope.model.selectedVideoList.indexOf(id);
             $scope.model.selectedVideoList.splice(index, 1);
-        }    
-    }  
+        }
+    }
 
-    /* Dialog Handler */
-    $scope.showConfirm = function(ev, buttonState) {
-        // Check if at least 1 video is checked 
+    /* Dialog Handler for delete action by checkbox */
+    $scope.showConfirmDeleteByCheckbox = function(ev) {
+        // Check if at least 1 video is checked
         if($scope.model.selectedVideoList.length > 0) {
 
-            $scope.userButtonState = buttonState;
             var MESSAGE_VIDEO = 'videos';
 
             // Check plural for confirm dialog text
             if($scope.model.selectedVideoList.length === 1) {
                MESSAGE_VIDEO =  MESSAGE_VIDEO.substring(0, MESSAGE_VIDEO.length - 1);
-            }            
-
-            // DIALOGUE MESSAGES
-            var MESSAGE_TITLE_PRIVATE = 'Make Video Private?';
-            var MESSAGE_TITLE_PUBLIC = 'Make Video Public?';
-            var MESSAGE_TITLE_DELETE = 'Delete Video?';
-            var MESSAGE_TEXT_CONTENT_PRIVATE = 'Are you sure you want to set ' + $scope.model.selectedVideoList.length + ' ' + MESSAGE_VIDEO + ' to Private?';
-            var MESSAGE_TEXT_CONTENT_PUBLIC = 'Are you sure you want to set ' + $scope.model.selectedVideoList.length + ' ' + MESSAGE_VIDEO + ' to Public?';
-            var MESSAGE_TEXT_CONTENT_DELETE = 'Are you sure you want to delete ' + $scope.model.selectedVideoList.length + ' ' + MESSAGE_VIDEO + '?';
-
-            var MESSAGE_TITLE = '';
-            var MESSAGE_TEXT_CONTENT = '';
-
-            if(buttonState === $scope.buttonStates[PRIVATE]) {
-                MESSAGE_TITLE = MESSAGE_TITLE_PRIVATE;
-                MESSAGE_TEXT_CONTENT = MESSAGE_TEXT_CONTENT_PRIVATE;
-            } else if (buttonState === $scope.buttonStates[PUBLIC]) { 
-                MESSAGE_TITLE = MESSAGE_TITLE_PUBLIC;
-                MESSAGE_TEXT_CONTENT = MESSAGE_TEXT_CONTENT_PUBLIC;
-            } else if (buttonState === $scope.buttonStates[DELETE]) { 
-                MESSAGE_TITLE = MESSAGE_TITLE_DELETE;
-                MESSAGE_TEXT_CONTENT = MESSAGE_TEXT_CONTENT_DELETE;    
             }
 
             // Appending dialog to document.body to cover sidenav in docs app
             var confirm = $mdDialog.confirm()
-                  .title(MESSAGE_TITLE)
-                  .textContent(MESSAGE_TEXT_CONTENT)
+                  .title('Delete Video?')
+                  .textContent('Are you sure you want to delete ' + $scope.model.selectedVideoList.length + ' ' + MESSAGE_VIDEO + '?')
                   .ariaLabel('Confirm Dialog')
                   .targetEvent(ev)
                   .ok('Confirm')
-                  .cancel('Cancel');
+                  .cancel('Cancel')
+                  .clickOutsideToClose(true);
             $mdDialog.show(confirm).then(function() {
-                if(buttonState === $scope.buttonStates[PRIVATE]) {
-                    for(var i=0;i<$scope.model.selectedVideoList.length;i++) {
-                        servicesAPI.update($scope.model.selectedVideoList[i], {privacy: PRIVATE}).then(function() {
-                            getVideoList();
-                        });
-                    }  
-                } else if (buttonState === $scope.buttonStates[PUBLIC]) { 
-                    for(var i=0;i<$scope.model.selectedVideoList.length;i++) {
-                        servicesAPI.update($scope.model.selectedVideoList[i], {privacy: PUBLIC}).then(function() {
-                            getVideoList();
-                        });
-                    }  
-                } else if (buttonState === $scope.buttonStates[DELETE]) { 
-                    for(var i=0;i<$scope.model.selectedVideoList.length;i++) {
-                        servicesAPI.delete($scope.model.selectedVideoList[i]).then(function() {
-                            getVideoList();
-                        });
-                    }    
+                for(var i=0;i<$scope.model.selectedVideoList.length;i++) {
+                    servicesAPI.delete($scope.model.selectedVideoList[i]).then(function() {
+                        getVideoList();
+                    });
                 }
-                // Empty video list 
+                // Empty video list
                 $scope.model.selectedVideoList = [];
             });
-            
         } else {
             return;
+        }
+    };
+
+    /* Dialog Handler for delete action by button */
+    $scope.showConfirmDeleteByButton = function(ev,video) {
+        // Appending dialog to document.body to cover sidenav in docs app
+        var confirm = $mdDialog.confirm()
+              .title('Delete Video?')
+              .textContent('Are you sure you want to delete ' + video.title + ' video?')
+              .ariaLabel('Confirm Dialog')
+              .targetEvent(ev)
+              .ok('Confirm')
+              .cancel('Cancel')
+              .clickOutsideToClose(true);
+        $mdDialog.show(confirm).then(function() {
+            servicesAPI.delete(video.id).then(function() {
+                getVideoList();
+            });
+        });
+
+    };
+
+    /* Sort video list according to filter states */
+    $scope.updateSortState = function (state) {
+        $scope.userSortState = state;
+        if ($scope.userSortState === 'Latest') {
+            $scope.sortType = '-createdAt';
+        } else if ($scope.userSortState === 'Most Viewed') {
+            $scope.sortType = '-views';
         }
     };
 
     /* Sort video list according to filter states */
     $scope.updateFilterState = function (state) {
         $scope.userFilterState = state;
-        if ($scope.userFilterState === 'Newest') {
-            $scope.sortType = '-createdAt';
-        } else if ($scope.userFilterState === 'Popular') {
-            $scope.sortType = '-views';
-        } else if ($scope.userFilterState === 'Public') {
-            $scope.sortType = 'privacy';
+        if ($scope.userFilterState === 'Public') {
+            $scope.filterType = { privacy : 1 };
         } else if ($scope.userFilterState === 'Private') {
-            $scope.sortType = '-privacy';
+            $scope.filterType = { privacy : 0 };
         }
     };
 
-    /* GET Video Object */
+    /* Get a list of video from API */
     function getVideoList() {
         servicesAPI.get()
         .success(function(data) {
@@ -141,23 +124,44 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         })
         .error(function(data) {
           console.log('Error: ' + data);
-        });   
+        });
     }
 
-    /* To display confirmation dialog */
-    function DialogController($scope, $mdDialog) {
-      $scope.hide = function() {
-        $mdDialog.hide();
-      };
-      $scope.cancel = function() {
-        $mdDialog.cancel();
-      };
-      $scope.answer = function(answer) {
-        $mdDialog.hide(answer);
-      };
-    }
+    $scope.showUpload = function (ev) {
+        var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+        $mdDialog.show({
+          controller: DialogController,
+          template:
+            '<md-dialog style="min-width:500px;min-height:200px">' +
+            '   <md-toolbar>' +
+            '       <div class="md-toolbar-tools">' +
+            '           <h2>Upload Video to Zoomable</h2>' +
+            '           <span flex></span>' +
+            '       <md-button class="md-icon-button" ng-click="cancel()">' +
+            '           <md-icon md-svg-src="images/ic_clear_white_24px.svg" aria-label="Close dialog"></md-icon>' +
+            '       </md-button>' +
+            '   </div>' +
+            '   </md-toolbar>' +
+            '   <md-dialog-content style="padding:50px;text-align:center">' +
+            '       <md-content>Choose videos to upload to Zoomable. You may select more than one video at a time. Recommended quality: HD and above.</md-content>' +
+            '       <md-dialog-actions style="justify-content:center;padding-top:30px"><input class="ng-hide" id="file-input" type="file" multiple="multiple" file-model="videoFile">' +
+            '           <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file" ng-click="test(\'why\')">' +
+            '           <label>Upload</label>' +
+            '           </md-button>' +
+            '       </md-dialog-actions>' +
+            '   </md-dialog-content>' +
+            '</md-dialog>',
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose:true,
+          fullscreen: useFullScreen
+        })
+        .then(function(test) {
+            console.log(test);
+        });
+    };
 
-    $scope.uploadVideoFile = function (filelist) {
+    $scope.uploadVideoFile = function(filelist) {
         for (var i = 0; i < filelist.length; ++i) {
             var file = filelist.item(i);
 
@@ -165,17 +169,21 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
               title : file.name,
               videoDir : uploadUrl,
               thumbnailDir : uploadUrl
-            };            
+            };
 
             servicesAPI.create(videoData)
             .success(function(data) {
                 videoData = {};
-                getVideoList(); 
+                getVideoList();
             })
             .error(function(data) {
               console.log('Error: ' + data);
-            });               
+            });
         }
-    };
+    }
 
+    /* Function to catch broadcast event from login controller to perform search on video list */
+    $scope.$on('searchBroadcast', function(event, query) {
+        $scope.filterType = query;
+    });
 });

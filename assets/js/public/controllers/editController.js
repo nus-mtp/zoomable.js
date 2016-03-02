@@ -41,8 +41,24 @@ angular.module('zoomableApp').controller('editController', function($scope, $mdT
 				// set form back to clean state to disable save button
 				$scope.videoForm.$setPristine();
 	    })
-	    .error(function(data) {
+	    .error(function(data, status) {
 	      console.log('Error: ' + data);
+				if (status == 403) {
+					// user is forbidden to perform action. Ask user to sign in again using toast.
+					var toast = $mdToast.simple()
+						.content('Please login to make changes.')
+						.action('Login').highlightAction(true)
+						.hideDelay(false)
+						.position('top right')
+						.parent(document.getElementById('toast-area'));
+
+					$mdToast.show(toast).then(function(response) {
+			      if (response == 'ok') {
+							// redirect to dashboard page
+							window.location = '/';
+			      }
+			    });
+				}
 	    });
 	};
 

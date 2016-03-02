@@ -6,7 +6,7 @@
  */
 
 module.exports = {
-	
+
   /**
    * `VideoController.create()`
    * Usage: POST /api/video
@@ -36,6 +36,7 @@ module.exports = {
    * Usage: GET /api/video
    */
   readAll: function (req, res) {
+    console.log(sails.getBaseUrl());
     Video.find().exec(function (err, videos) {
       if (err) throw err;
       res.json(videos);
@@ -72,7 +73,7 @@ module.exports = {
 
   /**
    * `VideoController.tags()`
-   * Usage: 
+   * Usage:
    */
   tags: function (req, res) {
     return res.json({
@@ -92,6 +93,39 @@ module.exports = {
       if (err) throw err;
       res.json(video.videoDir);
     });
+  },
+
+  /**
+   * `VideoController.upload()`
+   * Usage: POST /api/video/upload
+   * Content: {id: ':id', video: 'attach video file here'}
+  **/
+  upload: function (req, res) {
+    req.file('video').upload({
+      dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id'),
+      maxBytes: 2 * 1000 * 1000 * 1000
+    }, function (err, uploadedFiles) {
+      if (err) return res.negotiate(err);
+
+      // If no files were uploaded, respond with an error.
+      if (uploadedFiles.length === 0){
+        return res.badRequest('No file was uploaded');
+      }
+
+      // Update the Video Model's videoDir based on the video ID
+      Video.update({
+        id: req.param('id')
+      },  {
+        videoDir: uploadedFiles[0].fd
+      }).exec(function (err, updatedVideo) {
+        return res.json({
+          message: uploadedFiles.length + ' file(s) uploaded successfully!',
+          // Only upload 1 video per time
+          files: uploadedFiles[0],
+          textParams: req.params.all(),
+          video: updatedVideo[0]
+        });
+      });
+    });
   }
 };
-

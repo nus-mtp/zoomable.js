@@ -44,14 +44,12 @@ module.exports = {
 	    	defaultsTo: 0
 	    },
 
-	    videoDir: {
-	    	type: 'string',
-	    	required: true
+	    mpdDir: {
+	    	type: 'string'
 	    },
 
 	    thumbnailDir: {
-	    	type: 'string',
-	    	required: true
+	    	type: 'string'
 	    },
 	    
 	    createdAt: {
