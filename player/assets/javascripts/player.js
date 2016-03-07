@@ -40,7 +40,7 @@ var Player = function(canvas, mpd_list) {
     this.paused;
     
     //this.video = vid;
-    this.canvas = canv;
+    this.canvas = canvas;
     this.ctx = canv.getContext('2d');
     this.scaleFactor = 1.1;
     this.zoomFactor = 1;
@@ -58,8 +58,11 @@ var Player = function(canvas, mpd_list) {
     this.util;
 
     this.init = function() {
-        this.scroll = new Scroll(this);
+        init_players(this, canvas, mpd_list)
         this.volume = new Volume(this);
+
+        this.scroll = new Scroll(this);
+        
         this.zoom = new Zoom(this);
         this.controls = new Controls(this);
         this.transforms = new Transforms(this);
@@ -71,6 +74,8 @@ var Player = function(canvas, mpd_list) {
         this.volume.setVolume(0.5); //set default vol of video
         this.mouseactions = new MouseActions(this);
     };
+
+
     
     var MouseActions = function(player) {
         player.canvas.addEventListener('mousedown',function(event) { player.mouseactions.mouseDown(event); },false);
@@ -218,33 +223,58 @@ var Player = function(canvas, mpd_list) {
         
     };
     
+    // QUESTION: How to decide which player to 'follow' audio stream from? Should audio stream be separate?
     var Volume = function(player){
         this.previousVolume = { 
             state: 'low',
-            value: player.video.volume
+            value: player.video.volume // Which player to get volume from?
         };
-        this.setVolume = function(val) { 
-            player.video.volume = val; 
+        this.setVolume = function(val) {
+            // Set the volume of all the players to the parameter val
+            forAllPlayers(setVolumeNew, player.slaves, val);
         };
         this.volumeAdjust = function() {
-            player.video.volume = player.controls.volumeCtrl.value;
-            if (player.video.volume > 0) {
-                player.video.muted = false;
-                if (player.video.volume > 0.5) player.controls.volumeBtn.className = 'high';
-                else player.controls.volumeBtn.className = 'low';
-            } else {
-                player.video.muted = true;
+
+            var new_vol_val = player.controls.volumeCtrl.value;
+            // For all players, update the new volume value
+            forAllPlayers(setVolumeNew, player.slaves, new_vol_val);
+            if (new_vol_val > 0) {
+                // For all players, set muted value to false
+                forAllPlayers(setVolumeFalse, player.slaves);
+                if (new_vol_val > 0.5) {
+                    // Set the master player's UI control to high
+                    player.controls.volumeBtn.className = 'high';
+                }
+                else {
+                    player.controls.volumeBtn.className = 'low';
+                } 
+            } 
+            else {
+                // Set all the players' muted value to true
+                forAllPlayers(setVolumeTrue, player.slaves);
                 player.controls.volumeBtn.className = 'off';
             }
             // update previous state at the end so mute can be toggled correctly
-            player.volume.previousVolume.value = player.video.volume;
+            player.volume.previousVolume.value = player.video.volume;   // Which player to get volume from?
             player.volume.previousVolume.state = player.volumeBtn.className;
         };
+
+        var setVolumeNew = function(eachPlayer, newVolume) {
+            eachPlayer.video.volume = newVolume;
+        }
+
+        var setVolumeFalse = function(eachPlayer) {
+            eachPlayer.video.muted = false;
+        }
+
+        var setVolumeTrue = function(eachPlayer) {
+            eachPlayer.video.muted = true;
+        }
         
         this.toggleMuteState = function(evt) {
             // temporary variables to store current volume values
             var currentVolumeState = evt.target.className;
-            var currentVolumeControlValue = player.video.volume;
+            var currentVolumeControlValue = player.video.volume;    // Which player to get volume from?
 
             if (currentVolumeState == 'low' || currentVolumeState == 'high') {
                 evt.target.className = 'off';
@@ -514,7 +544,8 @@ var Player = function(canvas, mpd_list) {
             return formattedTime; 
         }
     }
-    var init_players = function(zoomable, canvas, mpd_list) {
+
+    var init_players = function(player, canvas, mpd_list) {
         var vidCount = 1;
 
         // Install polyfills for the browser
@@ -539,7 +570,7 @@ var Player = function(canvas, mpd_list) {
                 // Attach the player to the window for debugging purposes (NEED TO CHECK IF CAN REMOVE)
                 window.player = shakaPlayer;
                 // Listen for errors from the Shaka Player
-                player.addEventListener('error', function(event) {
+                shakaPlayer.addEventListener('error', function(event) {
                     console.error(event);
                 });
                 // Construct a DashVideoSource to represent the DASH manifest
@@ -547,32 +578,47 @@ var Player = function(canvas, mpd_list) {
                 var estimator = new shaka.util.EWMABandwidthEstimator();
                 var src = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
                 // Load the src into the Shaka Player
-                player.load(src);
+                shakaPlayer.load(src);
 
-                // To instaniate a new Player object for each Shaka video player
-                // ASSUME: video elements are already present in the HTML
+                // To instantiate a new Slave object for each Shaka video player
                 var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
                 var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
-                var single_player = new Player(vid, canvas, coords, dimensions); 
-                single_player.init();
-                zoomable.players.push(single_player);
+                var single_player = new Slave(vid, canvas, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
+                player.slaves.push(single_player);
                 vidCount++;
             }
         }  
+    }
+
+    var forAllPlayers = function(someFunction, slaveArr, extraParam) {
+        if (extraParam === undefined) {
+            extraParam = 0;
+            for (int i = 0; i < slaveArr.size(); i++) {
+                someFunction(slaveArr[i]);
+            }
+        }
+        else {
+            for (int i = 0; i < slaveArr.size(); i++) {
+                someFunction(slaveArr[i], extraParam);
+            }
+        }
     };
 }
 
 
-/*
+// The list of MPDs are hardcoded here for now, will eventually run a script to detect the relevant MPDs to retrieve
+var mpdList = [];
+for(var i = 1; i <= 3; i++) {
+    for(var j = 1; j <= 4; j++) {
+        mpdList.push('/../../../../../../TEST/squirrel_video/squirrel_video_mpd_R' + i + 'C' + j + '.mpd');
+    }
+}
+
+// On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
-    // To loop through the rows while we are on a column
-    for(var rowNum = 0; rowNum < 3; rowNum++) {
-        // To loop through the columns while we are on a row
-        for(var colNum = 0; colNum < 4; colNum++) {
-            var zoomable = new Player(document.getElementById('video_' + vidCount), document.getElementById('canvas'), colNum*160, rowNum*120); 
-            zoomable.init()
-            vidCount++;
-        }
-    }  
-}, false);*/
+    canvas_obj = document.getElementById('canvas');
+    list_of_mpds = mpdList;
+    var loadPlayers = new Player(canvas_obj, list_of_mpds);
+    loadPlayers.init();
+}, false);

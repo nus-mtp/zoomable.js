@@ -11,7 +11,7 @@
 # the respective 360p, 480p, 720p and 1080p resolutions
 
 # Directory on the server where uploaded videos go to
-srclocation="/Users/nellystix/Desktop/TEST"
+srclocation=$*
 # Extensions recognizable by FFMPEG and that can be processed
 srcext=".mp4"
 # Final output format type
@@ -25,18 +25,15 @@ c="C"
 
 # Looking for a file that ends in .mp4 and executes the FFMPEG commands to commence processing
 # Retrieve the video's directory location, including its name (e.g. /usr/bin/test.txt)
+# ASSUMPTION: There is only 1 file in that directory with that specified extension
 vidloc=$(find "${srclocation}" -iname "*${srcext}")
+# Retrieve the parent directory of this file
+parentdir=$(dirname $vidloc)
 # Strip out the leading directory prefixes infront of the filename
 vidname_and_ext=$(basename "$vidloc")
 # Pure filename without the extension type
 vidname=$(basename "$vidname_and_ext" ${srcext})
 
-# Create a folder for all resolutions and cropped parts of the video
-mkdir -p -- ${vidname}
-
-# Initalizing the variables to track the (x,y) coordinates of the row and column for the cropped video
-x_coord=0
-y_coord=0
 # 360p video details
 # Additional name identifier for the video in 360p format
 _360p_ext="_360p"
@@ -44,26 +41,11 @@ _360p_ext="_360p"
 _360p_crop_w=120
 # 360p cropped video height
 _360p_crop_h=120
-# Convert the original video to 360p resolution
-ffmpeg -i ${vidname_and_ext} -c:v libx264 -b:v 350k -r 24 -s 480x360 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a libvo_aacenc -b:a 128k -ac 2 ${vidname}${_360p_ext}${finalformat}
+# 360p FFMPEG conversion command
+_360p_cmd() {
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=480x360 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a aac -b:a 128k -ac 2 ${parentdir}${slash}${vidname}${_360p_ext}${finalformat}
+}
 
-# Crop the 360p video into its respective 4:3 parts
-# For each column
-for i in {1..4}
-do
-	y_coord=0
-	# For each row
-	for j in {1..3}
-	do
-		ffmpeg -i ${vidname}${_360p_ext}${finalformat} -filter:v "crop=${_360p_crop_w}:${_360p_crop_h}:${x_coord}:${y_coord}" ${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}
-		y_coord=$((y_coord + _360p_crop_h))
-	done
-	x_coord=$((x_coord + _360p_crop_w))
-done
-
-# Reinitialize the variables to track the (x,y) coordinates of the row and column for the cropped video
-x_coord=0
-y_coord=0
 # 480p video details
 # Additional name identifier for the video in 480p format
 _480p_ext="_480p"
@@ -71,26 +53,11 @@ _480p_ext="_480p"
 _480p_crop_w=160
 # 480p cropped video height
 _480p_crop_h=160
-# Convert the original video to 480p resolution
-ffmpeg -i ${vidname_and_ext} -c:v libx264 -b:v 750k -r 24 -s 640x480 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a libvo_aacenc -b:a 128k -ac 2 ${vidname}${_480p_ext}${finalformat}
+# 480p FFMPEG conversion command
+_480p_cmd() {
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=640x480 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a aac -b:a 128k -ac 2 ${parentdir}${slash}${vidname}${_480p_ext}${finalformat}
+}
 
-# Crop the 480p video into its respective 4:3 parts
-# For each column
-for i in {1..4}
-do
-	y_coord=0
-	# For each row
-	for j in {1..3}
-	do
-		ffmpeg -i ${vidname}${_480p_ext}${finalformat} -filter:v "crop=${_480p_crop_w}:${_480p_crop_h}:${x_coord}:${y_coord}" ${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}
-		y_coord=$((y_coord + _480p_crop_h))
-	done
-	x_coord=$((x_coord + _480p_crop_w))
-done
-
-# Reinitialize the variables to track the (x,y) coordinates of the row and column for the cropped video
-x_coord=0
-y_coord=0
 # 720p video details
 # Additional name identifier for the video in 720p format
 _720p_ext="_720p"
@@ -98,26 +65,11 @@ _720p_ext="_720p"
 _720p_crop_w=320
 # 720p cropped video height
 _720p_crop_h=240
-# Convert the original video to 720p resolution
-ffmpeg -i ${vidname_and_ext} -c:v libx264 -b:v 2000k -r 24 -s 1280x720 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a libvo_aacenc -b:a 128k -ac 2 ${vidname}${_720p_ext}${finalformat}
+# 720p FFMPEG conversion command
+_720p_cmd() {
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=1280x720 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a aac -b:a 128k -ac 2 ${parentdir}${slash}${vidname}${_720p_ext}${finalformat}
+}
 
-# Crop the 720p video into its respective 4:3 parts
-# For each column
-for i in {1..4}
-do
-	y_coord=0
-	# For each row
-	for j in {1..3}
-	do
-		ffmpeg -i ${vidname}${_720p_ext}${finalformat} -filter:v "crop=${_720p_crop_w}:${_720p_crop_h}:${x_coord}:${y_coord}" ${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}
-		y_coord=$((y_coord + _720p_crop_h))
-	done
-	x_coord=$((x_coord + _720p_crop_w))
-done
-
-# Reinitialize the variables to track the (x,y) coordinates of the row and column for the cropped video
-x_coord=0
-y_coord=0
 # 1080p video details
 # Additional name identifier for the video in 1080p format
 _1080p_ext="_1080p"
@@ -125,21 +77,64 @@ _1080p_ext="_1080p"
 _1080p_crop_w=480
 # 1080p cropped video height
 _1080p_crop_h=360
-# Convert the original video to 1080p resolution
-ffmpeg -i ${vidname_and_ext} -c:v libx264 -b:v 5000k -r 24 -s 1920x1080 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a libvo_aacenc -b:a 128k -ac 2 ${vidname}${_1080p_ext}${finalformat}
+# 1080p FFMPEG conversion command
+_1080p_cmd() {
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=1920x1080 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a aac -b:a 128k -ac 2 ${parentdir}${slash}${vidname}${_1080p_ext}${finalformat}
+}
 
-# Crop the 1080p video into its respective 4:3 parts
-# For each column
+# Create an array of possible resolutions to convert to
+declare -a resArr
+resArr[1]=${_360p_ext}
+resArr[2]=${_480p_ext}
+resArr[3]=${_720p_ext}
+resArr[4]=${_1080p_ext}
+
+# Create an array of cropped widths for each corresponding resolution
+declare -a cropWidthArr
+cropWidthArr[1]=${_360p_crop_w}
+cropWidthArr[2]=${_480p_crop_w}
+cropWidthArr[3]=${_720p_crop_w}
+cropWidthArr[4]=${_1080p_crop_w}
+
+# Create an array of cropped heights for each corresponding resolution
+declare -a cropHeightArr
+cropHeightArr[1]=${_360p_crop_h}
+cropHeightArr[2]=${_480p_crop_h}
+cropHeightArr[3]=${_720p_crop_h}
+cropHeightArr[4]=${_1080p_crop_h}
+
+# Create an array of commands for each corresponding resolution
+declare -a cmdArr
+cmdArr[1]=_360p_cmd
+cmdArr[2]=_480p_cmd
+cmdArr[3]=_720p_cmd
+cmdArr[4]=_1080p_cmd
+
+# Initalizing the variables to track the (x,y) coordinates of the row and column for the cropped video
+x_coord=0
+y_coord=0
+
+# For each resolution
 for i in {1..4}
 do
-	y_coord=0
-	# For each row
-	for j in {1..3}
+	# Run the resolution conversion command pertaining to that given resolution
+	${cmdArr[$i]}
+
+	# Crop the video into its respection 4:3 parts
+	# For each column
+	for col in {1..4}
 	do
-		ffmpeg -i ${vidname}${_1080p_ext}${finalformat} -filter:v "crop=${_1080p_crop_w}:${_1080p_crop_h}:${x_coord}:${y_coord}" ${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}
-		y_coord=$((y_coord + _1080p_crop_h))
+		y_coord=0
+		# For each row
+		for row in {1..3}
+		do
+			ffmpeg -i ${parentdir}${slash}${vidname}${resArr[$i]}${finalformat} -filter:v "crop=${cropWidthArr[$i]}:${cropHeightArr[$i]}:${x_coord}:${y_coord}" ${parentdir}${slash}${vidname}${resArr[$i]}${r}${row}${c}${col}${finalformat}
+			y_coord=$((y_coord + cropHeightArr[$i]))
+		done
+		x_coord=$((x_coord + cropWidthArr[$i]))
 	done
-	x_coord=$((x_coord + _1080p_crop_w))
+	x_coord=0
+	y_coord=0
 done
 
 # Generate the thumbnail for the video
@@ -148,7 +143,7 @@ tn_size="640:360"
 # Defined thumbnail format
 tn_format=".png"
 # Generating the actual thumbnail
-ffmpeg -i ${vidname_and_ext} -vf  "thumbnail,scale=${tn_size}" -frames:v 1 ${vidname}${tn_format}
+ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -vf  "thumbnail,scale=${tn_size}" -frames:v 1 ${parentdir}${slash}${vidname}${tn_format}
 
 # Create the MPD file for each player (12 in total), comprising of the 360p, 480p, 720p and 1080p versions
 # MPD extension type
@@ -161,19 +156,9 @@ do
 	# For each row
 	for j in {1..3}
 	do
-		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${vidname}${mpd_name}${r}${j}${c}${i}${mpd_ext} ${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#audio ${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
+		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${parentdir}${slash}${vidname}${mpd_name}${r}${j}${c}${i}${mpd_ext} ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#audio ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
 	done
 done
 
-# Move all video files that have the same video name into the <videoname> folder, EXCEPT the original video
-mv *${_360p_ext}* ${vidname}
-mv *${_480p_ext}* ${vidname}
-mv *${_720p_ext}* ${vidname}
-mv *${_1080p_ext}* ${vidname}
-# Move the thumbnail of the video into the <videoname> folder
-mv ${vidname}${tn_format} ${vidname}
-# Move the MPD files to the <videoname> folder
-mv *${mpd_name}* ${vidname}
-
 # Delete the original uploaded video
-rm ${vidname_and_ext}
+rm ${parentdir}${slash}${vidname_and_ext}
