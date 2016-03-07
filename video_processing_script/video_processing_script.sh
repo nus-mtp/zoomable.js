@@ -43,7 +43,7 @@ _360p_crop_w=120
 _360p_crop_h=120
 # 360p FFMPEG conversion command
 _360p_cmd() {
-	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=480x360 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a aac -b:a 128k -ac 2 ${parentdir}${slash}${vidname}${_360p_ext}${finalformat}
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=480x360 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_360p_ext}${finalformat}
 }
 
 # 480p video details
@@ -55,7 +55,7 @@ _480p_crop_w=160
 _480p_crop_h=160
 # 480p FFMPEG conversion command
 _480p_cmd() {
-	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=640x480 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a aac -b:a 128k -ac 2 ${parentdir}${slash}${vidname}${_480p_ext}${finalformat}
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=640x480 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_480p_ext}${finalformat}
 }
 
 # 720p video details
@@ -67,7 +67,7 @@ _720p_crop_w=320
 _720p_crop_h=240
 # 720p FFMPEG conversion command
 _720p_cmd() {
-	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=1280x720 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a aac -b:a 128k -ac 2 ${parentdir}${slash}${vidname}${_720p_ext}${finalformat}
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=1280x720 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_720p_ext}${finalformat}
 }
 
 # 1080p video details
@@ -79,7 +79,7 @@ _1080p_crop_w=480
 _1080p_crop_h=360
 # 1080p FFMPEG conversion command
 _1080p_cmd() {
-	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=1920x1080 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -c:a aac -b:a 128k -ac 2 ${parentdir}${slash}${vidname}${_1080p_ext}${finalformat}
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=1920x1080 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_1080p_ext}${finalformat}
 }
 
 # Create an array of possible resolutions to convert to
@@ -145,7 +145,14 @@ tn_format=".png"
 # Generating the actual thumbnail
 ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -vf  "thumbnail,scale=${tn_size}" -frames:v 1 ${parentdir}${slash}${vidname}${tn_format}
 
+# Generate the audio file of the video
+# Defined audio format
+aud_format=".mp3"
+# Generating the actual audio file of the video
+ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:a libmp3lame -q:a 4 ${parentdir}${slash}${vidname}${aud_format}
+
 # Create the MPD file for each player (12 in total), comprising of the 360p, 480p, 720p and 1080p versions
+# NOTE: The MPD files do not contain any links to audio, as the audio stream will be separate from the video
 # MPD extension type
 mpd_ext=".mpd"
 # Name identifier for the Media Presentation Description (MPD)
@@ -156,7 +163,7 @@ do
 	# For each row
 	for j in {1..3}
 	do
-		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${parentdir}${slash}${vidname}${mpd_name}${r}${j}${c}${i}${mpd_ext} ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#audio ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
+		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${parentdir}${slash}${vidname}${mpd_name}${r}${j}${c}${i}${mpd_ext} ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
 	done
 done
 
