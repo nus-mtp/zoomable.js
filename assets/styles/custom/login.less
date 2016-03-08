@@ -23,19 +23,18 @@
       margin: 10px 60px;
       text-align: center;
 
-      .create-account-link,
-      .forgot-password-link {
+      .link {
         display: block;
         font-size: 18px;
-      }
 
-      .create-account-link {
-        text-align: center;
-        padding: 15px 0px 5px 0px;
-      }
+        &.center {
+          text-align: center;
+          padding: 15px 0px 5px 0px;
+        }
 
-      .forgot-password-link {
-        text-align: right;
+        &.right {
+          text-align: right;
+        }
       }
 
       .error-message {
@@ -76,6 +75,20 @@
           color: fade(@color-white, 50%);
         }
       }
+    }
+
+    .header {
+      color: fade(@color-black, 87%);
+      font-size: 32px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .instructions {
+      color: fade(@color-black, 87%);
+      font-size: 16px;
+      text-align: center;
+      padding: 20px 90px 40px 90px;
     }
 
     .logo {
