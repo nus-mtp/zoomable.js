@@ -33,13 +33,14 @@ var Player = function(canvas, mpd_list) {
     var NUM_ROWS = 3;
     var NUM_COLS = 4;
     
-    this.time;
-    this.duration;
+    this.time = null;
+    this.timeArr = [];  // Array of current time for each video object
+    this.duration = null;
 
     this.slaves = []; //array of slave objects
+    this.audio; // The audio object from the HTML
+
     this.paused;
-    
-    //this.video = vid;
     this.canvas = canvas;
     this.ctx = canv.getContext('2d');
     this.scaleFactor = 1.1;
@@ -57,8 +58,10 @@ var Player = function(canvas, mpd_list) {
     this.transforms;
     this.util;
 
+    // Initialization will only be called once during the creation of the Player object the first time
     this.init = function() {
-        init_players(this, canvas, mpd_list)
+        init_players(this, canvas, mpd_list)    // To initialize all the players
+        this.duration = getVideoDuration(); // To intialize the video duration
         this.volume = new Volume(this);
 
         this.scroll = new Scroll(this);
@@ -78,9 +81,18 @@ var Player = function(canvas, mpd_list) {
 
     
     var MouseActions = function(player) {
-        player.canvas.addEventListener('mousedown',function(event) { player.mouseactions.mouseDown(event); },false);
-        player.canvas.addEventListener('mousemove',function(event) { player.mouseactions.mouseMove(event); },false);
-        player.canvas.addEventListener('mouseup',function(event) { player.mouseactions.mouseUp(event); },false); 
+        // To listen for the 'mousedown' event on the canvas
+        player.canvas.addEventListener('mousedown',function(event) { 
+            player.mouseactions.mouseDown(event); 
+        },false);
+        // To listen for the 'mousemove' event on the canvas
+        player.canvas.addEventListener('mousemove',function(event) { 
+            player.mouseactions.mouseMove(event); 
+        },false);
+        // To listen for the 'mouseup' event on the canvas
+        player.canvas.addEventListener('mouseup',function(event) { 
+            player.mouseactions.mouseUp(event); 
+        },false); 
 
         
         this.mouseDown = function(evt){
@@ -223,24 +235,27 @@ var Player = function(canvas, mpd_list) {
         
     };
     
-    // QUESTION: How to decide which player to 'follow' audio stream from? Should audio stream be separate?
     var Volume = function(player){
         this.previousVolume = { 
             state: 'low',
-            value: player.video.volume // Which player to get volume from?
+            value: player.volume.getVolume(); // CHECK WITH YUI WEI WHAT TO DO HERE
         };
+
         this.setVolume = function(val) {
-            // Set the volume of all the players to the parameter val
-            forAllPlayers(setVolumeNew, player.slaves, val);
+            document.getElementById('aud_file').volume = val;
         };
+
+        this.getVolume = function() {
+            return document.getElementById('aud_file').volume;
+        };
+
         this.volumeAdjust = function() {
 
             var new_vol_val = player.controls.volumeCtrl.value;
-            // For all players, update the new volume value
-            forAllPlayers(setVolumeNew, player.slaves, new_vol_val);
+            
             if (new_vol_val > 0) {
-                // For all players, set muted value to false
-                forAllPlayers(setVolumeFalse, player.slaves);
+                // Set the muted value of the audio element to false
+                setVolumeMutedFalse();
                 if (new_vol_val > 0.5) {
                     // Set the master player's UI control to high
                     player.controls.volumeBtn.className = 'high';
@@ -250,46 +265,43 @@ var Player = function(canvas, mpd_list) {
                 } 
             } 
             else {
-                // Set all the players' muted value to true
-                forAllPlayers(setVolumeTrue, player.slaves);
+                // Set the audio element's muted value to true
+                setVolumeMutedTrue();
                 player.controls.volumeBtn.className = 'off';
             }
-            // update previous state at the end so mute can be toggled correctly
-            player.volume.previousVolume.value = player.video.volume;   // Which player to get volume from?
+
+            // Update the previous volume state at the end, so mute can be toggled correctly
+            player.volume.previousVolume.value = player.volume.getVolume();
             player.volume.previousVolume.state = player.volumeBtn.className;
         };
 
-        var setVolumeNew = function(eachPlayer, newVolume) {
-            eachPlayer.video.volume = newVolume;
+        var setVolumeMutedFalse = function() {
+            document.getElementById('aud_file').muted = false;
         }
 
-        var setVolumeFalse = function(eachPlayer) {
-            eachPlayer.video.muted = false;
-        }
-
-        var setVolumeTrue = function(eachPlayer) {
-            eachPlayer.video.muted = true;
+        var setVolumeMutedTrue = function() {
+            document.getElementById('aud_file').muted = true;
         }
         
         this.toggleMuteState = function(evt) {
-            // temporary variables to store current volume values
+            // Temporary variables to store current volume values
             var currentVolumeState = evt.target.className;
-            var currentVolumeControlValue = player.video.volume;    // Which player to get volume from?
+            var currentVolumeControlValue = player.volume.getVolume();
 
             if (currentVolumeState == 'low' || currentVolumeState == 'high') {
                 evt.target.className = 'off';
-                player.video.muted = true;
+                player.volume.setVolumeMutedTrue();
                 player.controls.volumeCtrl.value = 0;
-                player.video.volume = 0;
+                player.volume.setVolume(0);
             }
             else {
                 evt.target.className = this.previousVolume.state;
-                player.video.muted = false;
+                player.volume.setVolumeMutedFalse();
                 player.controls.volumeCtrl.value = this.previousVolume.value;
-                player.video.volume = this.previousVolume.value;
+                player.volume.setVolume(this.previousVolume.value);
             }
 
-            // update previous state
+            // Update the previous state
             this.previousVolume.state = currentVolumeState;
             this.previousVolume.value = currentVolumeControlValue;
         }
@@ -297,21 +309,22 @@ var Player = function(canvas, mpd_list) {
     
     var Seek = function(player){
         /* Update seek control value and current time text */
-        player.video.addEventListener('timeupdate',function() { player.seek.updateSeekTime(); },false);
-        player.controls.seekCtrl.addEventListener('change',function() { player.seek.setVideoTime(); },false);
+        player.controls.seekCtrl.addEventListener('change',function() { 
+            player.seek.setAudioVideoTime(); 
+        },false);
 
-        this.updateSeekTime = function(){ 
-            var newTime = player.video.currentTime/player.video.duration;
+        this.updateSeekTime = function() { 
+            var newTime = this.time / this.duration;
             var gradient = ['to right'];
-            var buffered = player.video.buffered;
+            var buffered = player.slaves[player.slaves.indexOf(this.time)].video.buffered;
             player.controls.seekCtrl.value = newTime;
             if (buffered.length == 0) {
                 gradient.push('rgba(255, 255, 255, 0.1) 0%');
             } else {
                 // NOTE: the fallback to zero eliminates NaN.
-                var bufferStartFraction = (buffered.start(0) / player.video.duration) || 0;
-                var bufferEndFraction = (buffered.end(0) / player.video.duration) || 0;
-                var playheadFraction = (player.video.currentTime / player.video.duration) || 0;
+                var bufferStartFraction = (buffered.start(0) / this.duration) || 0;
+                var bufferEndFraction = (buffered.end(0) / this.duration) || 0;
+                var playheadFraction = (this.time / this.duration) || 0;
                 gradient.push('rgba(255, 255, 255, 0.1) ' + (bufferStartFraction * 100) + '%');
                 gradient.push('rgba(255, 255, 255, 0.7) ' + (bufferStartFraction * 100) + '%');
                 gradient.push('rgba(255, 255, 255, 0.7) ' + (playheadFraction * 100) + '%');
@@ -321,13 +334,17 @@ var Player = function(canvas, mpd_list) {
             }
             player.controls.seekCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
 
-            player.controls.updateCurrentTimeText(player.video.currentTime);
+            player.controls.updateCurrentTimeText(this.time);
         };
          /* Change current video time and text according to seek control value */
-        this.setVideoTime = function(){
-            var seekTo = player.video.duration * player.controls.seekCtrl.value;
-            player.video.currentTime = seekTo;
-            player.controls.updateCurrentTimeText(player.video.currentTime);
+        this.setAudioVideoTime = function(){
+            // Set the time of the video to be playing at
+            var seekTo = this.duration * player.controls.seekCtrl.value;
+            this.time = seekTo;
+            player.controls.updateCurrentTimeText(this.time);
+
+            // Set the time of the audio to be playing at
+            player.audio.currentTime = seekTo;
         };
     
     };
@@ -584,10 +601,24 @@ var Player = function(canvas, mpd_list) {
                 var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
                 var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
                 var single_player = new Slave(vid, canvas, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
+                // Attach an event listener to each video object for each Slave object
+                // Upon the 'timeupdate' event
+                single_player.video.addEventListener('timeupdate', function() {
+                    this.timeArr[vidCount - 1] = single_player.video.currentTime;   // Update the global array of current time value for this video object
+                    syncCurrentTime();  // Run the synchronization check for the current time
+                    player.seek.updateSeekTime();   // Update the seek time based on this new time
+                }, false);
                 player.slaves.push(single_player);
                 vidCount++;
             }
-        }  
+        }
+
+        // Inject the audio element into the HTML
+        // HARDCODED!!!!!! for now
+        var audHtmlEle;
+        audHtmlEle = '<audio id="aud_file" controls><source src="' + mpd_list[12] + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
+        // Set the audio object of the Player
+        player.audio = document.getElementById('aud_file');
     }
 
     var forAllPlayers = function(someFunction, slaveArr, extraParam) {
@@ -602,6 +633,29 @@ var Player = function(canvas, mpd_list) {
                 someFunction(slaveArr[i], extraParam);
             }
         }
+    }
+
+    var syncCurrentTime = function() {
+        var earliestTime = null;
+        for (int i = 0; i < this.timeArr.size(); i++) {
+            if (earliestTime === null) {
+                earliestTime = this.timeArr[i];
+            }
+            else {
+                if (this.timeArr[i] < earliestTime) {
+                    earliestTime = this.timeArr[i];
+                }
+            }
+        }
+        this.time = earliestTime;
+    }
+
+    var getVideoDuration = function() {
+        for (int i = 0; i < this.slaves.size(); i++) {
+            if (this.slaves[i].video.duration != undefined) {
+                return this.slaves[i].video.duration;
+            }
+        }
     };
 }
 
@@ -613,6 +667,7 @@ for(var i = 1; i <= 3; i++) {
         mpdList.push('/../../../../../../TEST/squirrel_video/squirrel_video_mpd_R' + i + 'C' + j + '.mpd');
     }
 }
+mpdList.push('/../../../../../../TEST/squirrel_video/squirrel_video.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
