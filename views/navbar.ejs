@@ -52,11 +52,11 @@
 
   <!-- Sidebar -->
   <md-sidenav md-component-id="left" class="md-sidenav-left">
-    <div id="showVideoBtn" class="selection-btn" ng-click="showPage($event)">
+    <div id="showVideoBtn" class="selection-btn" ng-click="showPage($event)" ng-class="{selected: location == '/'}">
       <md-icon class="header-icon video"></md-icon>
       <div class="btn-name">My Videos</div>
     </div>
-    <div id="showStatBtn" class="selection-btn" ng-click="showPage($event)">
+    <div id="showStatBtn" class="selection-btn" ng-click="showPage($event)" ng-class="{selected: location == '/statistics'}">
       <md-icon class="header-icon stats"></md-icon>
       <div class="btn-name">My Statistics</div>
     </div>
