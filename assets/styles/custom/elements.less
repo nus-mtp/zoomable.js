@@ -46,6 +46,46 @@ md-icon.header-icon.stats {
     margin: 0px 10px 0px 20px;
 }
 
+.custom-btn-group {
+  margin-top: 5px;
+  padding-left: 3px;
+
+  .custom-switch {
+    border: 1px solid fade(@color-black, 10%);
+    border-radius: 3px;
+    justify-content: space-around;
+    height: 35px;
+
+    .custom-btn {
+      color: fade(@color-black, 30%);
+      display: inline-block;
+      height: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      padding-top: 8px;
+      text-align: center;
+      text-transform: uppercase;
+
+      span.text {
+        pointer-events: none;
+      }
+
+      &:focus {
+        outline: 0;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      &.selected {
+        background-color: fade(@color-button-primary, 25%);
+        color: @color-button-primary;
+      }
+    }
+  }
+}
+
 .header-title {
     vertical-align: middle;
 }
