@@ -3,13 +3,44 @@
 <div ng-controller="statisticController" ng-cloak id="statistic" md-no-ink="">
   <md-content layout-padding ng-cloak>
     <div flex-xs flex-gt-xs="100" layout-align="start center">
-      <!-- DASHBOARD HEADER -->
-      <div layout="row" layout-align="space-between center">
-        <div flex class="page-header">
-          <md-icon class="header-icon stats"></md-icon>
-          <span class="md-headline header-title">My Statistics</span>
-        </div>
-      </div>
+      <!-- HEADER -->
+      <h2 flex class="page-header">
+        <md-icon class="header-icon stats"></md-icon>
+        <span class="md-headline header-title">My Statistics</span>
+      </h2>
+
+      <!-- CONTENT -->
+      <md-card>
+        <md-card-header>
+          <md-icon class="profile-icon" md-svg-icon="images/ic_person.svg"></md-icon>
+          <md-card-header-text>
+            <span class="md-title"><%= user.username %></span>
+            <span class="md-subhead">Total Videos: </span>
+          </md-card-header-text>
+        </md-card-header>
+        <md-divider></md-divider>
+        <md-card-content>
+          <div layout="row">
+            <div flex="75" class="date-area">
+              <md-icon md-svg-icon="images/ic_calendar.svg"></md-icon>
+              // ADD DATE SELECTION HERE
+            </div>
+            <div flex="25" class="custom-btn-group">
+              <div layout="row" class="custom-switch">
+                <div flex="33" id="day" class="custom-btn" ng-class="{selected : criteria === 'DAY'}" ng-click="updateCriteria($event)">
+                  <span class="text">Day</span>
+                </div>
+                <div flex="33" id="month" class="custom-btn" ng-class="{selected : criteria === 'MONTH'}" ng-click="updateCriteria($event)">
+                  <span class="text">Month</span>
+                </div>
+                <div flex="33" id="year" class="custom-btn" ng-class="{selected : criteria === 'YEAR'}" ng-click="updateCriteria($event)">
+                  <span class="text">Year</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </md-card-content>
+      </md-card>
 
     </div>
   </md-content>
