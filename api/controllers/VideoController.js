@@ -5,6 +5,8 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+var isDoneProcessing = [];
+
 module.exports = {
 
   /**
@@ -103,6 +105,7 @@ module.exports = {
   upload: function (req, res) {
     req.file('video').upload({
       dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id'),
+      // maximum size of 2GB
       maxBytes: 2 * 1000 * 1000 * 1000
     }, function (err, uploadedFiles) {
       if (err) return res.negotiate(err);
@@ -118,8 +121,18 @@ module.exports = {
       },  {
         videoDir: uploadedFiles[0].fd
       }).exec(function (err, updatedVideo) {
+
+        // Push into array of isDoneProcessing
+        isDoneProcessing.push({
+          id: req.param('id'), 
+          status: false
+        });
+
+        // run the video processing service
+        VideoProcessingService.run({id: req.param('id'), filename: uploadFiles[0]});
+
         return res.json({
-          message: uploadedFiles.length + ' file(s) uploaded successfully!',
+          message: uploadedFiles.length + ' file(s) uploaded successfully',
           // Only upload 1 video per time
           files: uploadedFiles[0],
           textParams: req.params.all(),
@@ -127,5 +140,25 @@ module.exports = {
         });
       });
     });
+  },  
+  
+  /**
+   * `VideoController.isComplete()`
+   * Usage: POST /api/video/isComplete
+   * Content: {id: ':id'}
+  **/
+  isComplete: function (req, res) {
+    var id = req.param("id");
+    for (var i = 0; i < isDoneProcessing.length; i++) {
+      if (id == isDoneProcessing[i].id) {
+        return res.json({
+          status: isDoneProcessing[i].status
+        });
+      }
+    }
+
+    // return 404 not found if the id doesnt exists
+    res.notFound(); 
   }
+  
 };
