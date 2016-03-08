@@ -4,6 +4,10 @@
 
 body {
     min-width: 865px;
+
+    &.no-scroll {
+      overflow: hidden;
+    }
 }
 
 [ng-cloak] {
@@ -32,15 +36,18 @@ md-menu-content {
     }
 }
 
-.page-header {
-    md-icon.header-icon {
-        background-image: url(../../images/ic_movie_black_24px.svg);
-        margin: 0px 10px 0px 20px;
-    }
+md-icon.header-icon.video {
+    background-image: url(../../images/ic_movie_black_24px.svg);
+    margin: 0px 10px 0px 20px;
+}
 
-    .header-title {
-        vertical-align: middle;
-    }
+md-icon.header-icon.stats {
+    background-image: url(../../images/ic_trending_up_black_24px.svg);
+    margin: 0px 10px 0px 20px;
+}
+
+.header-title {
+    vertical-align: middle;
 }
 
 /* Styling to maintain aspect-ratio of video div
