@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('loginController', function($scope, $state, servicesAPI, $mdSidenav){
+angular.module('zoomableApp').controller('loginController', function($scope, $state, servicesAPI, $mdSidenav, $mdComponentRegistry){
   // VARIABLES
   $scope.username = '';
   $scope.password = '';
@@ -45,19 +45,23 @@ angular.module('zoomableApp').controller('loginController', function($scope, $st
     $scope.toggleLeftMenu();
   };
 
-  /* Function to watch toggling of left menu to set appropriate classes for styling */
-  $scope.$watch(function () {
-    return $mdSidenav('left').isOpen();
-  },
-  function (currValue, prevValue) {
-    if (currValue === false && prevValue === false) {
-      // don't set classes on initialization
-      return;
-    }
-    else {
-      // set classes
-      setClassesForLeftMenu();
-    }
+  /* Deferred lookup of component instance using $component registry */
+  // Reference from http://luxiyalu.com/angular-material-no-instance-found-for-handle-left/
+  $mdComponentRegistry.when('left').then(function(leftSidenav){
+    /* Function to watch toggling of left menu to set appropriate classes for styling */
+    $scope.$watch(function () {
+      return leftSidenav.isOpen();
+    },
+    function (currValue, prevValue) {
+      if (currValue === false && prevValue === false) {
+        // don't set classes on initialization
+        return;
+      }
+      else {
+        // set classes
+        setClassesForLeftMenu();
+      }
+    });
   });
 
   /* Function to call search in dashboardController */
