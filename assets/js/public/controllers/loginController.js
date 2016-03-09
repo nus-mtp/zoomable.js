@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('loginController', function($scope, $state, servicesAPI, $mdSidenav, $mdComponentRegistry){
+angular.module('zoomableApp').controller('loginController', function($scope, servicesAPI, $mdSidenav, $mdComponentRegistry){
   // VARIABLES
   $scope.username = '';
   $scope.password = '';
@@ -7,12 +7,14 @@ angular.module('zoomableApp').controller('loginController', function($scope, $st
   $scope.isCreate = false;
   $scope.errorMsg = '';
   $scope.searchQuery = '';
+  $scope.location = location.pathname;
+  $scope.tagList = ['architecture', 'education', 'learning', 'inspiration'];  // sample tag list
 
   // FUNCTIONS FOR NAVBAR
 
   /* Function to control showing of search input in navbar */
   $scope.isVideoList = function() {
-    if (location.pathname == '/') {
+    if ($scope.location == '/') {
       return true;
     }
     else {
@@ -31,15 +33,25 @@ angular.module('zoomableApp').controller('loginController', function($scope, $st
     $('.selection-btn').removeClass('selected');
 
     if (event.target.id === 'showVideoBtn') {
-      // add selected class
-      $('#showVideoBtn').addClass('selected');
-      // show video page - WIP
+      // show homepage (video list)
+      window.location = '/';
     }
     else if (event.target.id === 'showStatBtn') {
-      // add selected class
-      $('#showStatBtn').addClass('selected');
-      // show statistic page - WIP
+      // show statistic page
+      window.location = '/statistics';
     }
+
+    // toggle the menu
+    $scope.toggleLeftMenu();
+  };
+
+  /* Function to show video list of selected tag */
+  $scope.setSelectedTag = function(event) {
+    // remove previous selected tag if any
+    $('.tag-item').removeClass('selected');
+    // add selected class
+    $(event.target).addClass('selected');
+    // show videos with selected tag - WIP
 
     // toggle the menu
     $scope.toggleLeftMenu();

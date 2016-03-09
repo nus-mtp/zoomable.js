@@ -3,14 +3,18 @@
  */
 
 #navbar {
+  md-divider {
+    margin: 15px 0px;
+  }
+
   md-sidenav {
-    padding-top: 80px;
+    padding-top: 70px;
 
     .selection-btn {
       border-radius: 3px;
       cursor: pointer;
       height: 30px;
-      margin: 0px 15px 5px 15px;
+      margin: 10px 15px 0px 15px;
       outline: none;
       padding: 15px;
 
@@ -41,6 +45,7 @@
   md-toolbar {
     background-color: @color-primary;
     height: 64px;
+    min-width: @minimum-app-width;
     position: fixed;
     z-index: 99;
 
@@ -120,6 +125,37 @@
           border-bottom-width: thin;
         }
       }
+    }
+  }
+
+  .tag-header {
+    font-size: 16px;
+    padding: 0px 16px;
+    text-transform: uppercase;
+  }
+
+  .tag-area {
+    padding: 10px 16px;
+  }
+
+  .tag-item {
+    background-color: @color-grey-300;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0px 6px 8px 0px;
+    outline: none;
+    padding: 3px 10px;
+    text-transform: lowercase;
+
+    &:hover {
+      background-color: fade(@color-primary, 15%);
+    }
+
+    &.selected {
+      background-color: fade(@color-primary, 25%);
     }
   }
 }
