@@ -58,7 +58,7 @@ var Player = function(canvas, mpd_list) {
 	this.slaves = []; //array of slave objects
 	this.audio; // The audio object from the HTML
 
-	this.paused;
+	this.paused = true;
 	this.canvas = canvas;
 	this.ctx = this.canvas.getContext('2d');
 	this.scaleFactor = 1.1;
@@ -79,12 +79,12 @@ var Player = function(canvas, mpd_list) {
 	// Initialization of all the Shaka players and the video elements
 	this.initShakaPlayers = function() {
 		init_players(this, canvas, mpd_list);
-	}
+	};
 
 	// Initialization of all the Slave objects
 	this.initSlaves = function() {
 		initSlaveObjs(this);
-	}
+	};
 
 	// Initialization will only be called once during the creation of the Player object the first time
 	this.init = function() {
@@ -177,8 +177,9 @@ var Player = function(canvas, mpd_list) {
 			player.controls.playPauseVideo(this.playPauseVideo);
 		},false);
 
-		// This was to check if the video has been PAUSED on Shaka's end
-		// unexpectedly and to update the UI controls to reflect a pause too
+		// This is to check if the videos have been PAUSED on Shaka's end
+		// and to update the UI controls to reflect a PAUSE too
+
 		/*
 		player.video.addEventListener('pause',function(){
 			player.controls.changeToPauseState(this.playPauseBtn, this.uiControls);
@@ -255,53 +256,53 @@ var Player = function(canvas, mpd_list) {
 			else {
 				forAllPlayers(pauseVideo, player.slaves);
 			}
-	}
+		}
 
-	var playVideo = function(slaveObj) {
-		slaveObj.video.play();
-	}
+		var playVideo = function(slaveObj) {
+			slaveObj.video.play();
+		}
 
-	var pauseVideo = function(slaveObj) {
-		slaveObj.video.pause();
-	}
+		var pauseVideo = function(slaveObj) {
+			slaveObj.video.pause();
+		}
 
-	/* Updates icon to "play" button during pause state, show UI controls bar */
-	this.changeToPauseState = function() {
-		this.playPauseBtn.className = 'play';
-		this.uiControls.className = '';
-	}
+		/* Updates icon to "play" button during pause state, show UI controls bar */
+		this.changeToPauseState = function() {
+			this.playPauseBtn.className = 'play';
+			this.uiControls.className = '';
+		}
 
-	/* Updates icon to "pause" button during play state, hide UI controls bar */
-	this.changeToPlayState = function() {
-		this.playPauseBtn.className = 'pause';
-		this.uiControls.className = 'hideOnHover';
-	}
-	/* Retrieve total duration of video and update total time text */
-	this.getVideoLength = function() {
-		var convertedTotalTime = player.util.convertSecondsToHMS(player.duration);
-		this.totalTimeTxt.innerHTML = convertedTotalTime;
-	};
+		/* Updates icon to "pause" button during play state, hide UI controls bar */
+		this.changeToPlayState = function() {
+			this.playPauseBtn.className = 'pause';
+			this.uiControls.className = 'hideOnHover';
+		}
+		/* Retrieve total duration of video and update total time text */
+		this.getVideoLength = function() {
+			var convertedTotalTime = player.util.convertSecondsToHMS(player.duration);
+			this.totalTimeTxt.innerHTML = convertedTotalTime;
+		};
 
-	/* Convert and update current time text */
-	this.updateCurrentTimeText = function(time) {
-		var convertedTime = player.util.convertSecondsToHMS(time);
-		this.currentTimeTxt.innerHTML = convertedTime;
-	};
+		/* Convert and update current time text */
+		this.updateCurrentTimeText = function(time) {
+			var convertedTime = player.util.convertSecondsToHMS(time);
+			this.currentTimeTxt.innerHTML = convertedTime;
+		};
 
-	/* Update zoom control UI */
-	this.updateZoomUI = function() {
-		this.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.xform.a);
-		this.updateSliderUI(this.zoomCtrl);
-	};
+		/* Update zoom control UI */
+		this.updateZoomUI = function() {
+			this.zoomCtrl.value = player.util.convertScaleToPercent(player.transforms.xform.a);
+			this.updateSliderUI(this.zoomCtrl);
+		};
 
-	/* Update slider color when slider value changes - for zoomCtrl/volumeCtrl */
-	this.updateSliderUI = function(element) {
-		var gradient = ['to right'];
-		gradient.push('#ccc ' + (element.value * 100) + '%');
-		gradient.push('rgba(255, 255, 255, 0.3) ' + (element.value * 100) + '%');
-		gradient.push('rgba(255, 255, 255, 0.3) 100%');
-		element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
-	};
+		/* Update slider color when slider value changes - for zoomCtrl/volumeCtrl */
+		this.updateSliderUI = function(element) {
+			var gradient = ['to right'];
+			gradient.push('#ccc ' + (element.value * 100) + '%');
+			gradient.push('rgba(255, 255, 255, 0.3) ' + (element.value * 100) + '%');
+			gradient.push('rgba(255, 255, 255, 0.3) 100%');
+			element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+		};
 
 	};
 
@@ -342,16 +343,16 @@ var Player = function(canvas, mpd_list) {
 
 			// Update the previous volume state at the end, so mute can be toggled correctly
 			player.volume.previousVolume.value = player.volume.getVolume();
-			player.volume.previousVolume.state = player.volumeBtn.className;
+			player.volume.previousVolume.state = player.controls.volumeBtn.className;
 		};
 
 		this.setVolumeMutedFalse = function() {
 			document.getElementById('aud_file').muted = false;
-		}
+		};
 
 		this.setVolumeMutedTrue = function() {
 			document.getElementById('aud_file').muted = true;
-		}
+		};
 
 		this.toggleMuteState = function(evt) {
 			// Temporary variables to store current volume values
@@ -374,7 +375,7 @@ var Player = function(canvas, mpd_list) {
 			// Update the previous state
 			this.previousVolume.state = currentVolumeState;
 			this.previousVolume.value = currentVolumeControlValue;
-		}
+		};
 	};
 
 	var Seek = function(player){
@@ -384,9 +385,10 @@ var Player = function(canvas, mpd_list) {
 		},false);
 
 		this.updateSeekTime = function() {
-			var newTime = this.time / this.duration;
+			var newTime = player.time / player.duration;
 			var gradient = ['to right'];
-			var buffered = player.slaves[player.slaves.indexOf(this.time)].video.buffered;
+			// NEED TO DECIDE ON WHICH VIDEO'S BUFFER TO USE
+			var buffered = player.slaves[].video.buffered;
 			player.controls.seekCtrl.value = newTime;
 			if (buffered.length == 0) {
 				gradient.push('rgba(255, 255, 255, 0.1) 0%');
@@ -474,7 +476,7 @@ var Player = function(canvas, mpd_list) {
 		this.out = function() {
 			zoomHelper(-1);
 		}
-	}
+	};
 
 	var Transforms = function(player) {
 		player.video.addEventListener('play', function(){
@@ -607,9 +609,9 @@ var Player = function(canvas, mpd_list) {
 			}
 			/* if (flag = 0) {
 			ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
-		}*/
-		this.redraw();
-	}
+			}*/
+			this.redraw();
+		}
 	}
 
 	var Util = function(player) {
@@ -703,20 +705,20 @@ var Player = function(canvas, mpd_list) {
 		}
 	}
 
-	var syncCurrentTime = function() {
+	var syncCurrentTime = function(player) {
 		var earliestTime = null;
-		for (var i = 0; i < this.timeArr.length; i++) {
+		for (var i = 0; i < (player.timeArr.length) - 1; i++) {
 			if (earliestTime === null) {
-				earliestTime = this.timeArr[i];
+				earliestTime = player.timeArr[i];
 			}
 			else {
-				if (this.timeArr[i] < earliestTime) {
-					earliestTime = this.timeArr[i];
+				if (player.timeArr[i] < earliestTime) {
+					earliestTime = player.timeArr[i];
 				}
 			}
 		}
-		this.time = earliestTime;
-	}
+		player.time = earliestTime;
+	};
 
 	var getVideoDuration = function(player) {
 		player.slaves[0].video.onloadedmetadata = function() {
@@ -727,26 +729,27 @@ var Player = function(canvas, mpd_list) {
 	}
 
 	var initSlaveObjs = function(player) {
-		var vidCount = 1;
+		var newVidCount = 1;
 		// To loop through the rows while we are on a column
 		for(var rowNum = 0; rowNum < NUM_ROWS; rowNum++) {
 			// To loop through the columns while we are on a row
 			for(var colNum = 0; colNum < NUM_COLS; colNum++) {
 				// To instantiate a new Slave object for each Shaka video player
-				var slaveVid = document.getElementById('video_' + vidCount);
+				var slaveVid = document.getElementById('video_' + newVidCount);
 				var playerCanv = this.canvas;
 				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
 				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
 				// Attach an event listener to each video object for each Slave object
 				// Upon the 'timeupdate' event
-				slaveVid.addEventListener('timeupdate', function() {
-					player.timeArr[vidCount - 1] = slaveVid.currentTime;   // Update the global array of current time value for this video object
-					syncCurrentTime();  // Run the synchronization check for the current time
+				slaveVid.addEventListener('timeupdate', function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.timeArr[vidTimeArrIndex] = slaveVid.currentTime;   // Update the global array of current time value for this video object
+					syncCurrentTime(player);  // Run the synchronization check for the current time
 					player.seek.updateSeekTime();   // Update the seek time based on this new time
 				}, false);
 				var slaveObj = new Slave(slaveVid, playerCanv, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
 				player.slaves.push(slaveObj);
-				vidCount++;
+				newVidCount++;
 			}
 		}
 	};
