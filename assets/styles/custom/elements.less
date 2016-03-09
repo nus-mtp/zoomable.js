@@ -4,6 +4,7 @@
 
 body {
     min-width: @minimum-app-width;
+    background-color: @color-background;
 
     &.no-scroll {
       overflow: hidden;
@@ -24,9 +25,13 @@ md-card-header {        // override default card header styling
     padding: 0px !important;
 }
 
-md-content.layout-padding {
-    top: @navbar-height;
-    padding: 16px;
+md-content {
+    background-color: @color-background;
+
+    &.layout-padding {
+        top: @navbar-height;
+        padding: 16px;
+    }
 }
 
 md-menu-content {
