@@ -388,7 +388,7 @@ var Player = function(canvas, mpd_list) {
 			var newTime = player.time / player.duration;
 			var gradient = ['to right'];
 			// NEED TO DECIDE ON WHICH VIDEO'S BUFFER TO USE
-			var buffered = player.slaves[].video.buffered;
+			var buffered = player.slaves[0].video.buffered;
 			player.controls.seekCtrl.value = newTime;
 			if (buffered.length == 0) {
 				gradient.push('rgba(255, 255, 255, 0.1) 0%');
