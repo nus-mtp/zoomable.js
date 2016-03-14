@@ -57,6 +57,17 @@ module.exports = {
     });
   },
 
+  /**
+   * `VideoController.destroy()`
+   * Usage: DELETE /api/video/
+   * Content: {id: [:id]}
+   */
+   destroyAll: function(req, res) {
+    Video.destroy(req.body.id).exec(function (err, deletedVideos) {
+      if (err) throw err;
+      res.json(deletedVideos);
+    });
+   },
 
   /**
    * `VideoController.update()`
