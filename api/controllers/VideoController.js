@@ -5,8 +5,6 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-var isDoneProcessing = [];
-
 module.exports = {
 
   /**
@@ -126,29 +124,32 @@ module.exports = {
       }
 
       // generate a list of mpd dir
+      var fdWithExtension = uploadedFiles[0].fd;
+      var fd = fdWithExtension.substr(0, fdWithExtension.lastIndexOf('.')) || fdWithExtension;
+
       var mpdArray = [];
       var postfix = ["R1C1", "R1C2", "R1C3", "R1C4", "R2C1", 
                     "R2C2", "R2C3", "R2C4", "R3C1", "R3C2", "R3C3", "R3C4"];
       for (var i = 0; i < postfix.length; i++) {
-        mpdArray.push(uploadedFiles[0].fd + "_" + postfix[i] + ".mpd");
+        mpdArray.push(fd + "_" + postfix[i] + ".mpd");
       }
 
       // Update the Video Model's videoDir based on the video ID
       Video.update({
         id: req.param('id')
       },  {
-        videoDir: uploadedFiles[0].fd,
+        videoDir: fdWithExtension,
         mpdDir: mpdArray,
-        thumbnailDir: uploadedFiles[0].fd + ".png"
+        thumbnailDir: fd + ".png"
       }).exec(function (err, updatedVideo) {
         // Push into array of isDoneProcessing
-        isDoneProcessing.push({
+        sails.isDoneProcessing.push({
           id: req.param('id'), 
           status: false
         });
 
         // run the video processing service
-        VideoProcessingService.run({id: req.param('id'), filename: uploadFiles[0]});
+        VideoProcessingService.run({id: req.param('id'), dir: fdWithExtension});
 
         return res.json({
           message: uploadedFiles.length + ' file(s) uploaded successfully',
@@ -168,10 +169,10 @@ module.exports = {
   **/
   isComplete: function (req, res) {
     var id = req.param("id");
-    for (var i = 0; i < isDoneProcessing.length; i++) {
-      if (id == isDoneProcessing[i].id) {
+    for (var i = 0; i < sails.isDoneProcessing.length; i++) {
+      if (id == sails.isDoneProcessing[i].id) {
         return res.json({
-          status: isDoneProcessing[i].status
+          status: sails.isDoneProcessing[i].status
         });
       }
     }

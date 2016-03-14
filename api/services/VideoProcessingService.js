@@ -9,8 +9,8 @@ var spawn = require('child_process').spawn;
 
 module.exports = {
 	run: function(options) {
-		var dirPath = options.param('dir');
-		var fileName = sails.getBaseUrl() + '/' + options.param('filename');
+		var dirPath = options.dir;
+		var id = options.id;
 
 		var command = spawn(sails.config.appPath + '/scripts/video-processing.sh', [dirPath]);	
 
@@ -20,9 +20,9 @@ module.exports = {
         });
 
         command.on('close', function(chunk) {
-        	for (var i = 0; i < isDoneProcessing.size(); i++) {
-        		if (id == isDoneProcessing[i].id) {
-        			isDoneProcessing[i].status = true;
+        	for (var i = 0; i < sails.isDoneProcessing.length; i++) {
+        		if (id == sails.isDoneProcessing[i].id) {
+        			sails.isDoneProcessing[i].status = true;
         		}
         	}
         	console.log("Complete processing the uploaded video")
