@@ -38,7 +38,6 @@ module.exports = {
    * Usage: GET /api/video
    */
   readAll: function (req, res) {
-    console.log(sails.getBaseUrl());
     Video.find().exec(function (err, videos) {
       if (err) throw err;
       res.json(videos);
@@ -115,13 +114,22 @@ module.exports = {
         return res.badRequest('No file was uploaded');
       }
 
+      // generate a list of mpd dir
+      var mpdArray = [];
+      var postfix = ["R1C1", "R1C2", "R1C3", "R1C4", "R2C1", 
+                    "R2C2", "R2C3", "R2C4", "R3C1", "R3C2", "R3C3", "R3C4"];
+      for (var i = 0; i < postfix.length; i++) {
+        mpdArray.push(uploadedFiles[0].fd + "_" + postfix[i] + ".mpd");
+      }
+
       // Update the Video Model's videoDir based on the video ID
       Video.update({
         id: req.param('id')
       },  {
-        videoDir: uploadedFiles[0].fd
+        videoDir: uploadedFiles[0].fd,
+        mpdDir: mpdArray,
+        thumbnailDir: uploadedFiles[0].fd + ".png"
       }).exec(function (err, updatedVideo) {
-
         // Push into array of isDoneProcessing
         isDoneProcessing.push({
           id: req.param('id'), 
