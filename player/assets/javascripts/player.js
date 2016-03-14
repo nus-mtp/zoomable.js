@@ -58,7 +58,10 @@ var Player = function(canvas, mpd_list) {
 	this.slaves = []; //array of slave objects
 	this.audio; // The audio object from the HTML
 
+	// To store the pause state of each video's pause status
+	this.slavePauseArr = [];
 	this.paused = true;
+
 	this.canvas = canvas;
 	this.ctx = this.canvas.getContext('2d');
 	this.scaleFactor = 1.1;
@@ -177,23 +180,6 @@ var Player = function(canvas, mpd_list) {
 			player.controls.playPauseVideo(this.playPauseVideo);
 		},false);
 
-		// This is to check if the videos have been PAUSED on Shaka's end
-		// and to update the UI controls to reflect a PAUSE too
-
-		/*
-		player.video.addEventListener('pause',function(){
-			player.controls.changeToPauseState(this.playPauseBtn, this.uiControls);
-		},false);
-		*/
-
-		// This was to check if the video was PLAYED unexpectedly on Shaka's
-		// end and this is update the UI controls to reflect the play too
-		/*
-		player.video.addEventListener('play',function(){
-			player.controls.changeToPlayState(this.playPauseBtn, this.uiControls);
-		},false);
-		*/
-
 		// This is to check and update the MUTE button on the UI controls
 		// if it was clicked
 		this.volumeBtn.addEventListener('click', function() {
@@ -248,13 +234,15 @@ var Player = function(canvas, mpd_list) {
 
 		/* Play or pause the video */
 		this.playPauseVideo = function() {
-			// If the player is paused, play all the videos
+			// If the player is paused, i.e. player.paused == true, play all the videos
 			if(player.paused) {
 				forAllPlayers(playVideo, player.slaves);
+				player.paused = false;
 			}
-			// Else if the player is playing, pause all the videos
+			// Else if the player is playing, i.e. player.paused == false, pause all the videos
 			else {
 				forAllPlayers(pauseVideo, player.slaves);
+				player.paused = true;
 			}
 		}
 
@@ -723,13 +711,45 @@ var Player = function(canvas, mpd_list) {
 		player.time = earliestTime;
 	};
 
+	var syncPauseState = function(player) {
+		var newPauseState = player.paused;
+		// After the for-loop, as long as 1 video is still playing, the paused
+		// state will still be set to an overall false. i.e. Player is NOT paused
+		for (var i = 0; i < (player.slavePauseArr.length) - 1; i++) {
+			if (newPauseState == null) {
+				newPauseState = player.slavePauseArr[i];
+			}
+			else {
+				newPauseState = newPauseState && player.slavePauseArr[i];
+			}
+		}
+
+		// Check if the values been changed, i.e. False -> True / True -> False
+		// If they have been changed, update the UI controls
+		if (player.paused != newPauseState) {
+			player.paused = newPauseState;
+			// Call the UI controls update
+			// If the state is PAUSED, i.e. newPauseState == true
+			if (player.paused == true) {
+				player.controls.changeToPauseState(player.controls.playPauseBtn, player.controls.uiControls);
+			}
+			else if (player.paused == false) {
+				player.controls.changeToPlayState(player.controls.playPauseBtn, player.controls.uiControls);
+			}
+			else {
+				// For now: console log the error
+				console.log("UH OH...");
+			}
+		}
+	};
+
 	var getVideoDuration = function(player) {
 		player.slaves[0].video.onloadedmetadata = function() {
 			player.duration = player.slaves[0].video.duration;
-			console.log(player.duration);
+			player.controls.getVideoLength();
 			return player.duration;
 		};
-	}
+	};
 
 	var initSlaveObjs = function(player) {
 		var newVidCount = 1;
@@ -742,6 +762,7 @@ var Player = function(canvas, mpd_list) {
 				var playerCanv = this.canvas;
 				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
 				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
+
 				// Attach an event listener to each video object for each Slave object
 				// Upon the 'timeupdate' event
 				slaveVid.addEventListener('timeupdate', function(evt) {
@@ -750,6 +771,14 @@ var Player = function(canvas, mpd_list) {
 					syncCurrentTime(player);  // Run the synchronization check for the current time
 					player.seek.updateSeekTime();   // Update the seek time based on this new time
 				}, false);
+
+				// Upon the 'pause' event
+				slaveVid.addEventListener('pause', function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.slavePauseArr[vidTimeArrIndex] = true;   // Update the global array of pause state value for this video object
+					syncPauseState(player);	// Run the synchronization check for the overall pause state
+				}, false);
+
 				var slaveObj = new Slave(slaveVid, playerCanv, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
 				player.slaves.push(slaveObj);
 				newVidCount++;
