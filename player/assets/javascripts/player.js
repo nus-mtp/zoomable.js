@@ -17,32 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	loadPlayers.init();
 }, false);
 
-var Slave = function(vid, canv, coords, dims) {
-	this.video = vid;
-	this.canvas = canv;
-	this.ctx = canv.getContext('2d');
-	this.draw = function() {
-		//if(v.paused || v.ended) return false;
-
-		player.ctx.drawImage(player.video,coords.x,coords.y,dims.width,dims.height);
-	};
-	this.redraw = function(){
-		// Clear the entire canvas
-		var p1 = player.ctx.transformedPoint(0,0);
-		var p2 = player.ctx.transformedPoint(player.dimensions.cw,player.dimensions.ch);
-		//ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
-		player.ctx.fillStyle = 'rgb(0,0,0)';
-		player.ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
-		// Alternatively:
-		// ctx.save();
-		// ctx.setTransform(1,0,0,1,0,0);
-		// ctx.clearRect(0,0,canvas.width,canvas.height);
-		// ctx.restore();
-		player.transforms.refit();
-		this.draw();
-	};
-}
-
 var Player = function(canvas, mpd_list) {
 
 	var VID_WIDTH = 160;
@@ -97,9 +71,9 @@ var Player = function(canvas, mpd_list) {
 		//this.zoom = new Zoom(this); // NOT WORKING YET
 
 		this.controls = new Controls(this);
-		//this.transforms = new Transforms(this);
+		this.transforms = new Transforms(this);
 		this.seek = new Seek(this);
-		//this.transforms = new Transforms(this);
+		this.transforms = new Transforms(this);
 		this.util = new Util(this);
 		//this.transforms.draw();
 		this.last = { x: canvas.width/2, y: canvas.height/2 };
@@ -250,19 +224,19 @@ var Player = function(canvas, mpd_list) {
 		this.playPauseVideo = function() {
 			// If the player is paused, play all the videos
 			if(player.paused) {
-				forAllPlayers(playVideo, player.slaves);
+				player.util.forAllSlaves(player.controls.playVideo);
 			}
 			// Else if the player is playing, pause all the videos
 			else {
-				forAllPlayers(pauseVideo, player.slaves);
+				player.util.forAllSlaves(player.controls.pauseVideo);
 			}
 		}
 
-		var playVideo = function(slaveObj) {
+		this.playVideo = function(slaveObj) {
 			slaveObj.video.play();
 		}
 
-		var pauseVideo = function(slaveObj) {
+		this.pauseVideo = function(slaveObj) {
 			slaveObj.video.pause();
 		}
 
@@ -418,7 +392,7 @@ var Player = function(canvas, mpd_list) {
 			player.controls.updateCurrentTimeText(seekTo);
 
 			// Update the actual players to reflect the time for the video to be playing at
-			forAllPlayers(setVideoTime, player.slaves, seekTo);
+			player.util.forAllSlaves(setVideoTime, player.slaves, seekTo);
 
 			// Set the time of the audio to be playing at
 			player.audio.currentTime = seekTo;
@@ -479,10 +453,6 @@ var Player = function(canvas, mpd_list) {
 	};
 
 	var Transforms = function(player) {
-		player.video.addEventListener('play', function(){
-			player.transforms.draw();
-		},false);
-
 		var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
 		this.savedTransforms = [];
 		this.xform = svg.createSVGMatrix();
@@ -567,13 +537,6 @@ var Player = function(canvas, mpd_list) {
 			}
 		}
 
-		this.draw = function() {
-			//if(v.paused || v.ended) return false;
-			player.ctx.drawImage(player.video,coords.x,coords.y,dims.width,dims.height);
-			setTimeout(player.transforms.draw,20);
-		}
-
-
 		this.redraw = function(){
 			// Clear the entire canvas
 			var p1 = player.ctx.transformedPoint(0,0);
@@ -643,6 +606,19 @@ var Player = function(canvas, mpd_list) {
 
 			return formattedTime;
 		}
+		this.forAllSlaves = function(someFunction, extraParam) {
+			if (extraParam === undefined) {
+				extraParam = 0;
+				for (var i = 0; i < player.slaves.length; i++) {
+					someFunction(player.slaves[i]);
+				}
+			}
+			else {
+				for (var i = 0; i < player.slaves.length; i++) {
+					someFunction(player.slaves[i], extraParam);
+				}
+			}
+		}
 	}
 
 	var init_players = function(player, canvas, mpd_list) {
@@ -694,20 +670,6 @@ var Player = function(canvas, mpd_list) {
 
 	}
 
-	var forAllPlayers = function(someFunction, slaveArr, extraParam) {
-		if (extraParam === undefined) {
-			extraParam = 0;
-			for (var i = 0; i < slaveArr.length; i++) {
-				someFunction(slaveArr[i]);
-			}
-		}
-		else {
-			for (var i = 0; i < slaveArr.length; i++) {
-				someFunction(slaveArr[i], extraParam);
-			}
-		}
-	}
-
 	var syncCurrentTime = function(player) {
 		var earliestTime = null;
 		for (var i = 0; i < (player.timeArr.length) - 1; i++) {
@@ -752,6 +714,7 @@ var Player = function(canvas, mpd_list) {
 				}, false);
 				var slaveObj = new Slave(slaveVid, playerCanv, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
 				player.slaves.push(slaveObj);
+				slaveObj.init();
 				newVidCount++;
 			}
 		}
