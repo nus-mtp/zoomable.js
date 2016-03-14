@@ -34,7 +34,8 @@ module.exports = function(grunt) {
 				src: ['jquery/dist/jquery.min.js','shaka-player/index.js', 'angular/angular.js', 'angular-ui-router/release/angular-ui-router.js',
 				'angular-aria/angular-aria.js', 'angular-animate/angular-animate.js',
 				'angular-material/angular-material.js', 'angular-messages/angular-messages.js',
-				'clipboard/dist/clipboard.js', 'ngclipboard/dist/ngclipboard.js'],
+				'clipboard/dist/clipboard.js', 'ngclipboard/dist/ngclipboard.js',
+				'moment/moment.js', 'angular-moment/angular-moment.js'],
 				flatten: true,
 				dest: '.tmp/public/js/dependencies'
 			}]
