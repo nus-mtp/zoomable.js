@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog, $mdMedia){
+angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog, $mdMedia, Upload, $timeout){
 
     // VARIABLES
     $scope.defaultImagePath = 'images/bunny.png';
@@ -132,54 +132,80 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         $mdDialog.show({
           controller: DialogController,
           template:
-            '<md-dialog style="min-width:500px;min-height:200px">' +
-            '   <md-toolbar>' +
-            '       <div class="md-toolbar-tools">' +
-            '           <h2>Upload Video to Zoomable</h2>' +
-            '           <span flex></span>' +
-            '       <md-button class="md-icon-button" ng-click="cancel()">' +
-            '           <md-icon md-svg-src="images/ic_clear_white_24px.svg" aria-label="Close dialog"></md-icon>' +
-            '       </md-button>' +
-            '   </div>' +
-            '   </md-toolbar>' +
-            '   <md-dialog-content style="padding:50px;text-align:center">' +
-            '       <md-content>Choose videos to upload to Zoomable. You may select more than one video at a time. Recommended quality: HD and above.</md-content>' +
-            '       <md-dialog-actions style="justify-content:center;padding-top:30px"><input class="ng-hide" id="file-input" type="file" multiple="multiple" file-model="videoFile">' +
-            '           <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file" ng-click="test(\'why\')">' +
-            '           <label>Upload</label>' +
-            '           </md-button>' +
-            '       </md-dialog-actions>' +
-            '   </md-dialog-content>' +
+            '<md-dialog style="min-width:500px;min-height:200px" id="dialog-upload">' +
+                '<div class="md-toolbar-tools" style="border-bottom: 1px solid gainsboro;">' +
+                    '<h2>Upload Video to Zoomable</h2>' +
+                    '<span flex></span>' +
+                    '<md-button class="md-icon-button" ng-click="cancel()">' +
+                        '<md-icon md-svg-src="images/ic_clear_black_24px.svg" aria-label="Close dialog"></md-icon>' +
+                    '</md-button>' +
+                '</div>' +
+                '<md-dialog-content style="padding:50px;text-align:center">' +
+                    '<div id="ngProgress-container"><div id="ngProgress"></div></div>' +
+                    '<md-content>'+
+                        'Choose videos to upload to Zoomable. You may select more than one video at a time. Recommended quality: <b>HD 1080p and higher.</b>'+
+                    '</md-content>' +
+                    '<div ng-show="uploadedFiles" ng-repeat="file in uploadedFiles">' +
+                        '{{file}}' +
+                    '</div>' +
+                    '<md-dialog-actions style="justify-content:center;padding-top:30px">' +
+                        '<div ngf-drop ngf-select ng-model="files" class="drop-box" ngf-drag-over-class="dragover" ngf-multiple="true" ngf-allow-dir="true"'+
+                        'accept="image/*" ngf-pattern="image/*">Drag videos here</br>or click to upload.</div>'+
+                    '</md-dialog-actions>' +
+                '</md-dialog-content>' +
             '</md-dialog>',
           parent: angular.element(document.body),
           targetEvent: ev,
           clickOutsideToClose:true,
           fullscreen: useFullScreen
-        })
-        .then(function(test) {
-            console.log(test);
         });
     };
 
-    $scope.uploadVideoFile = function(filelist) {
-        for (var i = 0; i < filelist.length; ++i) {
-            var file = filelist.item(i);
+    function DialogController($scope, $mdDialog, Upload, $timeout) {
+        // variable
+        $scope.files;
+        $scope.uploadedFiles;
 
-            videoData = {
-              title : file.name,
-              videoDir : uploadUrl,
-              thumbnailDir : uploadUrl
-            };
+        $scope.$watch('files', function () {
+            $scope.upload($scope.files);
+        });
 
-            servicesAPI.create(videoData)
-            .success(function(data) {
-                videoData = {};
-                getVideoList();
-            })
-            .error(function(data) {
-              console.log('Error: ' + data);
-            });
+        // function to upload individual video
+        $scope.upload = function (files) {
+            if (files && files.length) {
+                for (var i = 0; i < files.length; i++) {
+                  var file = files[i];
+                  if (!file.$error) {
+                    servicesAPI.upload(file)
+                        .then(function(uploadedFile) {
+                            console.log(uploadedFile);
+                            uploadedFiles.push(uploadedFile);
+                            getVideoList();
+//                            $mdDialog.hide();
+                        });
+                  }
+                }
+            }
+        };
+
+        $scope.start_contained = function($event) {
+                $scope.contained_progressbar.start();
+                $event.preventDefault();
         }
+
+        $scope.complete_contained = function($event) {
+                $scope.contained_progressbar.complete();
+                $event.preventDefault();
+        }
+
+        $scope.reset_contained = function($event) {
+                $scope.contained_progressbar.reset();
+                $event.preventDefault();
+        }
+
+        $scope.cancel = function() {
+            $mdDialog.cancel();
+        };
     }
 
     /* Function to catch broadcast event from login controller to perform search on video list */

@@ -25,7 +25,8 @@
     "angular-ui-router": "~0.2.16",
     "angular-material": "~1.0.3",
     "ngclipboard": "^1.1.0",
-    "clipboard": "^1.5.8"
+    "clipboard": "^1.5.8",
+    "ng-file-upload": "^12.0.1"
   },
   "devDependencies": {
     "angular-mocks": "^1.5.0"

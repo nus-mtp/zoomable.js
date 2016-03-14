@@ -1,4 +1,4 @@
-angular.module('zoomableApp', ['ui.router', 'ngMaterial', 'ngMessages', 'ngclipboard'])
+angular.module('zoomableApp', ['ui.router', 'ngMaterial', 'ngMessages', 'ngclipboard', 'ngFileUpload'])
 // Define standard theme for dashboard UI
 .config(function($mdThemingProvider) {
   $mdThemingProvider.theme('default')

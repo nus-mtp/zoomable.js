@@ -33,9 +33,11 @@ var jsFilesToInject = [
   'js/dependencies/angular-aria.js',
   'js/dependencies/clipboard.js',
   'js/dependencies/ngclipboard.js',
+  'js/dependencies/ng-file-upload-shim.min.js',
+  'js/dependencies/ng-file-upload.min.js',
   'js/public/zoomableApp.js',
-  'js/public/directives.js',  
-  'js/public/servicesAPI.js',      
+  'js/public/directives.js',
+  'js/public/servicesAPI.js',
   'js/public/controllers/*.js',
 ];
 
