@@ -100,7 +100,7 @@ var Player = function(canvas, mpd_list) {
 		//this.transforms = new Transforms(this);
 		this.seek = new Seek(this);
 		//this.transforms = new Transforms(this);
-		//this.util = new Util(this);
+		this.util = new Util(this);
 		//this.transforms.draw();
 		this.last = { x: canvas.width/2, y: canvas.height/2 };
 
@@ -406,7 +406,7 @@ var Player = function(canvas, mpd_list) {
 			}
 			player.controls.seekCtrl.style.background = 'linear-gradient(' + gradient.join(',') + ')';
 
-			player.controls.updateCurrentTimeText(this.time);
+			player.controls.updateCurrentTimeText(player.time);
 		};
 		/* Change current video time and text according to seek control value */
 		this.setAudioVideoTime = function(){
@@ -616,6 +616,8 @@ var Player = function(canvas, mpd_list) {
 
 	var Util = function(player) {
 		/* Helper methods to convert between the slider values and transformation matrix values */
+		// COMMENTED OUT FOR THE TIME BEING UNTIL ZOOM IS FIXED
+		/*
 		this.convertPercentToScale = function(percent) {
 			var range = player.zoom.maxZoom - 1;
 			return percent*range + 1;
@@ -624,6 +626,7 @@ var Player = function(canvas, mpd_list) {
 			var range = player.zoom.maxZoom - 1;
 			return (scale-1)/range;
 		}
+		*/
 		/* Function to converts seconds to HH:MM:SS format */
 		this.convertSecondsToHMS = function(timeInSeconds) {
 			var formattedTime = '';
