@@ -1,0 +1,54 @@
+/**
+ * dialog.less
+ */
+
+#dialog-upload {
+  min-height: 200px;
+  min-width: 500px;
+  width: 700px;
+
+  .md-toolbar-tools {
+    border-bottom: 1px solid @color-grey-300;
+  }
+
+  md-dialog-content {
+    padding-top: 30px;
+    text-align: center;
+  }
+
+  md-dialog-actions {
+    justify-content: center !important;
+    padding-bottom: 20px;
+  }
+
+  .drop-box {
+    background: @color-grey-100;
+    border: 5px dashed @color-grey-300;
+    color: @color-grey-500;
+    padding: 25px;
+    width: 200px;
+    text-align: center;
+  }
+
+  .dragover {
+    border: 5px dashed @color-primary;
+  }
+
+  .progress-bar {
+    border-bottom: 1px solid @color-grey-300;
+    color: @color-grey-500;
+    padding: 5px;
+    text-align: left;
+  }
+
+  .uploaded-files-list {
+    max-height: 150px;
+    margin: 10px auto;
+    overflow: scroll;
+    width: 80%;
+  }
+
+  .outline {
+    border: 1px solid @color-grey-500;
+  }
+}

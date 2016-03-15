@@ -12,10 +12,7 @@
           </span>
         </h2>
         <div class="header-btn">
-          <input class="ng-hide" id="file-input" type="file" multiple="multiple" data-dbinf-on-files-selected="uploadVideoFile(selectedFileList)" file-model="videoFile">
-          <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file">
-            <label for="file-input">Upload</label>
-          </md-button>
+          <md-button class="md-raised md-primary" aria-label="upload video file" ng-click="showUpload()">Upload</md-button>
         </div>
       </div>
 

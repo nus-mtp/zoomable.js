@@ -33,6 +33,8 @@ var jsFilesToInject = [
   'js/dependencies/angular-aria.js',
   'js/dependencies/clipboard.js',
   'js/dependencies/ngclipboard.js',
+  'js/dependencies/ng-file-upload-shim.min.js',
+  'js/dependencies/ng-file-upload.min.js',
   'js/dependencies/moment.js',
   'js/dependencies/angular-moment.js',
   'js/dependencies/Chart.js',
