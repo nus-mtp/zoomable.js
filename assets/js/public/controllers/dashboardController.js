@@ -189,11 +189,10 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                     servicesAPI.createVideo(videoName).then(function (res) {
                         getVideoList();
                         file.id = res.data.id;
+
                         servicesAPI.upload(file)
                             .then(function (res) {
-                                console.log('here ' + res);
-                            }, function (evt) {
-                                console.log('ev' + evt);
+                                console.log(res);
                             });
                         });
                   }

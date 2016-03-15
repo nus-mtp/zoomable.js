@@ -30,6 +30,8 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
                 id : file.id,
                 video : file
             }
+          }).then(function (res) {
+            resolve(res);
           });
         });
       });
