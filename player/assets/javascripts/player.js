@@ -75,9 +75,8 @@ var Player = function(canvas, mpd_list) {
 		this.volume = new Volume(this); // To initialize the volume of the audio file
 		this.volume.setVolume(0.5); //set default vol of video
 
-		//this.scroll = new Scroll(this); // NOT WORKING YET
-		//this.zoom = new Zoom(this); // NOT WORKING YET
-
+		this.scroll = new Scroll(this); // NOT WORKING YET
+		this.zoom = new Zoom(this); // NOT WORKING YET
 		this.controls = new Controls(this);
 		this.transforms = new Transforms(this);
 		this.seek = new Seek(this);
@@ -542,23 +541,14 @@ var Player = function(canvas, mpd_list) {
 				this.translate(0, dy);
 			}
 		}
-
-		this.redraw = function(){
-			// Clear the entire canvas
-			var p1 = player.ctx.transformedPoint(0,0);
-			var p2 = player.ctx.transformedPoint(player.dimensions.cw,player.dimensions.ch);
-			//ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
-			player.ctx.fillStyle = 'rgb(0,0,0)';
-			player.ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
-			// Alternatively:
-			// ctx.save();
-			// ctx.setTransform(1,0,0,1,0,0);
-			// ctx.clearRect(0,0,canvas.width,canvas.height);
-			// ctx.restore();
-			player.transforms.refit();
-			this.draw();
+		this.redraw = function() {
+			function slaveRedraw(slave) {
+				slave.transforms.redraw();
+			}
+			player.util.forAllSlaves(slaveRedraw);
+			// change dimensions and coords
+			// slave.redraw for slaves still in view
 		}
-
 		this.outerTranslate = function() {
 			var pt = player.ctx.transformedPoint(player.last.x,player.last.y);
 			var dx = pt.x-player.dragStart.x;
@@ -585,8 +575,7 @@ var Player = function(canvas, mpd_list) {
 
 	var Util = function(player) {
 		/* Helper methods to convert between the slider values and transformation matrix values */
-		// COMMENTED OUT FOR THE TIME BEING UNTIL ZOOM IS FIXED
-		/*
+
 		this.convertPercentToScale = function(percent) {
 			var range = player.zoom.maxZoom - 1;
 			return percent*range + 1;
@@ -595,7 +584,6 @@ var Player = function(canvas, mpd_list) {
 			var range = player.zoom.maxZoom - 1;
 			return (scale-1)/range;
 		}
-		*/
 		/* Function to converts seconds to HH:MM:SS format */
 		this.convertSecondsToHMS = function(timeInSeconds) {
 			var formattedTime = '';
@@ -769,7 +757,6 @@ var Player = function(canvas, mpd_list) {
 				var playerCanv = this.canvas;
 				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
 				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
-
 				// Attach an event listener to each video object for each Slave object
 				// Upon the 'timeupdate' event
 				slaveVid.addEventListener('timeupdate', function(evt) {
