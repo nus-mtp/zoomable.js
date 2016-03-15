@@ -1,5 +1,11 @@
 angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload, $timeout) {
   return {
+    createVideo : function(video) {
+      return $http.post('/api/video', video);
+    },
+    createAccount : function(accountData) {
+      return $http.post('/api/user/signup', accountData);
+    },
     get : function() {
       return $http.get('api/video');
     },
@@ -12,9 +18,6 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
     update : function(id, videoData) {
       return $http.put('/api/video/' + id, videoData);
     },
-    createAccount : function(accountData) {
-      return $http.post('/api/user/signup', accountData);
-    },
     login : function(accountData) {
       return $http.post('/api/user/login', accountData);
     },
@@ -22,23 +25,14 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
       return $q(function(resolve, reject) {
         setTimeout(function() {
           Upload.upload({
-            url : '/api/video',
+            url : '/api/video/upload',
             data : {
-                title : file.name,
-                videoDir : '',
-                thumbnailDir : '',
-                file: file
+                id : file.id,
+                video : file
             }
-          })
-          .then(function (response) {
-              $timeout(function() {
-              resolve(response);
-              });
-          }, function (evt) {
-              resolve(file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total)));
           });
         });
       });
     }
-    }
+  }
 });
