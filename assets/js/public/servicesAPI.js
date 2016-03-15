@@ -12,6 +12,9 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
     getOne : function(id) {
       return $http.get('/api/video/' + id);
     },
+    getUploadProgress : function(id) {
+      return $http.post('/api/video/isComplete', id);
+    },
     delete : function(id) {
       return $http.delete('/api/video/' + id);
     },

@@ -191,8 +191,15 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                         file.id = res.data.id;
 
                         servicesAPI.upload(file)
-                            .then(function (res) {
-                                console.log(res);
+                            .then(function (resUpload) {
+                                console.log(resUpload);
+                                var videoID = {
+                                    id : file.id
+                                };
+                                servicesAPI.getUploadProgress(videoID)
+                                    .then(function (resProgress) {
+                                        console.log(resProgress);
+                                    });
                             });
                         });
                   }
