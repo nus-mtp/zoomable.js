@@ -128,7 +128,7 @@ module.exports = {
       var fd = fdWithExtension.substr(0, fdWithExtension.lastIndexOf('.')) || fdWithExtension;
 
       var mpdArray = [];
-      var postfix = ["R1C1", "R1C2", "R1C3", "R1C4", "R2C1", 
+      var postfix = ["R1C1", "R1C2", "R1C3", "R1C4", "R2C1",
                     "R2C2", "R2C3", "R2C4", "R3C1", "R3C2", "R3C3", "R3C4"];
       for (var i = 0; i < postfix.length; i++) {
         mpdArray.push(fd + "_" + postfix[i] + ".mpd");
@@ -144,7 +144,7 @@ module.exports = {
       }).exec(function (err, updatedVideo) {
         // Push into array of isDoneProcessing
         sails.isDoneProcessing.push({
-          id: req.param('id'), 
+          id: req.param('id'),
           status: false
         });
 
@@ -160,8 +160,8 @@ module.exports = {
         });
       });
     });
-  },  
-  
+  },
+
   /**
    * `VideoController.isComplete()`
    * Usage: POST /api/video/isComplete
@@ -178,7 +178,7 @@ module.exports = {
     }
 
     // return 404 not found if the id doesnt exists
-    res.notFound(); 
+    res.notFound();
   }
-  
+
 };
