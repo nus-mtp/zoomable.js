@@ -12,7 +12,7 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     },false);
     setCanvasControlsListeners();
     trackTransforms(ctx);
-    redraw(video,ctx,cw,ch);	
+    redraw(video,ctx,cw,ch);
     var lastX=canvas.width/2, lastY=canvas.height/2;
     var dragStart,dragged;
     canvas.addEventListener('mousedown',mouseDown,false);
@@ -46,7 +46,7 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
     ** scale_x, scale_y \n translation_x, translation_y  */
     function printMat() {
         console.log(ctx.getTransform().a + ", " + ctx.getTransform().d);
-        console.log(ctx.getTransform().e + ", " + 
+        console.log(ctx.getTransform().e + ", " +
                    ctx.getTransform().f);
         console.log("width: " + cw*ctx.getTransform().a);
         console.log("height: " + ch *ctx.getTransform().a);
@@ -194,9 +194,9 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
         var new_s = convertPercentToScale(zoomPercent, maxZoom);
         var old_s = ctx.getTransform().a;
         var delta_clicks = Math.log(new_s/old_s) /Math.log(scaleFactor);
-        zoomHelper(delta_clicks); 
+        zoomHelper(delta_clicks);
     }
-    
+
     /* Adjust zoom by clicking zoom in and out buttons */
     function zoomIn() {
         zoomHelper(1);
@@ -218,7 +218,7 @@ var createCanvasControls = function(video, canvas, playPauseBtn, uiControls, cur
 function playPauseVideo(video) {
     if(video.paused)
         video.play();
-    else 
+    else
         video.pause();
 }
 
@@ -340,14 +340,14 @@ function convertSecondsToHMS(timeInSeconds) {
     var mins = Math.floor((timeInSeconds / 60) % 60);
     var secs = Math.floor(timeInSeconds % 60);
 
-    if (secs < 10) 
+    if (secs < 10)
         secs = '0' + secs;
     if (mins < 10)
         mins = '0' + mins;
 
     formattedTime = hours+':'+mins+':'+secs;
 
-    return formattedTime; 
+    return formattedTime;
 }
 
 function draw(v,c,w,h) {
@@ -379,7 +379,7 @@ function translate(video, ctx, dragStart, lastX, lastY, cw, ch) {
     var ty = ctx.getTransform().f;
     var flag = 0;
     var s = ctx.getTransform().a;
-    if (tx+dx <= 0 && tx+cw*s+dx > cw) { 
+    if (tx+dx <= 0 && tx+cw*s+dx > cw) {
             ctx.translate(dx,0);
             flag = 1;
     }
@@ -390,7 +390,7 @@ function translate(video, ctx, dragStart, lastX, lastY, cw, ch) {
    /* if (flag = 0) {
         ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
     }*/
-    redraw(video, ctx, cw, ch);   
+    redraw(video, ctx, cw, ch);
 }
 
 /* Zooms into the position x, y with the amount clicks */
@@ -408,7 +408,7 @@ function zoom(video, ctx, clicks, x, y, button, maxZoom, scaleFactor, cw, ch){
         button.value = convertScaleToPercent(ctx.getTransform().a, maxZoom);
         refit(ctx, maxZoom, cw, ch);
     }
-    redraw(video,ctx,cw,ch); 
+    redraw(video,ctx,cw,ch);
 }
 
 
@@ -420,7 +420,7 @@ function refit(ctx, maxZoom, cw, ch) {
     var s = ctx.getTransform().a;
     console.log("zoom: " + s);
     if (s < 1 || s > maxZoom) {
-        ctx.scale(1/s, 1/s);    
+        ctx.scale(1/s, 1/s);
     }
     if (tx > 0 ) {
         ctx.translate(-tx,0);
@@ -432,7 +432,7 @@ function refit(ctx, maxZoom, cw, ch) {
         var dx = cw - tx-cw*s;
         var sum =tx+cw*s;
         ctx.translate(dx, 0);
-    } 
+    }
     if (ty+ch*s < ch) {
         var dy = ch - ty-ch*s;
         ctx.translate(0, dy);
