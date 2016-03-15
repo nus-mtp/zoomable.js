@@ -22,7 +22,7 @@ Pull a copy of this project from GitHub (link above) or download the project as 
 Run the npm and bower install commands to install the dependencies and libraries that the project requires. These dependencies and libraries are indicated inside package.json (for npm install) and bower.json (for bower install).
 
 For bash:
-```bash
+```
 $ npm install 
 $ bower install 
 ```
@@ -30,14 +30,19 @@ $ bower install
 ### Step 4: Generate latest front-end assets
 
 Run the Grunt command to update the changes made to the front-end assets and compile it for further use later.
-```bash
+```
 $ grunt
+```
+Make the video-processing script executable.
+```
+$ cd scripts
+$ chmod +x video-processing.sh
 ```
 
 ### Step 5: Starting the server
 
 Start the server by running the Sails command:
-```bash
+```
 $ sails lift
 ```
 
