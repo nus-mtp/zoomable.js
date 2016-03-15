@@ -426,7 +426,7 @@ var Player = function(canvas, mpd_list) {
 			var zoomPercent = player.controls.zoomCtrl.value;
 			var new_s = player.util.convertPercentToScale(zoomPercent);
 			var old_s = player.transforms.xform.a;
-			var delta_clicks = Math.log(new_s/old_s) / Math.log(scaleFactor);
+			var delta_clicks = Math.log(new_s/old_s) / Math.log(player.scaleFactor);
 			zoomHelper(delta_clicks);
 		}
 
