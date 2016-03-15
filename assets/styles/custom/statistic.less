@@ -11,6 +11,34 @@
     margin-top: 6px;
   }
 
+  .graph-title {
+    color: fade(@color-black, 70%);
+    font-size: 19px;
+    font-weight: 500;
+    padding-bottom: 15px;
+    text-transform: uppercase;
+
+    md-icon {
+      margin: 0px 7px 4px 0px;
+    }
+  }
+
+  .graph-numbers {
+    font-size: 15px;
+    text-transform: uppercase;
+
+    span {
+      font-weight: 500;
+    }
+  }
+
+  .interval-text {
+    color: fade(@color-black, 30%);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 3px 20px 0px 40px;
+  }
+
   md-card-header-text {
     display: inline-block;
     margin-top: 3px;
@@ -23,6 +51,10 @@
 
   .md-title, .md-subhead {
     display: block;
+
+    span {
+      font-style: italic;
+    }
   }
 
   .md-title {
@@ -42,5 +74,9 @@
     margin: 14px 10px;
     padding: 0px;
     width: 50px;
+  }
+
+  .shares-stats-area, .views-stats-area {
+    margin: 40px 20px 20px 20px;
   }
 }

@@ -14,16 +14,24 @@
           <md-icon class="profile-icon" md-svg-icon="images/ic_person.svg"></md-icon>
           <md-card-header-text>
             <span class="md-title"><%= user.username %></span>
-            <span class="md-subhead">Total Videos: </span>
+            <span class="md-subhead">
+              Joined since: <span>DD/MM/YYYY</span> <!-- TODO: Call API to show correct date -->
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              Total Videos: <span>XX</span> <!-- TODO: Call API to show correct video length -->
+            </span>
           </md-card-header-text>
         </md-card-header>
         <md-divider></md-divider>
         <md-card-content>
           <div layout="row">
             <div flex="75" class="date-area">
-              <md-icon md-svg-icon="images/ic_calendar.svg"></md-icon>
-              // ADD DATE SELECTION HERE
+              <md-datepicker ng-model="startDate" md-placeholder="Enter start date"
+                md-min-date="minDate" md-max-date="maxDate"></md-datepicker>
+              <span class="interval-text">TO</span>
+              <md-datepicker ng-model="endDate" md-placeholder="Enter end date"
+                md-min-date="startDate" md-max-date="maxDate"></md-datepicker>
             </div>
+            <!-- Temporary remove custom date selector buttons
             <div flex="25" class="custom-btn-group">
               <div layout="row" class="custom-switch">
                 <div flex="33" id="day" class="custom-btn" ng-class="{selected : criteria === 'DAY'}" ng-click="updateCriteria($event)">
@@ -36,6 +44,23 @@
                   <span class="text">Year</span>
                 </div>
               </div>
+            </div>
+            -->
+          </div>
+
+          <div layout="row">
+            <div flex="50" class="views-stats-area">
+              <div class="graph-title">
+                <md-icon class="view-icon" md-svg-icon="images/ic_view.svg"></md-icon>Views
+              </div>
+              <div class="graph-numbers">
+                Lifetime Views: <span>XXX</span> <!-- TODO: Call API to show correct total video views -->
+                <br />
+                Total Views From {{startDate | date:'d-MMM-yyyy'}} to {{endDate | date:'d-MMM-yyyy'}}: <span>XXX</span> <!-- TODO: Process correct views for selected period -->
+              </div>
+            </div>
+            <div flex="50" class="shares-stats-area">
+              <!-- TODO: Graph for video shares -->
             </div>
           </div>
         </md-card-content>
