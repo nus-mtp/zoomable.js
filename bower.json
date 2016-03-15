@@ -26,9 +26,16 @@
     "angular-material": "~1.0.3",
     "ngclipboard": "^1.1.0",
     "clipboard": "^1.5.8",
-    "ng-file-upload": "^12.0.1"
+    "ng-file-upload": "^12.0.1",
+    "angular-moment": "^0.10.3",
+    "moment": "^2.12.0",
+    "angular-chart.js": "^0.9.0"
   },
   "devDependencies": {
     "angular-mocks": "^1.5.0"
+  },
+  "resolutions": {
+    "moment": ">=2.8.0 <2.11.0",
+    "angular": "1.5.0"
   }
 }

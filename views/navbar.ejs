@@ -1,11 +1,12 @@
 <!-- NAVBAR -->
 
-<div ng-controller="loginController">
-  <md-toolbar id="navbar">
+<div ng-controller="loginController" id="navbar" ng-cloak>
+  <!-- Navbar -->
+  <md-toolbar>
     <div layout="row" layout-align="space-between">
       <!-- First Group: Menu & Home Button -->
       <span layout layout-align="none center">
-        <md-button class="md-icon-button" aria-label="Menu">
+        <md-button id="menuBtn" class="md-icon-button" aria-label="Menu" ng-click="toggleLeftMenu()">
           <md-icon md-svg-src="images/ic_menu_white_24px.svg"></md-icon>
         </md-button>
         <md-button ng-href="/" class="home-btn" aria-label="Logo" md-no-ink></md-button>
@@ -48,4 +49,23 @@
 
     </div>
   </md-toolbar>
+
+  <!-- Sidebar -->
+  <md-sidenav md-component-id="left" class="md-sidenav-left">
+    <div id="showVideoBtn" class="selection-btn" ng-click="showPage($event)" ng-class="{selected: location == '/'}">
+      <md-icon class="header-icon video"></md-icon>
+      <div class="btn-name">My Videos</div>
+    </div>
+    <div id="showStatBtn" class="selection-btn" ng-click="showPage($event)" ng-class="{selected: location == '/statistics'}">
+      <md-icon class="header-icon stats"></md-icon>
+      <div class="btn-name">My Statistics</div>
+    </div>
+    <md-divider></md-divider>
+    <div class="tag-header">Tags</div>
+    <div class="tag-area">
+      <div class="tag-item" ng-repeat="tag in tagList" ng-click="setSelectedTag($event)">
+        {{tag}}
+      </div>
+    </div>
+  </md-sidenav>
 </div>
