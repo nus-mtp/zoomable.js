@@ -1,5 +1,6 @@
 angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, moment){
   // VARIABLES
+  $scope.location = location.pathname.split('/');  // location array contains path name in array[1]
   $scope.criteria = 'DAY';  // default set to day for date criteria
   $scope.startDate = moment().subtract(1, 'months').toDate();  // default start date is previous month
   $scope.minDate = moment().subtract(1, 'months').toDate();  // default min date is previous month
@@ -10,8 +11,14 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   $scope.series = ['Views'];  // default series to show for graph
 
   /* Function to initialise statistics data */
-  $scope.init = function() {
-    // TODO: Call API to get default selected date range data
+  $scope.initStatsView = function() {
+    // TODO: Call appropriate API to get default selected date range data
+    if ($scope.location[1] === 'statistics') {
+      // call stats api for all of user's videos
+    }
+    else if ($scope.location[1] === 'edit') {
+      // call stats api for selected video with id = $scope.location[2]
+    }
 
     // use sample data values for a month
     $scope.originalData = [
@@ -26,7 +33,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   /* Function to get data for selected date range */
   $scope.getSelectedDateData = function() {
     console.log('not implemented yet');
-    
+
     // TODO: Call API to get default selected date range data
   };
 

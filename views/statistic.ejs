@@ -1,6 +1,6 @@
 <!-- DASHBOARD STATISTIC VIEW -->
 
-<div ng-controller="statisticController" ng-cloak id="statistic" md-no-ink="" ng-init="init()">
+<div ng-controller="statisticController" ng-cloak id="statistic" md-no-ink="">
   <md-content layout-padding ng-cloak>
       <!-- HEADER -->
       <h2 flex class="page-header">
@@ -23,50 +23,7 @@
         </md-card-header>
         <md-divider></md-divider>
         <md-card-content>
-          <div layout="row">
-            <div flex="70" class="date-area">
-              <md-datepicker ng-model="startDate" md-placeholder="Enter start date" ng-change="getSelectedDateData()"
-                md-min-date="minDate" md-max-date="maxDate"></md-datepicker>
-              <span class="interval-text">TO</span>
-              <md-datepicker ng-model="endDate" md-placeholder="Enter end date" ng-change="getSelectedDateData()"
-                md-min-date="startDate" md-max-date="maxDate"></md-datepicker>
-            </div>
-            <div flex="30" class="custom-btn-group date-labels">
-              <div layout="row" class="custom-switch">
-                <div flex="33" id="day" class="custom-btn" ng-class="{selected : criteria === 'DAY'}" ng-click="updateCriteria($event)">
-                  <span class="text">Day</span>
-                </div>
-                <div flex="33" id="week" class="custom-btn" ng-class="{selected : criteria === 'WEEK'}" ng-click="updateCriteria($event)">
-                  <span class="text">Week</span>
-                </div>
-                <div flex="33" id="month" class="custom-btn" ng-class="{selected : criteria === 'MONTH'}" ng-click="updateCriteria($event)">
-                  <span class="text">Month</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div layout="row">
-            <div flex="50" class="views-stats-area">
-              <div class="graph-title">
-                <md-icon class="view-icon" md-svg-icon="images/ic_view.svg"></md-icon>Views
-              </div>
-              <div class="graph-numbers">
-                Lifetime Views: <span>XXX</span> <!-- TODO: Call API to show correct total video views -->
-                <br />
-                Total Views From {{startDate | date:'d-MMM-yyyy'}} to {{endDate | date:'d-MMM-yyyy'}}: <span>XXX</span> <!-- TODO: Process correct views for selected period -->
-              </div>
-            </div>
-            <div flex="50" class="shares-stats-area">
-              <!-- TODO: Graph for video shares -->
-            </div>
-          </div>
-
-          <div layout="row" class="graph-chart">
-            <div flex="80" flex-offset="10">
-              <canvas id="views-line-chart" class="chart chart-line" chart-data="data" chart-labels="labels" chart-series="series"></canvas>
-            </div>
-          </div>
+          <%- partial('statsdata.ejs') %>
         </md-card-content>
       </md-card>
 
