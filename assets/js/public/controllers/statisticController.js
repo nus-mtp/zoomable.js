@@ -28,6 +28,15 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
     // update the chart accordingly
     updateLabelsAndData();
+
+    // get total views for selected date range (to update with real data)
+    var length = $scope.originalData[0].length;
+    var sum = 0;
+    while (--length) {
+      sum += $scope.originalData[0][length];
+    }
+    $scope.totalViewsSelected = sum + $scope.originalData[0][0];  // account for first element not added in while loop
+
   };
 
   /* Function to get data for selected date range */
