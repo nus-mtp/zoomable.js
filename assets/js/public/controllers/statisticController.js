@@ -63,7 +63,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
     // convert Javascript Date object to Moment object
     var startMoment = moment($scope.startDate);
-    var endMoment = moment($scope.endDate);
+    var endMoment = moment($scope.endDate).add(1, 'days');  // add an additional day to include end date
 
     // update the labels and data to use for chart
     if ($scope.criteria === 'DAY') {
@@ -77,7 +77,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     }
     else if ($scope.criteria === 'WEEK') {
       // populate the labels
-      for (var wk = startMoment.add(1, 'weeks'); wk.isBefore(endMoment); wk.add(1, 'weeks')) {
+      for (var wk = startMoment.subtract(1,'days').add(1, 'weeks'); wk.isBefore(endMoment); wk.add(1, 'weeks')) {
         $scope.labels.push(wk.format('D/M'));
         count++;
       }
@@ -114,7 +114,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
           var startOfMth = moment(startMoment).startOf('month').add(idx, 'months');
           if (idx === (count-1)) {
             // last day of the month will be the endMoment date instead
-            lastDayOfMth = endMoment;
+            lastDayOfMth = endMoment.subtract(1, 'days'); // minus 1 to account for prev addition for loop
           }
           else {
             lastDayOfMth = moment(startOfMth).endOf('month');
