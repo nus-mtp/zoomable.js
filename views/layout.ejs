@@ -17,26 +17,39 @@
 
   <!--SCRIPTS-->
   <script src="/js/dependencies/sails.io.js"></script>
+
+  <script src="/js/dependencies/jquery.min.js"></script>
+  <script src="/js/dependencies/angular.js"></script>
+  <script src="/js/dependencies/angular-ui-router.js"></script>
+  <script src="/js/dependencies/angular-material.js"></script>
+  <script src="/js/dependencies/angular-messages.js"></script>
+  <script src="/js/dependencies/angular-animate.js"></script>
+  <script src="/js/dependencies/angular-aria.js"></script>
+  <script src="/js/dependencies/clipboard.js"></script>
+  <script src="/js/dependencies/ngclipboard.js"></script>
+  <script src="/js/dependencies/ng-file-upload-shim.min.js"></script>
+  <script src="/js/dependencies/ng-file-upload.min.js"></script>
   <script src="/js/public/zoomableApp.js"></script>
   <script src="/js/public/directives.js"></script>
-  <script src="/js/public/controllers/dashboardController.js"></script>
-  <script src="/js/public/controllers/loginController.js"></script>
-  <script src="/js/public/controllers/editController.js"></script>
   <script src="/js/public/servicesAPI.js"></script>
+  <script src="/js/public/controllers/dashboardController.js"></script>
+  <script src="/js/public/controllers/editController.js"></script>
+  <script src="/js/public/controllers/loginController.js"></script>
+  <script src="/js/public/controllers/statisticController.js"></script>
   <!--SCRIPTS END-->
 
   <!--Added this so the client has access to the csrf tag and it's grabbed first service side on every page -->
   <script type="text/javascript">
     window.SAILS_LOCALS = {
       _csrf: "<%= _csrf %>",
-      me: <%- JSON.stringify(me) %>,
+      user: <%- JSON.stringify(user) %>,
       video: <%- JSON.stringify(video) %>
     };
   </script>
 
 </head>
 <body ng-app="zoomableApp">
-  <% if (me.length != 0) { %>
+  <% if (user.length != 0) { %>
     <!-- Navbar shows only when user is logged in -->
     <%- partial('navbar.ejs') %>
   <% } %>

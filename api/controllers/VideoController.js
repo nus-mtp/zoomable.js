@@ -6,7 +6,7 @@
  */
 
 module.exports = {
-	
+
   /**
    * `VideoController.create()`
    * Usage: POST /api/video
@@ -55,6 +55,17 @@ module.exports = {
     });
   },
 
+  /**
+   * `VideoController.destroy()`
+   * Usage: DELETE /api/video/
+   * Content: {id: [:id]}
+   */
+   destroyAll: function(req, res) {
+    Video.destroy(req.body.id).exec(function (err, deletedVideos) {
+      if (err) throw err;
+      res.json(deletedVideos);
+    });
+   },
 
   /**
    * `VideoController.update()`
@@ -72,7 +83,7 @@ module.exports = {
 
   /**
    * `VideoController.tags()`
-   * Usage: 
+   * Usage:
    */
   tags: function (req, res) {
     return res.json({
@@ -92,6 +103,82 @@ module.exports = {
       if (err) throw err;
       res.json(video.videoDir);
     });
-  }
-};
+  },
 
+  /**
+   * `VideoController.upload()`
+   * Usage: POST /api/video/upload
+   * Content: {id: ':id', video: 'attach video file here'}
+  **/
+  upload: function (req, res) {
+    req.file('video').upload({
+      dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id'),
+      // maximum size of 2GB
+      maxBytes: 2 * 1000 * 1000 * 1000
+    }, function (err, uploadedFiles) {
+      if (err) return res.negotiate(err);
+
+      // If no files were uploaded, respond with an error.
+      if (uploadedFiles.length === 0){
+        return res.badRequest('No file was uploaded');
+      }
+
+      // generate a list of mpd dir
+      var fdWithExtension = uploadedFiles[0].fd;
+      var fd = fdWithExtension.substr(0, fdWithExtension.lastIndexOf('.')) || fdWithExtension;
+
+      var mpdArray = [];
+      var postfix = ["R1C1", "R1C2", "R1C3", "R1C4", "R2C1",
+                    "R2C2", "R2C3", "R2C4", "R3C1", "R3C2", "R3C3", "R3C4"];
+      for (var i = 0; i < postfix.length; i++) {
+        mpdArray.push(fd + "_" + postfix[i] + ".mpd");
+      }
+
+      // Update the Video Model's videoDir based on the video ID
+      Video.update({
+        id: req.param('id')
+      },  {
+        videoDir: fdWithExtension,
+        mpdDir: mpdArray,
+        thumbnailDir: fd + ".png"
+      }).exec(function (err, updatedVideo) {
+        // Push into array of isDoneProcessing
+        sails.isDoneProcessing.push({
+          id: req.param('id'),
+          status: false
+        });
+
+        // run the video processing service
+        VideoProcessingService.run({id: req.param('id'), dir: fdWithExtension});
+
+        return res.json({
+          message: uploadedFiles.length + ' file(s) uploaded successfully',
+          // Only upload 1 video per time
+          files: uploadedFiles[0],
+          textParams: req.params.all(),
+          video: updatedVideo[0]
+        });
+      });
+    });
+  },
+
+  /**
+   * `VideoController.isComplete()`
+   * Usage: POST /api/video/isComplete
+   * Content: {id: ':id'}
+  **/
+  isComplete: function (req, res) {
+    var id = req.param("id");
+    for (var i = 0; i < sails.isDoneProcessing.length; i++) {
+      if (id == sails.isDoneProcessing[i].id) {
+        return res.json({
+          status: sails.isDoneProcessing[i].status
+        });
+      }
+    }
+
+    // return 404 not found if the id doesnt exists
+    res.notFound();
+  }
+
+};

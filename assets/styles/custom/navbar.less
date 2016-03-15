@@ -1,14 +1,57 @@
 /**
  * navbar.less
  */
- 
-md-toolbar#navbar {
-  background-color: @color-primary;
-  position: fixed;
-  z-index: 99;
 
-  div {
-    padding: 6px 15px;
+#navbar {
+  md-divider {
+    margin: 15px 0px;
+  }
+
+  md-sidenav {
+    padding-top: 70px;
+
+    .selection-btn {
+      border-radius: 3px;
+      cursor: pointer;
+      height: 30px;
+      margin: 10px 15px 0px 15px;
+      outline: none;
+      padding: 15px;
+
+      &:hover {
+        background-color: fade(@color-primary, 15%);
+      }
+
+      &.selected {
+        background-color: fade(@color-primary, 25%);
+      }
+    }
+
+    .header-icon {
+      margin: 0px;
+      pointer-events: none;
+      vertical-align: text-bottom;
+    }
+
+    .btn-name {
+      display: inline-block;
+      font-size: 18px;
+      margin-left: 15px;
+      line-height: 30px;
+      pointer-events: none;
+    }
+  }
+
+  md-toolbar {
+    background-color: @color-primary;
+    height: 64px;
+    min-width: @minimum-app-width;
+    position: fixed;
+    z-index: 99;
+
+    div {
+      padding: 8px 15px;
+    }
   }
 
   .home-btn {
@@ -19,6 +62,12 @@ md-toolbar#navbar {
 
     &:hover {
       opacity: 0.85;
+    }
+  }
+
+  #menuBtn {
+    &.opened {
+      background-color: @color-button-primary;
     }
   }
 
@@ -50,19 +99,19 @@ md-toolbar#navbar {
 
       /* do not group these rules */
       *::-webkit-input-placeholder {
-          color: fade(@color-white, 50%);
+        color: fade(@color-white, 50%);
       }
       *:-moz-placeholder {
-          /* FF 4-18 */
-          color: fade(@color-white, 50%);
+        /* FF 4-18 */
+        color: fade(@color-white, 50%);
       }
       *::-moz-placeholder {
-          /* FF 19+ */
-          color: fade(@color-white, 50%);
+        /* FF 19+ */
+        color: fade(@color-white, 50%);
       }
       *:-ms-input-placeholder {
-          /* IE 10+ */
-          color: fade(@color-white, 50%);
+        /* IE 10+ */
+        color: fade(@color-white, 50%);
       }
 
       input {
@@ -76,6 +125,37 @@ md-toolbar#navbar {
           border-bottom-width: thin;
         }
       }
+    }
+  }
+
+  .tag-header {
+    font-size: 16px;
+    padding: 0px 16px;
+    text-transform: uppercase;
+  }
+
+  .tag-area {
+    padding: 10px 16px;
+  }
+
+  .tag-item {
+    background-color: @color-grey-300;
+    border-radius: 12px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0px 6px 8px 0px;
+    outline: none;
+    padding: 3px 10px;
+    text-transform: lowercase;
+
+    &:hover {
+      background-color: fade(@color-primary, 15%);
+    }
+
+    &.selected {
+      background-color: fade(@color-primary, 25%);
     }
   }
 }

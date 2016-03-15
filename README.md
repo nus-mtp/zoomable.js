@@ -1,60 +1,52 @@
 # zoomable.js [![Build Status][travis-image]][travis-url] 
-An open source Javascript-based zoomable video player and server, which utilizes websocket and DASH to stream videos for playback. A zoomable video player is a video player that allows user to zoom into and pan around the video to view selected in higher resolution and in more details. 
-
+This is an open-source HTML5 video player that allows users to zoom in with greater detail and pan around the video with bandwith efficiency. The Javascript-based zoomable video player streams dash-compliant videos and adapts to network conditions to provide continuous video playback by reducing the video resolutions where necessary.
 
 ## Installation
 
-### Prerequisites
+### Step 1: Cloning the project
 
-[Node.js](http://nodejs.org)
+Pull a copy of this project from GitHub (link above) or download the project as a zipped folder (Download ZIP above) to your computer.
 
-Install Node.js from https://nodejs.org/en/download/
+### Step 2: Installing the necessary pre-requisites
 
-If you have Homebrew installed:
-```bash
-$ brew install node
+#### The following packages are required for using zoomable.js:
+[Node.js](http://nodejs.org) - For package installation
+[Grunt](http://gruntjs.com/) - For generating front-end assets
+[Bower](http://www.npmjs.com/package/bower) - For package installation
+[Sails.js](http://sailsjs.org/get-started) - For server creation
+[FFMPEG](https://ffmpeg.org/download.html) - For video conversion, thumnbnail generation
+[MP4Box](https://gpac.wp.mines-telecom.fr/downloads/) - For MPD creation for the videos
+
+### Step 3: Install additional dependencies and libraries
+
+Run the npm and bower install commands to install the dependencies and libraries that the project requires. These dependencies and libraries are indicated inside package.json (for npm install) and bower.json (for bower install).
+
+For bash:
 ```
-
-[Grunt](http://gruntjs.com/)
-```bash
-$ npm install -g grunt-cli
-```
-
-[Bower](http://www.npmjs.com/package/bower)
-```bash
-$ npm install -g bower
-```
-
-[Sails.js](http://sailsjs.org/get-started)
-```bash
-$ npm install -g sails
-```
-
-
-### Setup
-
-Install the necessary packages.
-
-```bash
 $ npm install 
 $ bower install 
 ```
 
-### Task Automation
+### Step 4: Generate latest front-end assets
 
-Generate frontend assets using Grunt.
-
-```bash
+Run the Grunt command to update the changes made to the front-end assets and compile it for further use later.
+```
 $ grunt
 ```
+Make the video-processing script executable.
+```
+$ cd scripts
+$ chmod +x video-processing.sh
+```
 
-### Start server
+### Step 5: Starting the server
 
-Run on http://localhost:1337 .
-
-```bash
+Start the server by running the Sails command:
+```
 $ sails lift
 ```
+
+If this server is setup locally, open your browser and enter the url: [http://localhost:1337](http://localhost:1337) to visit the main webpage of the project.
 
 ## Usage
 `to be updated`

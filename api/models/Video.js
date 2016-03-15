@@ -45,13 +45,15 @@ module.exports = {
 	    },
 
 	    videoDir: {
-	    	type: 'string',
-	    	required: true
+	    	type: 'string'
+	    },
+
+	    mpdDir: {
+	    	type: 'array'
 	    },
 
 	    thumbnailDir: {
-	    	type: 'string',
-	    	required: true
+	    	type: 'string'
 	    },
 	    
 	    createdAt: {

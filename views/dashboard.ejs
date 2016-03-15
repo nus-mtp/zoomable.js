@@ -1,22 +1,18 @@
 <!-- DASHBOARD EDIT VIDEO VIEW -->
 
 <div ng-controller="dashboardController" ng-cloak class="dashboard" md-no-ink="">
-  <md-content layout-padding>
-    <div flex-xs flex-gt-xs="100" layout-align="start center">
+  <md-content layout-padding ng-cloak>
       <!-- DASHBOARD HEADER -->
-      <div layout="row" layout-align="space-between center">
-        <div flex class="page-header">
-          <md-icon class="header-icon"></md-icon>
+      <div layout="row" layout-align="space-between center" class="no-btm-padding">
+        <h2 class="page-header">
+          <md-icon class="header-icon video"></md-icon>
           <span class="md-headline header-title">My Videos
             <span ng-show="videoList.length" class="video-count">{{ videoList.length }}</span>
             <span ng-hide="videoList.length" class="video-count">0</span>
           </span>
-        </div>
-        <div flex="1">
-          <input class="ng-hide" id="file-input" type="file" multiple="multiple" data-dbinf-on-files-selected="uploadVideoFile(selectedFileList)" file-model="videoFile">
-          <md-button id="uploadButton" class="md-raised md-primary" aria-label="upload video file">
-            <label for="file-input">Upload</label>
-          </md-button>
+        </h2>
+        <div class="header-btn">
+          <md-button class="md-raised md-primary" aria-label="upload video file" ng-click="showUpload()">Upload</md-button>
         </div>
       </div>
 
@@ -24,23 +20,28 @@
         <!-- ACTION BUTTONS -->
         <md-card-header>
           <md-card-actions layout="row" layout-align="space-between center">
-            <div flex class="action-btns-left">
+            <div class="action-btns-left">
               <md-card-icon-actions>
                 <md-checkbox class="select-all" ng-model="master" ng-change="isSelectAll()" aria-label="Select All"></md-checkbox>
-                <md-button ng-click="showConfirm($event,buttonState)" ng-repeat="buttonState in buttonStates">
-                  {{ buttonState }}
-                </md-button>
+                <md-button ng-show="model.selectedVideoList.length" ng-click="showConfirmDeleteByCheckbox($event)">Delete Video</md-button>
               </md-card-icon-actions>
             </div>
 
-            <div flex="1" class="action-btns-right">
+            <div class="action-btns-right">
               <md-input-container>
-                <label>Video</label>
+                <label>Sort by</label>
+                <md-select ng-model="userSortState">
+                  <md-option ng-repeat="sortState in sortStates" value="{{ sortState }}" ng-click="updateSortState(sortState)">{{ sortState }}</md-option>
+                </md-select>
+              </md-input-container>
+              <md-input-container>
+                <label>Filter by</label>
                 <md-select ng-model="userFilterState">
                   <md-option ng-repeat="filterState in filterStates" value="{{ filterState }}" ng-click="updateFilterState(filterState)">{{ filterState }}</md-option>
                 </md-select>
               </md-input-container>
             </div>
+
           </md-card-actions>
         </md-card-header>
 
@@ -48,7 +49,7 @@
 
         <!-- VIDEO CONTENT -->
         <md-card-content>
-          <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType" ng-show="videoList.length">
+          <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType | filter: filterType" ng-show="videoList.length" ng-mouseover="hasMouseover = 'visibile'" ng-mouseleave="hasMouseover = 'hidden'">
             <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
             <a href="/edit/{{ video.id }}">
               <!-- TODO: Uncomment after server side can auto generate image directory
@@ -58,27 +59,31 @@
               <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
             </a>
 
-            <div class="md-list-item-text" layout="column">
-              <h3>{{ video.title }}</h3>
+            <div class="md-list-item-text">
+              <h3 class="video-title">{{ video.title }}</h3>
               <h4>
+                <span ng-show"video.views">{{ video.views }} Views </span>
+                &middot;
                 {{ video.createdAt | date:'medium'}}
-                <span ng-if="video.privacy">
-                  <md-icon md-svg-icon="{{ iconPrivacyPath }}" class="small"></md-icon>
+                <span ng-if="!video.privacy">
+                  <md-icon md-svg-icon="images/ic_lock_black_24px.svg" class="small md-avatar-icon"></md-icon>
                 </span>
               </h4>
               <p>
                 <span ng-if="video.tags.length">
-                  <md-icon md-svg-icon="{{ iconTagPath }}" class="small"></md-icon>
+                  <md-icon md-svg-icon="images/ic_tag_black_24px.svg" class="small md-avatar-icon"></md-icon>
                   {{ video.tags }}
                 </span>
               </p>
             </div>
 
             <div class="md-secondary">
-              <md-icon class="md-avatar-icon" md-svg-icon="{{ iconViewPath }}"></md-icon>
-              <span ng-show"video.views">{{ video.views }}</span>
-              View
+              <md-button class="md-raised" href="/edit/{{ video.id }}">Edit Video</md-button>
+              <md-button class="md-icon-button delete-btn" ng-click="showConfirmDeleteByButton($event,video)" aria-label="delete video">
+                <md-icon md-svg-icon="images/ic_delete_black_24px.svg"></md-icon>
+              </md-button>
             </div>
+
           </md-list-item>
 
           <md-list-item ng-hide="videoList.length" layout="row" layout-align="center center">
@@ -88,6 +93,5 @@
 
       </md-card>
 
-    </div>
   </md-content>
 </div>
