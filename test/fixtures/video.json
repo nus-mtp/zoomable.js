@@ -3,5 +3,17 @@
 		"title": "Finding Nemo", 
 		"videoDir": "/video/2", 
 		"thumbnailDir": "/video/2/a.jpg"
+	},
+
+	{
+		"title": "Zootopia",
+		"videoDir": "/video/3",
+		"thumbnailDir": "/video/3/a.jpg"
+	},
+
+	{
+		"title": "The Big Short",
+		"videoDir": "/video/3",
+		"thumbnailDir": "/video/3/a.jpg"
 	}
 ]

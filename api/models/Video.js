@@ -44,8 +44,12 @@ module.exports = {
 	    	defaultsTo: 0
 	    },
 
-	    mpdDir: {
+	    videoDir: {
 	    	type: 'string'
+	    },
+
+	    mpdDir: {
+	    	type: 'array'
 	    },
 
 	    thumbnailDir: {
