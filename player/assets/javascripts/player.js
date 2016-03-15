@@ -36,6 +36,11 @@ var Player = function(canvas, mpd_list) {
 	this.slavePauseArr = [];
 	this.paused = true;
 
+	// To determine if the overall state of the players have ended
+	this.ended = false;
+	// To store the truthy value of whether the players' videos have ended
+	this.slaveEndArr = [];
+
 	this.canvas = canvas;
 	this.ctx = this.canvas.getContext('2d');
 	this.scaleFactor = 1.1;
@@ -151,7 +156,7 @@ var Player = function(canvas, mpd_list) {
 		this.zoomInBtn = document.getElementById('zoomInBtn');
 
 		this.playPauseBtn.addEventListener('click',function(){
-			player.controls.playPauseVideo(this.playPauseVideo);
+			player.controls.playPauseVideo();
 		},false);
 
 		// This is to check and update the MUTE button on the UI controls
@@ -211,12 +216,25 @@ var Player = function(canvas, mpd_list) {
 			// If the player is paused, i.e. player.paused == true, play all the videos
 			if(player.paused) {
 				player.util.forAllSlaves(player.controls.playVideo);
+				// Set the slavePauseArr to all false
+				player.util.setPauseArr(false);
 				player.paused = false;
+				syncPauseState(player);
+				// Change the UI controls to reflect the new play state
+				player.controls.changeToPlayState();
+				// Play the audio file
+				player.audio.play();
 			}
 			// Else if the player is playing, i.e. player.paused == false, pause all the videos
 			else {
 				player.util.forAllSlaves(player.controls.pauseVideo);
+				player.util.setPauseArr(true);
 				player.paused = true;
+				syncPauseState(player);
+				// Change the UI controls to reflect the new pause state
+				player.controls.changeToPauseState();
+				// Pause the audio file
+				player.audio.pause();
 			}
 		}
 
@@ -265,8 +283,7 @@ var Player = function(canvas, mpd_list) {
 			gradient.push('rgba(255, 255, 255, 0.3) 100%');
 			element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
 		};
-
-	};
+	}
 
 	var Volume = function(player){
 		this.previousVolume = {
@@ -306,6 +323,7 @@ var Player = function(canvas, mpd_list) {
 			// Update the previous volume state at the end, so mute can be toggled correctly
 			player.volume.previousVolume.value = player.volume.getVolume();
 			player.volume.previousVolume.state = player.controls.volumeBtn.className;
+			player.volume.setVolume(new_vol_val);
 		};
 
 		this.setVolumeMutedFalse = function() {
@@ -380,7 +398,7 @@ var Player = function(canvas, mpd_list) {
 			player.controls.updateCurrentTimeText(seekTo);
 
 			// Update the actual players to reflect the time for the video to be playing at
-			player.util.forAllSlaves(setVideoTime, player.slaves, seekTo);
+			player.util.forAllSlaves(setVideoTime, seekTo);
 
 			// Set the time of the audio to be playing at
 			player.audio.currentTime = seekTo;
@@ -594,6 +612,7 @@ var Player = function(canvas, mpd_list) {
 
 			return formattedTime;
 		}
+
 		this.forAllSlaves = function(someFunction, extraParam) {
 			if (extraParam === undefined) {
 				extraParam = 0;
@@ -605,6 +624,12 @@ var Player = function(canvas, mpd_list) {
 				for (var i = 0; i < player.slaves.length; i++) {
 					someFunction(player.slaves[i], extraParam);
 				}
+			}
+		}
+
+		this.setPauseArr = function(isPaused) {
+			for (var i = 0; i < player.slavePauseArr.length; i++) {
+				player.slavePauseArr[i] = isPaused;
 			}
 		}
 	}
@@ -693,10 +718,10 @@ var Player = function(canvas, mpd_list) {
 			// Call the UI controls update
 			// If the state is PAUSED, i.e. newPauseState == true
 			if (player.paused == true) {
-				player.controls.changeToPauseState(player.controls.playPauseBtn, player.controls.uiControls);
+				player.controls.changeToPauseState();
 			}
 			else if (player.paused == false) {
-				player.controls.changeToPlayState(player.controls.playPauseBtn, player.controls.uiControls);
+				player.controls.changeToPlayState();
 			}
 			else {
 				// For now: console log the error
@@ -704,6 +729,26 @@ var Player = function(canvas, mpd_list) {
 			}
 		}
 	};
+
+	var syncEndState = function(player) {
+		// Check if there are NUM_SLAVES number of elements in the array, else
+		// don't even bother doing comparisons
+		if (player.slaveEndArr.length < NUM_SLAVES) {
+			return;
+		}
+		var newEndState = true;
+		// After the for-loop, as long as 1 video has not ended their session,
+		// the overall end state will be set to false, i.e. Video has NOT ended
+		for (var i = 0; i < (player.slaveEndArr.length) - 1; i++) {
+			newEndState = newEndState && player.slaveEndArr[i];
+		}
+
+		// If the overall end state is true for all videos, reset the UI play
+		// button to be the 'play' button
+		if (newEndState == true) {
+			// Reset the players
+		}
+	}
 
 	var getVideoDuration = function(player) {
 		player.slaves[0].video.onloadedmetadata = function() {
@@ -739,6 +784,13 @@ var Player = function(canvas, mpd_list) {
 					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
 					player.slavePauseArr[vidTimeArrIndex] = true;   // Update the global array of pause state value for this video object
 					syncPauseState(player);	// Run the synchronization check for the overall pause state
+				}, false);
+
+				// Upon the 'ended' event
+				slaveVid.addEventListener('ended', function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.slaveEndArr[vidTimeArrIndex] = true;	// Update the global array of truth value for video end state
+					syncEndState(player);	// Run the synchronization check for the overall end state
 				}, false);
 
 				var slaveObj = new Slave(slaveVid, playerCanv, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
