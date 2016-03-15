@@ -20,6 +20,22 @@ var Slave = function(vid, canv, coords, dims) {
 			setTimeout(slave.transforms.draw,20);
 		}
 
+		this.redraw = function(){
+			// Clear the entire canvas
+			// * var p1 = slave.ctx.transformedPoint(0,0);
+			// * var p2 = slave.ctx.transformedPoint(slave.dimensions.cw,slave.dimensions.ch);
+			//ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+			// * slave.ctx.fillStyle = 'rgb(0,0,0)';
+			// * slave.ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+			// Alternatively:
+			// ctx.save();
+			// ctx.setTransform(1,0,0,1,0,0);
+			// ctx.clearRect(0,0,canvas.width,canvas.height);
+			// ctx.restore();
+			//slave.transforms.refit();
+			slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
+		}
+
 		/* UNCOMMENT IF ALLOWING ZOOM INTO A SINGLE SLAVE
 
 		var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
@@ -104,22 +120,6 @@ var Slave = function(vid, canv, coords, dims) {
 				var dy = (slave.dimensions.ch - ty-slave.dimensions.ch*s)/s;
 				this.translate(0, dy);
 			}
-		}
-
-		this.redraw = function(){
-			// Clear the entire canvas
-			var p1 = slave.ctx.transformedPoint(0,0);
-			var p2 = slave.ctx.transformedPoint(slave.dimensions.cw,slave.dimensions.ch);
-			//ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
-			slave.ctx.fillStyle = 'rgb(0,0,0)';
-			slave.ctx.fillRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
-			// Alternatively:
-			// ctx.save();
-			// ctx.setTransform(1,0,0,1,0,0);
-			// ctx.clearRect(0,0,canvas.width,canvas.height);
-			// ctx.restore();
-			slave.transforms.refit();
-			this.draw();
 		}
 
 		this.outerTranslate = function(dragStart) {
