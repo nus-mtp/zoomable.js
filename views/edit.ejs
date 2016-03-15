@@ -126,8 +126,8 @@
           </md-tab-label>
           <md-tab-body>
             <md-content class="md-padding">
-              <h1 class="md-display-2">Statistics Here</h1>
-              <p>TO BE IMPLEMENTED.</p>
+              <div class="video-date">Video uploaded on: {{ video.createdAt | date:'d MMM yyyy' }}</div>
+              <%- partial('statsdata.ejs') %>
             </md-content>
           </md-tab-body>
         </md-tab>

@@ -14,30 +14,16 @@
           <md-icon class="profile-icon" md-svg-icon="images/ic_person.svg"></md-icon>
           <md-card-header-text>
             <span class="md-title"><%= user.username %></span>
-            <span class="md-subhead">Total Videos: </span>
+            <span class="md-subhead">
+              Joined since: <span>DD/MM/YYYY</span> <!-- TODO: Call API to show correct date -->
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              Total Videos: <span>XX</span> <!-- TODO: Call API to show correct video length -->
+            </span>
           </md-card-header-text>
         </md-card-header>
         <md-divider></md-divider>
         <md-card-content>
-          <div layout="row">
-            <div flex="75" class="date-area">
-              <md-icon md-svg-icon="images/ic_calendar.svg"></md-icon>
-              // ADD DATE SELECTION HERE
-            </div>
-            <div flex="25" class="custom-btn-group">
-              <div layout="row" class="custom-switch">
-                <div flex="33" id="day" class="custom-btn" ng-class="{selected : criteria === 'DAY'}" ng-click="updateCriteria($event)">
-                  <span class="text">Day</span>
-                </div>
-                <div flex="33" id="month" class="custom-btn" ng-class="{selected : criteria === 'MONTH'}" ng-click="updateCriteria($event)">
-                  <span class="text">Month</span>
-                </div>
-                <div flex="33" id="year" class="custom-btn" ng-class="{selected : criteria === 'YEAR'}" ng-click="updateCriteria($event)">
-                  <span class="text">Year</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <%- partial('statsdata.ejs') %>
         </md-card-content>
       </md-card>
 
