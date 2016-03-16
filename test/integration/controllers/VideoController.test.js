@@ -50,7 +50,7 @@ describe('VideoController', function () {
 
 		it('should not read Video object based on the id before login', function (done) {
 			request(sails.hooks.http.app)
-			.get('/api/video/2')
+			.get('/api/video/4')
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
@@ -67,7 +67,7 @@ describe('VideoController', function () {
 			.expect(200)
 			.end(function (signinErr, signinRes) {
 				agent
-				.get('/api/video/2')
+				.get('/api/video/4')
 				.set('Accept', 'application/json')
 				.expect(200)
 				.end(function (videoCreateErr, videoCreateRes) {
@@ -108,9 +108,11 @@ describe('VideoController', function () {
 				.end(function (err, res) {
 					if (err) done(err);
 
-					res.body.should.be.instanceof(Array).and.have.length(2);
+					res.body.should.be.instanceof(Array).and.have.length(4);
 					res.body[0].should.be.instanceof(Object).and.have.property('title', 'Finding Nemo');
-					res.body[1].should.be.instanceof(Object).and.have.property('title', 'Mission Impossible');
+					res.body[1].should.be.instanceof(Object).and.have.property('title', 'Zootopia');
+					res.body[2].should.be.instanceof(Object).and.have.property('title', 'The Big Short');
+					res.body[3].should.be.instanceof(Object).and.have.property('title', 'Mission Impossible');
 					done();
 				});
 			});
@@ -122,7 +124,7 @@ describe('VideoController', function () {
 
 		it('should not read update Video object based on the id given before login', function (done) {
 			request(sails.hooks.http.app)
-			.put('/api/video/2')
+			.put('/api/video/4')
 			.send(vid2)
 			.expect(403)
 			.end(function (err, res) {
@@ -140,7 +142,7 @@ describe('VideoController', function () {
 			.expect(200)
 			.end(function (err, res) {
 				agent
-				.put('/api/video/2')
+				.put('/api/video/4')
 				.send(vid2)
 				.set('Accept', 'application/json')
 				.expect(200)
@@ -159,7 +161,7 @@ describe('VideoController', function () {
 
 		it('should not read delete Video object based on the id given before login', function (done) {
 			request(sails.hooks.http.app)
-			.delete('/api/video/2')
+			.delete('/api/video/4')
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
@@ -176,14 +178,59 @@ describe('VideoController', function () {
 			.expect(200)
 			.end(function (err, res) {
 				agent
-				.delete('/api/video/2')
+				.delete('/api/video/4')
+				.end(function (videoDeleteErr, videoDeleteRes) {
+					if (videoDeleteErr) done (videoDeleteErr);
+					
+					// Try to find the deleted video
+					agent
+					.get('/api/video/4')
+					.expect(404, done);
+				});
+			});
+		});
+	});
+
+	describe('#destroyAll', function () {
+		var agent = request.agent('http://localhost:1337');
+
+		it('should not read delete Video object based on the id given before login', function (done) {
+			request(sails.hooks.http.app)
+			.delete('/api/video/')
+			.send({'id': ['2','3']})
+			.expect(403)
+			.end(function (err, res) {
+				if (err) done(err);
+				
+				(res.text).should.match('You are not permitted to perform this action.');
+				done();
+			});
+		});
+
+		it('should destroy the Video object based on the id given after login', function (done) {
+			agent
+			.post('/api/user/login')
+			.send(credentials)
+			.expect(200)
+			.end(function (err, res) {
+				agent
+				.delete('/api/video/')
+				.send({'id': ['2','3']})
 				.end(function (videoDeleteErr, videoDeleteRes) {
 					if (videoDeleteErr) done (videoDeleteErr);
 					
 					// Try to find the deleted video
 					agent
 					.get('/api/video/2')
-					.expect(404, done);
+					.expect(404)
+					.end(function (videoDeleteErr, videoDeleteRes) {
+						if (videoDeleteErr) done (videoDeleteErr);
+					
+						// Try to find the deleted video
+						agent
+						.get('/api/video/3')
+						.expect(404, done);
+					});
 				});
 			});
 		});

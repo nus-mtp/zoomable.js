@@ -25,6 +25,12 @@ module.exports = function(config) {
       'libs/angular-material/angular-material-mocks.js',
       'libs/clipboard/dist/clipboard.js',
       'libs/ngclipboard/dist/ngclipboard.js',
+      'libs/ng-file-upload/ng-file-upload-shim.min.js',
+      'libs/ng-file-upload/ng-file-upload.min.js',
+      'libs/moment/moment.js',
+      'libs/angular-moment/angular-moment.js',
+      'libs/Chart.js/Chart.js',
+      'libs/angular-chart.js/dist/angular-chart.js',
 
       'assets/js/public/zoomableApp.js',
       'assets/js/public/directives.js',

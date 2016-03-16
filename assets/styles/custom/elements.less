@@ -3,7 +3,16 @@
  */
 
 body {
-    min-width: 865px;
+    min-width: @minimum-app-width;
+    background-color: @color-background;
+
+    &.no-scroll {
+      overflow: hidden;
+    }
+}
+
+[ng-cloak] {
+  display: none;
 }
 
 md-card {
@@ -16,9 +25,13 @@ md-card-header {        // override default card header styling
     padding: 0px !important;
 }
 
-md-content.layout-padding {
-    top: @navbar-height;
-    padding: 16px;
+md-content {
+    background-color: @color-background;
+
+    &.layout-padding {
+        top: @navbar-height;
+        padding: 0px 16px 16px 16px;
+    }
 }
 
 md-menu-content {
@@ -28,15 +41,58 @@ md-menu-content {
     }
 }
 
-.page-header {
-    md-icon.header-icon {
-        background-image: url(../../images/ic_movie_black_24px.svg);
-        margin: 0px 10px 0px 20px;
-    }
+md-icon.header-icon.video {
+    background-image: url(../../images/ic_movie_black_24px.svg);
+    margin: 0px 10px 0px 20px;
+}
 
-    .header-title {
-        vertical-align: middle;
+md-icon.header-icon.stats {
+    background-image: url(../../images/ic_trending_up_black_24px.svg);
+    margin: 0px 10px 0px 20px;
+}
+
+.custom-btn-group {
+  margin-top: 5px;
+  padding-left: 3px;
+
+  .custom-switch {
+    border: 1px solid fade(@color-black, 10%);
+    border-radius: 3px;
+    justify-content: space-around;
+    height: 35px;
+
+    .custom-btn {
+      color: fade(@color-black, 30%);
+      display: inline-block;
+      height: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      padding-top: 8px;
+      text-align: center;
+      text-transform: uppercase;
+
+      span.text {
+        pointer-events: none;
+      }
+
+      &:focus {
+        outline: 0;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      &.selected {
+        background-color: fade(@color-button-primary, 25%);
+        color: @color-button-primary;
+      }
     }
+  }
+}
+
+.header-title {
+    vertical-align: middle;
 }
 
 /* Styling to maintain aspect-ratio of video div

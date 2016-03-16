@@ -38,6 +38,7 @@ module.exports.routes = {
 
   // server rendered webpages
   'GET /': 'PageController.showHomePage',
+  'GET /statistics': 'PageController.showStatPage',
   'GET /edit/:id': 'PageController.showEditPage',
   'GET /embed': 'PageController.showPlayerPage',
 

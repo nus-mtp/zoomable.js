@@ -48,46 +48,6 @@
             color: fade(@color-black, 54%);
             font-size: 12px;
         }
-
-        .privacy-buttons {
-            margin-top: 5px;
-            padding-left: 3px;
-
-            .custom-switch {
-                border: 1px solid fade(@color-black, 10%);
-                border-radius: 3px;
-                justify-content: space-around;
-                height: 35px;
-
-                .custom-btn {
-                    color: fade(@color-black, 30%);
-                    display: inline-block;
-                    height: inherit;
-                    font-size: 14px;
-                    font-weight: 500;
-                    padding-top: 8px;
-                    text-align: center;
-                    text-transform: uppercase;
-
-                    span.text {
-                        pointer-events: none;
-                    }
-
-                    &:focus {
-                        outline: 0;
-                    }
-
-                    &:hover {
-                        cursor: pointer;
-                    }
-
-                    &.selected {
-                        background-color: fade(@color-button-primary, 25%);
-                        color: @color-button-primary;
-                    }
-                }
-            }
-        }
     }
 
     .form-padding {
@@ -103,8 +63,20 @@
         opacity: 0.54;
     }
 
+    md-ink-bar {
+      bottom: -12px;
+    }
+
     md-input-container.md-block {
         margin-bottom: 5px;
+    }
+
+    md-tabs-canvas, .md-ripple-container {
+      height: 60px;
+    }
+
+    md-tab-item {
+      padding: 18px 24px;
     }
 
     md-tab-item.md-tab.md-active {
@@ -114,6 +86,10 @@
     md-tabs md-ink-bar {
         color: @color-button-primary;
         background: @color-button-primary;
+    }
+
+    md-tabs md-content {
+      background-color: @color-white;
     }
 
     .tab-header {
@@ -129,6 +105,12 @@
         button {
             color: @color-white;
         }
+    }
+
+    .video-date {
+        color: fade(@color-black, 50%);
+        font-size: 13px;
+        padding-left: 17px;
     }
 
     .video-info {
