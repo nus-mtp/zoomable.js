@@ -146,7 +146,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                     '</md-content>' +
                     '<div class="uploaded-files-list" ng-class="{ outline: uploadedFiles.length > 0 }">' +
                         '<div ng-show="uploadedFiles" ng-repeat="file in uploadedFiles">' +
-                            '<div id="loading-bar" class="loading-bar"><div class="text">{{ file.name }} - {{ file.calculatedsize }}</div></div>' +
+                            '<div id="loading-bar" class="loading-bar"><div class="filename">{{ file.name }}</div><div class="filesize">{{ file.calculatedsize }}</div></div>' +
                         '</div>' +
                     '</div>'+
                     '<md-dialog-actions>' +

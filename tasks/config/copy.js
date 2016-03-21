@@ -37,7 +37,9 @@ module.exports = function(grunt) {
         'angular-aria/angular-aria.js', 'angular-animate/angular-animate.js',
         'angular-material/angular-material.js', 'angular-messages/angular-messages.js',
         'clipboard/dist/clipboard.js', 'ngclipboard/dist/ngclipboard.js',
-        'ng-file-upload/ng-file-upload-shim.min.js', 'ng-file-upload/ng-file-upload.min.js'],
+        'ng-file-upload/ng-file-upload-shim.min.js', 'ng-file-upload/ng-file-upload.min.js',
+        'moment/moment.js', 'angular-moment/angular-moment.js',
+        'Chart.js/Chart.js', 'angular-chart.js/dist/angular-chart.js'],
         flatten: true,
         dest: '.tmp/public/js/dependencies'
       }]

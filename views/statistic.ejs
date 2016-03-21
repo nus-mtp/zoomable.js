@@ -1,0 +1,31 @@
+<!-- DASHBOARD STATISTIC VIEW -->
+
+<div ng-controller="statisticController" ng-cloak id="statistic" md-no-ink="">
+  <md-content layout-padding ng-cloak>
+      <!-- HEADER -->
+      <h2 flex class="page-header">
+        <md-icon class="header-icon stats"></md-icon>
+        <span class="md-headline header-title">My Statistics</span>
+      </h2>
+
+      <!-- CONTENT -->
+      <md-card>
+        <md-card-header>
+          <md-icon class="profile-icon" md-svg-icon="images/ic_person.svg"></md-icon>
+          <md-card-header-text>
+            <span class="md-title"><%= user.username %></span>
+            <span class="md-subhead">
+              Joined since: <span>DD/MM/YYYY</span> <!-- TODO: Call API to show correct date -->
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              Total Videos: <span>XX</span> <!-- TODO: Call API to show correct video length -->
+            </span>
+          </md-card-header-text>
+        </md-card-header>
+        <md-divider></md-divider>
+        <md-card-content>
+          <%- partial('statsdata.ejs') %>
+        </md-card-content>
+      </md-card>
+
+  </md-content>
+</div>
