@@ -64,13 +64,17 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                   .cancel('Cancel')
                   .clickOutsideToClose(true);
             $mdDialog.show(confirm).then(function() {
-                for(var i=0;i<$scope.model.selectedVideoList.length;i++) {
-                    servicesAPI.delete($scope.model.selectedVideoList[i]).then(function() {
-                        getVideoList();
-                    });
-                }
-                // Empty video list
-                $scope.model.selectedVideoList = [];
+              var arrayIds = {
+                id : $scope.model.selectedVideoList
+              }
+              console.log(arrayIds);
+
+              servicesAPI.deleteAll(arrayIds).then(function(data) {
+                console.log(data);
+                getVideoList();
+              });
+              // Empty video list
+              $scope.model.selectedVideoList = [];
             });
         } else {
             return;
