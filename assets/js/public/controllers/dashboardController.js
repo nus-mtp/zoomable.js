@@ -209,7 +209,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                         // call api to upload video with video id
                         servicesAPI.upload(file)
                             .then(function (resUpload) {
-                                console.log('done' + resUpload);
                                 getVideoList();
 
                                 // update upload progress bar of video to be completed
