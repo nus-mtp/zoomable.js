@@ -51,4 +51,27 @@
   .outline {
     border: 1px solid @color-grey-500;
   }
+
+  .loading-bar {
+    border-bottom: 1px solid @color-grey-500;
+    height: 20px;
+    position: relative;
+
+    .text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2000;
+    }
+  }
+
+  #ngProgress-container {
+    opacity: 0.4;
+    position: relative;
+    z-index: 1000;
+  }
+
+  .completed-bar {
+    background-color: rgba(102, 179, 138, 0.6);
+  }
 }

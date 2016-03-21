@@ -11,7 +11,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     var uploadUrl = '/upload';
 
     $scope.model = {
-        selectedVideoList : []
+        selectedVideoList: []
     }
 
     getVideoList();
@@ -110,9 +110,9 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     $scope.updateFilterState = function (state) {
         $scope.userFilterState = state;
         if ($scope.userFilterState === 'Public') {
-            $scope.filterType = { privacy : 1 };
+            $scope.filterType = { privacy: 1 };
         } else if ($scope.userFilterState === 'Private') {
-            $scope.filterType = { privacy : 0 };
+            $scope.filterType = { privacy: 0 };
         }
     };
 
@@ -146,7 +146,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                     '</md-content>' +
                     '<div class="uploaded-files-list" ng-class="{ outline: uploadedFiles.length > 0 }">' +
                         '<div ng-show="uploadedFiles" ng-repeat="file in uploadedFiles">' +
-                            '<div class="progress-bar"> {{ file.name }} - {{ file.calculatedsize }} </div>' +
+                            '<div id="loading-bar" class="loading-bar"><div class="text">{{ file.name }} - {{ file.calculatedsize }}</div></div>' +
                         '</div>' +
                     '</div>'+
                     '<md-dialog-actions>' +
@@ -162,10 +162,11 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         });
     };
 
-    function DialogController($scope, $mdDialog, Upload, $timeout) {
+    function DialogController($scope, $mdDialog, Upload, $timeout, ngProgressFactory) {
         // variable
         $scope.files;
         $scope.uploadedFiles = [];
+        $scope.progressBar = ngProgressFactory.createInstance();
 
         $scope.$watch('files', function () {
             $scope.upload($scope.files);
@@ -174,36 +175,53 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         // function to upload videos to API
         $scope.upload = function (files) {
             if (files && files.length) {
-
-                // Append file to the updated files array
+                // Append files to the uploaded files array
                 for (var i = 0; i < files.length; i++) {
                   files[i].calculatedsize = formatBytes(files[i].size);
                   $scope.uploadedFiles.push(files[i]);
                 }
+                if($scope.uploadedFiles) {
+                  // Upload files to server
+                  for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
 
-                for (var i = 0; i < files.length; i++) {
-                  var file = files[i];
-
-                  if (!file.$error) {
-                    var videoName = { title : file.name };
-                    servicesAPI.createVideo(videoName).then(function (res) {
-                        getVideoList();
+                    if (!file.$error) {
+                      var videoName = { title: file.name };
+                      // call api to create a video entry
+                      servicesAPI.createVideo(videoName).then(function (res) {
+                        // append new video entry to existing video list
                         file.id = res.data.id;
+                        // set progress bar for uploading video
+                        $scope.progressBar.setParent(document.getElementById('loading-bar'));
+                        $scope.progressBar.setColor('#66b38a');
+                        $scope.progressBar.setHeight('20px');
+                        $scope.progressBar.start();
 
+                        // call api to upload video with video id
                         servicesAPI.upload(file)
                             .then(function (resUpload) {
-                                console.log(resUpload);
+                                console.log('done' + resUpload);
+
+                                // update upload progress bar of video to be completed
+                                $scope.progressBar.complete();
+                                var bar = angular.element( document.getElementById('loading-bar') );
+                                bar.removeAttr('id');
+                                bar.addClass('completed-bar');
+
                                 var videoID = {
-                                    id : file.id
+                                    id: file.id
                                 };
+                                // call api to get progress of uploaded video
                                 servicesAPI.getUploadProgress(videoID)
                                     .then(function (resProgress) {
                                         console.log(resProgress);
                                     });
                             });
                         });
+                    }
                   }
                 }
+
             }
         };
 
@@ -216,6 +234,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
 
         $scope.cancel = function() {
             $scope.uploadedFiles = [];
+            getVideoList();
             $mdDialog.cancel();
         };
     }
