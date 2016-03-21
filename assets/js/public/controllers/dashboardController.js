@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog, $mdMedia, Upload, $timeout){
+angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog, $mdMedia, Upload, $timeout, $interval, $location){
 
     // VARIABLES
     $scope.defaultImagePath = 'images/bunny.png';
@@ -7,6 +7,8 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     $scope.userFilterState = '';
     $scope.userSortState = '';
     $scope.hasMouseover = 'hidden';
+    $scope.videoList = [];
+
     var videoData = {};
     var uploadUrl = '/upload';
 
@@ -14,7 +16,20 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         selectedVideoList: []
     }
 
+    /* Update video list */
     getVideoList();
+
+    /* Get a list of video from API */
+    function getVideoList() {
+        servicesAPI.get()
+          .success(function(data) {
+            $scope.videoList = data;
+            $scope.getProcessStatusAll();
+          })
+          .error(function(data) {
+            $scope.error = 'Error: ' + data;
+          });
+    }
 
     /* Checkbox Handler */
     $scope.isSelectAll = function() {
@@ -120,17 +135,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         }
     };
 
-    /* Get a list of video from API */
-    function getVideoList() {
-        servicesAPI.get()
-        .success(function(data) {
-          $scope.videoList = data;
-        })
-        .error(function(data) {
-          console.log('Error: ' + data);
-        });
-    }
-
+    /* Upload dialog handler */
     $scope.showUpload = function (ev) {
         var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
         $mdDialog.show({
@@ -167,7 +172,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     };
 
     function DialogController($scope, $mdDialog, Upload, $timeout, ngProgressFactory) {
-        // variable
+        // variables
         $scope.files;
         $scope.uploadedFiles = [];
         $scope.progressBar = ngProgressFactory.createInstance();
@@ -176,7 +181,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
             $scope.upload($scope.files);
         });
 
-        // function to upload videos to API
+        // Upload videos to API
         $scope.upload = function (files) {
             if (files && files.length) {
                 // Append files to the uploaded files array
@@ -184,7 +189,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                   files[i].calculatedsize = formatBytes(files[i].size);
                   $scope.uploadedFiles.push(files[i]);
                 }
-                if($scope.uploadedFiles) {
+                if ($scope.uploadedFiles) {
                   // Upload files to server
                   for (var i = 0; i < files.length; i++) {
                     var file = files[i];
@@ -205,6 +210,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                         servicesAPI.upload(file)
                             .then(function (resUpload) {
                                 console.log('done' + resUpload);
+                                getVideoList();
 
                                 // update upload progress bar of video to be completed
                                 $scope.progressBar.complete();
@@ -215,11 +221,8 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                                 var videoID = {
                                     id: file.id
                                 };
-                                // call api to get progress of uploaded video
-                                servicesAPI.getUploadProgress(videoID)
-                                    .then(function (resProgress) {
-                                        console.log(resProgress);
-                                    });
+
+                                getVideoList();
                             });
                         });
                     }
@@ -242,9 +245,36 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
             $mdDialog.cancel();
         };
     }
+    /* Check process status for all video entries */
+    $scope.getProcessStatusAll = function () {
+      if ($scope.videoList){
+        for (var i = 0; i < $scope.videoList.length; i++) {
+          if (!$scope.videoList[i].thumbnail) {
+            var videoId = {
+              id : $scope.videoList[i].id
+            }
+            $scope.getProcessStatus(videoId, i);
+          }
+        }
+      }
+    };
+
+    /* Get process status from API for a video */
+    $scope.getProcessStatus = function (videoId, i) {
+        var interval = $interval(function() {
+          servicesAPI.getUploadProgress(videoId).then(function (data) {
+            if(data.data.status) {
+              // update thumbnail of video entry
+              var url = $scope.videoList[i].thumbnailDir.split('public/');
+              $scope.videoList[i].thumbnail = $location.absUrl() + url[1];
+              $interval.cancel(interval);
+            }
+          })
+        }, 1000);
+    };
 
     /* Function to catch broadcast event from login controller to perform search on video list */
     $scope.$on('searchBroadcast', function(event, query) {
-        $scope.filterType = query;
+      $scope.filterType = query;
     });
 });

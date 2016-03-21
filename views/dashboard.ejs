@@ -52,11 +52,13 @@
           <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType | filter: filterType" ng-show="videoList.length" ng-mouseover="hasMouseover = 'visibile'" ng-mouseleave="hasMouseover = 'hidden'">
             <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
             <a href="/edit/{{ video.id }}">
-              <!-- TODO: Uncomment after server side can auto generate image directory
-              <span ng-show="video.thumbnailDir">
-              <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
-            </span> -->
-              <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
+              <span ng-show="video.thumbnail">
+                <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+              </span>
+              <div ng-hide="video.thumbnail" class="spin-container">
+                <md-icon md-svg-icon="images/ic_spin.svg" class="spin"></md-icon>
+                <span class="text-process">Processing</span>
+              </div>
             </a>
 
             <div class="md-list-item-text">
