@@ -25,7 +25,15 @@ module.exports = {
         			sails.isDoneProcessing[i].status = true;
         		}
         	}
-        	console.log("Complete processing the uploaded video")
+
+            Video.update({
+                id: id,
+            }, {
+                hasProcessed: 'true'
+            }).exec(function(err, video) { 
+                if (err) throw err;
+                console.log("Complete processing the uploaded video");
+            });
         });
 	} 
 }
