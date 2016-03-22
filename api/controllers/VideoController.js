@@ -4,6 +4,7 @@
  * @description :: Server-side logic for managing videos
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
+var path = require('path');
 
 module.exports = {
 
@@ -56,7 +57,7 @@ module.exports = {
   },
 
   /**
-   * `VideoController.destroy()`
+   * `VideoController.destroyAll()`
    * Usage: DELETE /api/video/
    * Content: {id: [:id]}
    */
@@ -114,7 +115,11 @@ module.exports = {
     req.file('video').upload({
       dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id'),
       // maximum size of 2GB
-      maxBytes: 2 * 1000 * 1000 * 1000
+      maxBytes: 2 * 1000 * 1000 * 1000,
+      // save as id + file extension
+      saveAs: function(_newFileStream, cb) {
+        cb(null, req.param('id') + path.extname(_newFileStream.filename))
+      }
     }, function (err, uploadedFiles) {
       if (err) return res.negotiate(err);
 
@@ -124,7 +129,7 @@ module.exports = {
       }
 
       // generate a list of mpd dir
-      var fdWithExtension = uploadedFiles[0].fd;
+      var fdWithExtension = sails.getBaseUrl() + uploadedFiles[0].fd.split('/public')[1];
       var fd = fdWithExtension.substr(0, fdWithExtension.lastIndexOf('.')) || fdWithExtension;
 
       var mpdArray = [];

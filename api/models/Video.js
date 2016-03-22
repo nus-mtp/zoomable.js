@@ -55,6 +55,12 @@ module.exports = {
 	    thumbnailDir: {
 	    	type: 'string'
 	    },
+
+	    hasProcessed: {
+	    	type: 'string',
+	    	enum: ['false', 'true'],
+	    	defaultsTo: 'false'
+	    },
 	    
 	    createdAt: {
 	    	type: 'datetime',
