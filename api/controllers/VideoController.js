@@ -56,7 +56,7 @@ module.exports = {
   },
 
   /**
-   * `VideoController.destroy()`
+   * `VideoController.destroyAll()`
    * Usage: DELETE /api/video/
    * Content: {id: [:id]}
    */
