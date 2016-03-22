@@ -46,9 +46,11 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   }
   $scope.isLabelChecked = function() {
     var id = this.video.id;
-    if(this.video.selected) {
+    if (this.video.selected) {
       $scope.model.selectedVideoList.push(id);
-      if($scope.model.selectedVideoList.length == $scope.videoList.length){$scope.master = true;}
+      if ($scope.model.selectedVideoList.length == $scope.videoList.length) {
+        $scope.master = true;
+      }
     } else {
       $scope.master = false;
       var index = $scope.model.selectedVideoList.indexOf(id);
@@ -177,52 +179,52 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
 
     // Upload videos to API
     $scope.upload = function (files) {
-        if (files && files.length) {
-          // Append files to the uploaded files array
+      if (files && files.length) {
+        // Append files to the uploaded files array
+        for (var i = 0; i < files.length; i++) {
+          files[i].calculatedsize = formatBytes(files[i].size);
+          $scope.uploadedFiles.push(files[i]);
+        }
+        if ($scope.uploadedFiles) {
+          // Upload files to server
           for (var i = 0; i < files.length; i++) {
-            files[i].calculatedsize = formatBytes(files[i].size);
-            $scope.uploadedFiles.push(files[i]);
-          }
-          if ($scope.uploadedFiles) {
-            // Upload files to server
-            for (var i = 0; i < files.length; i++) {
-              var file = files[i];
+            var file = files[i];
 
-              if (!file.$error) {
-                var videoName = { title: file.name };
-                // call api to create a video entry
-                servicesAPI.createVideo(videoName).then(function (res) {
-                  // append new video entry to existing video list
-                  file.id = res.data.id;
-                  // set progress bar for uploading video
-                  $scope.progressBar.setParent(document.getElementById('loading-bar'));
-                  $scope.progressBar.setColor('#66b38a');
-                  $scope.progressBar.setHeight('20px');
-                  $scope.progressBar.start();
+            if (!file.$error) {
+              var videoName = { title: file.name };
+              // call api to create a video entry
+              servicesAPI.createVideo(videoName).then(function (res) {
+                // append new video entry to existing video list
+                file.id = res.data.id;
+                // set progress bar for uploading video
+                $scope.progressBar.setParent(document.getElementById('loading-bar'));
+                $scope.progressBar.setColor('#66b38a');
+                $scope.progressBar.setHeight('20px');
+                $scope.progressBar.start();
 
-                  // call api to upload video with video id
-                  servicesAPI.upload(file)
-                    .then(function (resUpload) {
-                        getVideoList();
+                // call api to upload video with video id
+                servicesAPI.upload(file)
+                  .then(function (resUpload) {
+                    getVideoList();
 
-                        // update upload progress bar of video to be completed
-                        $scope.progressBar.complete();
-                        var bar = angular.element( document.getElementById('loading-bar') );
-                        bar.removeAttr('id');
-                        bar.addClass('completed-bar');
+                    // update upload progress bar of video to be completed
+                    $scope.progressBar.complete();
+                    var bar = angular.element( document.getElementById('loading-bar') );
+                    bar.removeAttr('id');
+                    bar.addClass('completed-bar');
 
-                        var videoID = {
-                            id: file.id
-                        };
+                    var videoID = {
+                        id: file.id
+                    };
 
-                        getVideoList();
-                    });
+                    getVideoList();
                   });
-              }
+                });
             }
           }
-
         }
+
+      }
     };
 
     function formatBytes(bytes) {
@@ -264,6 +266,9 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
       }
       if (hasVideo) {
         servicesAPI.getUploadProgress(videoId).then(function (data) {
+          if (data.status === 404) {
+            $interval.cancel(interval);
+          }
           if (data.data.status) {
             // update video list once video is processed
             getVideoList();
