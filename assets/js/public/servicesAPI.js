@@ -16,7 +16,10 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
       return $http.post('/api/video/isComplete', id);
     },
     delete : function(id) {
-      return $http.delete('/api/video/' + id);
+      return $http.delete('/api/video' + id);
+    },
+    deleteAll : function(ids) {
+      return $http.delete('/api/video', {data : ids});
     },
     update : function(id, videoData) {
       return $http.put('/api/video/' + id, videoData);

@@ -154,7 +154,7 @@ module.exports = {
         });
 
         // run the video processing service
-        VideoProcessingService.run({id: req.param('id'), dir: fdWithExtension});
+        VideoProcessingService.run({id: req.param('id'), dir: uploadedFiles[0].fd});
 
         return res.json({
           message: uploadedFiles.length + ' file(s) uploaded successfully',

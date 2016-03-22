@@ -15,7 +15,10 @@
 // (if you're using LESS with the built-in default config, you'll want
 //  to change `assets/styles/importer.less` instead.)
 var cssFilesToInject = [
-  'styles/**/*.css'
+  'styles/angular-chart.css',
+  'styles/angular-material.css',
+  'styles/ngProgress.css',
+  'styles/importer.css'
 ];
 
 
@@ -31,6 +34,7 @@ var jsFilesToInject = [
   'js/dependencies/angular-messages.js',
   'js/dependencies/angular-animate.js',
   'js/dependencies/angular-aria.js',
+  'js/dependencies/ngprogress.js',
   'js/dependencies/clipboard.js',
   'js/dependencies/ngclipboard.js',
   'js/dependencies/ng-file-upload-shim.min.js',
