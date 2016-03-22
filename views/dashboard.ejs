@@ -52,10 +52,10 @@
           <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType | filter: filterType" ng-show="videoList.length" ng-mouseover="hasMouseover = 'visibile'" ng-mouseleave="hasMouseover = 'hidden'">
             <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
             <a href="/edit/{{ video.id }}">
-              <span ng-show="video.thumbnail">
-                <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
+              <span ng-if="video.hasProcessed === 'true'">
+                <img ng-src="{{ video.thumbnailDir }}" alt="{{ video.title }}" />
               </span>
-              <div ng-hide="video.thumbnail" class="spin-container">
+              <div ng-if="video.hasProcessed === 'false'" class="spin-container">
                 <md-icon md-svg-icon="images/ic_spin.svg" class="spin"></md-icon>
                 <span class="text-process">Processing</span>
               </div>

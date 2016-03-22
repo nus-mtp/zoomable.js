@@ -81,7 +81,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
           id : $scope.model.selectedVideoList
         }
         servicesAPI.deleteAll(arrayIds).then(function(data) {
-          console.log(data);
           getVideoList();
         });
         // Empty video list
@@ -243,7 +242,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   $scope.getProcessStatusAll = function () {
     if ($scope.videoList){
       for (var i = 0; i < $scope.videoList.length; i++) {
-        if (!$scope.videoList[i].thumbnail) {
+        if ($scope.videoList[i].hasProcessed === "false") {
           var videoId = {
             id : $scope.videoList[i].id
           }
@@ -253,18 +252,28 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     }
   };
 
-  /* Get process status from API for a video */
+  /* Get process status of a video from API every 5 seconds */
   $scope.getProcessStatus = function (videoId, i) {
     var interval = $interval(function() {
-      servicesAPI.getUploadProgress(videoId).then(function (data) {
-        if(data.data.status) {
-          // update thumbnail of video entry
-          var url = $scope.videoList[i].thumbnailDir.split('public/');
-          $scope.videoList[i].thumbnail = $location.absUrl() + url[1];
-          $interval.cancel(interval);
+      // check if video entry exists in video list
+      var hasVideo = false;
+      for(var i=0; i<$scope.videoList.length; i++) {
+        if (videoId.id === $scope.videoList[i].id) {
+          hasVideo = true;
         }
-      })
-    }, 1000);
+      }
+      if (hasVideo) {
+        servicesAPI.getUploadProgress(videoId).then(function (data) {
+          if (data.data.status) {
+            // update video list once video is processed
+            getVideoList();
+            $interval.cancel(interval);
+          }
+        });
+      } else {
+        $interval.cancel(interval);
+      }
+    }, 5000);
   };
 
   /* Function to catch broadcast event from login controller to perform search on video list */
