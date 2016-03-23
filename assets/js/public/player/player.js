@@ -5,7 +5,6 @@ for(var i = 1; i <= 3; i++) {
 		mpdList.push('/../../../../../../upload/vid/2/2_mpd_R' + i + 'C' + j + '.mpd');
 	}
 }
-
 // The audio file for the video
 mpdList.push('/../../../../../../upload/vid/2/2.mp3');
 
@@ -191,13 +190,13 @@ var Player = function(canvas, mpd_list) {
 		// This is to check and update the UI controls when the 'Zoom Out'
 		// button is clicked
 		this.zoomOutBtn.addEventListener('click',function(){
-			player.zoom.out();  // NEED TO TAKE NOTE OF THIS
+			player.zoom.out();
 		},false);
 
 		// This is to check and update the UI controls when the 'change' event
 		// occurs on the zoom controls
 		this.zoomCtrl.addEventListener('change',function(){
-			player.zoom.adjust(); // NEED TO TAKE NOTE OF THIS
+			player.zoom.adjust();
 		},false);
 
 		// This is to check and update the UI controls when the 'mousemove'
@@ -386,9 +385,9 @@ var Player = function(canvas, mpd_list) {
 		/* Change current video time and text according to seek control value */
 		this.setAudioVideoTime = function(){
 			// Set the time of the video to be playing at
-			var seekTo = this.duration * player.controls.seekCtrl.value;
+			var seekTo = player.duration * player.controls.seekCtrl.value;
 			// Update the global current time value
-			this.time = seekTo;
+			player.time = seekTo;
 			// Update the UI controls to reflect the correct time
 			player.controls.updateCurrentTimeText(seekTo);
 
@@ -627,7 +626,7 @@ var Player = function(canvas, mpd_list) {
 		// Inject the video elements into the HTML
 		var vidHtmlEle;
 		for(var i = 1; i <= NUM_SLAVES; i++) {
-			vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + mpd_list[i - 1] + '">Your browser does not support HTML5 video.</video>';
+			vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + '">Your browser does not support HTML5 video.</video>';
 		}
 		document.getElementById('zoomableVidElements').innerHTML = vidHtmlEle;
 
@@ -656,11 +655,11 @@ var Player = function(canvas, mpd_list) {
 				};
 
 				// Upon the 'ended' event
-				vid.onended = function(evt) {
+				vid.addEventListener('ended', function(evt) {
 					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
 					player.slaveEndArr[vidTimeArrIndex] = true;	// Update the global array of truth value for video end state
 					syncEndState(player);	// Run the synchronization check for the overall end state
-				};
+				}, false);
 
 				// Set the src mpd for that video element
 				vid.src = mpd_list[vidCount - 1];
@@ -714,9 +713,6 @@ var Player = function(canvas, mpd_list) {
 			}
 		}
 		player.time = earliestTime;
-
-		// Check if the time is close to duration, if it is, set all video time
-		// to the final duration position
 	};
 
 	var syncPauseState = function(player) {
@@ -773,7 +769,7 @@ var Player = function(canvas, mpd_list) {
 
 	var getVideoDuration = function(player) {
 		player.slaves[0].video.onloadedmetadata = function() {
-			player.duration = player.slaves[0].video.duration;
+			player.duration = Math.ceil(player.slaves[0].video.duration);
 			player.controls.getVideoLength();
 			return player.duration;
 		};
