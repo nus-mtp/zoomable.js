@@ -375,9 +375,9 @@ var Player = function(canvas, mpd_list) {
 				gradient.push('rgba(255, 255, 255, 0.1) 0%');
 			} else {
 				// NOTE: the fallback to zero eliminates NaN.
-				var bufferStartFraction = (buffered.start(0) / this.duration) || 0;
-				var bufferEndFraction = (buffered.end(0) / this.duration) || 0;
-				var playheadFraction = (this.time / this.duration) || 0;
+				var bufferStartFraction = (buffered.start(0) / player.duration) || 0;
+				var bufferEndFraction = (buffered.end(0) / player.duration) || 0;
+				var playheadFraction = (player.time / player.duration) || 0;
 				gradient.push('rgba(255, 255, 255, 0.1) ' + (bufferStartFraction * 100) + '%');
 				gradient.push('rgba(255, 255, 255, 0.7) ' + (bufferStartFraction * 100) + '%');
 				gradient.push('rgba(255, 255, 255, 0.7) ' + (playheadFraction * 100) + '%');
