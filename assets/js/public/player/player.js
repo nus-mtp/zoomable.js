@@ -2,10 +2,12 @@
 var mpdList = [];
 for(var i = 1; i <= 3; i++) {
 	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../TEST/squirrel_video_mpd_R' + i + 'C' + j + '.mpd');
+		mpdList.push('/../../../../../../upload/vid/2/2_mpd_R' + i + 'C' + j + '.mpd');
 	}
 }
-mpdList.push('/../../../../../../TEST/squirrel_video.mp3');
+
+// The audio file for the video
+mpdList.push('/../../../../../../upload/vid/2/2.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
@@ -19,8 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 var Player = function(canvas, mpd_list) {
 
-	var VID_WIDTH = 160;
-	var VID_HEIGHT = 120;
+	var VID_WIDTH = canvas.width / 4;
+	var VID_HEIGHT = canvas.height / 3;
 	var NUM_SLAVES = 12;
 	var NUM_ROWS = 3;
 	var NUM_COLS = 4;
