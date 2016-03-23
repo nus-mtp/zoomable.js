@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	canvas_obj = document.getElementById('canvas');
 	var loadPlayers = new Player(canvas_obj, mpdList);
 	loadPlayers.initShakaPlayers();
-	loadPlayers.initSlaves();
 	loadPlayers.init();
 }, false);
 
@@ -63,11 +62,6 @@ var Player = function(canvas, mpd_list) {
 	// Initialization of all the Shaka players and the video elements
 	this.initShakaPlayers = function() {
 		init_players(this, canvas, mpd_list);
-	};
-
-	// Initialization of all the Slave objects
-	this.initSlaves = function() {
-		initSlaveObjs(this);
 	};
 
 	// Initialization will only be called once during the creation of the Player object the first time
@@ -642,8 +636,42 @@ var Player = function(canvas, mpd_list) {
 		for(var rowNum = 0; rowNum < NUM_ROWS; rowNum++) {
 			// To loop through the columns while we are on a row
 			for(var colNum = 0; colNum < NUM_COLS; colNum++) {
+
 				// Locate the video element
 				var vid = document.getElementById('video_' + vidCount);
+
+				// Attach the event handlers to the video element first
+				vid.ontimeupdate = function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.timeArr[vidTimeArrIndex] = vid.currentTime;   // Update the global array of current time value for this video object
+					syncCurrentTime(player);  // Run the synchronization check for the current time
+					player.seek.updateSeekTime();   // Update the seek time based on this new time
+				};
+
+				// Upon the 'pause' event
+				vid.onpause = function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.slavePauseArr[vidTimeArrIndex] = true;   // Update the global array of pause state value for this video object
+					syncPauseState(player);	// Run the synchronization check for the overall pause state
+				};
+
+				// Upon the 'ended' event
+				vid.onended = function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.slaveEndArr[vidTimeArrIndex] = true;	// Update the global array of truth value for video end state
+					syncEndState(player);	// Run the synchronization check for the overall end state
+				};
+
+				// Set the src mpd for that video element
+				vid.src = mpd_list[vidCount - 1];
+
+				// Construct the Slave object and initialize it
+				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
+				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
+
+				var slaveObj = new Slave(vid, canvas, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
+				player.slaves.push(slaveObj);
+				slaveObj.init();
 
 				// Construct the Shaka player to wrap around it
 				var shakaPlayer = new shaka.player.Player(vid);
@@ -686,6 +714,9 @@ var Player = function(canvas, mpd_list) {
 			}
 		}
 		player.time = earliestTime;
+
+		// Check if the time is close to duration, if it is, set all video time
+		// to the final duration position
 	};
 
 	var syncPauseState = function(player) {
@@ -748,45 +779,4 @@ var Player = function(canvas, mpd_list) {
 		};
 	};
 
-	var initSlaveObjs = function(player) {
-		var newVidCount = 1;
-		// To loop through the rows while we are on a column
-		for(var rowNum = 0; rowNum < NUM_ROWS; rowNum++) {
-			// To loop through the columns while we are on a row
-			for(var colNum = 0; colNum < NUM_COLS; colNum++) {
-				// To instantiate a new Slave object for each Shaka video player
-				var slaveVid = document.getElementById('video_' + newVidCount);
-				var playerCanv = this.canvas;
-				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
-				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
-				// Attach an event listener to each video object for each Slave object
-				// Upon the 'timeupdate' event
-				slaveVid.addEventListener('timeupdate', function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.timeArr[vidTimeArrIndex] = slaveVid.currentTime;   // Update the global array of current time value for this video object
-					syncCurrentTime(player);  // Run the synchronization check for the current time
-					player.seek.updateSeekTime();   // Update the seek time based on this new time
-				}, false);
-
-				// Upon the 'pause' event
-				slaveVid.addEventListener('pause', function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.slavePauseArr[vidTimeArrIndex] = true;   // Update the global array of pause state value for this video object
-					syncPauseState(player);	// Run the synchronization check for the overall pause state
-				}, false);
-
-				// Upon the 'ended' event
-				slaveVid.addEventListener('ended', function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.slaveEndArr[vidTimeArrIndex] = true;	// Update the global array of truth value for video end state
-					syncEndState(player);	// Run the synchronization check for the overall end state
-				}, false);
-
-				var slaveObj = new Slave(slaveVid, playerCanv, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
-				player.slaves.push(slaveObj);
-				slaveObj.init();
-				newVidCount++;
-			}
-		}
-	};
 }
