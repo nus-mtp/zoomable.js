@@ -2,11 +2,11 @@
 var mpdList = [];
 for(var i = 1; i <= 3; i++) {
 	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../upload/vid/9/9_mpd_R' + i + 'C' + j + '.mpd');
+		mpdList.push('/../../../../../../upload/vid/5/5_mpd_R' + i + 'C' + j + '.mpd');
 	}
 }
 // The audio file for the video
-mpdList.push('/../../../../../../upload/vid/9/9.mp3');
+mpdList.push('/../../../../../../upload/vid/5/5.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
@@ -15,6 +15,25 @@ document.addEventListener('DOMContentLoaded', function() {
 	var loadPlayers = new Player(canvas_obj, mpdList);
 	loadPlayers.initShakaPlayers();
 	loadPlayers.init();
+
+
+	var VFvid = VideoFrame({
+	    id : 'video_1',
+	    frameRate: FrameRates.web,
+		callback: function(response, format) {
+			console.log('callback response: ' + response);
+			switch (response) {
+				case "00:00:00:05": // Do something amazing.
+					console.log("Hello");
+					console.log(this.get());
+					break;
+				default:
+					console.log(this.get());
+			}
+		}
+	});
+	console.log("hey");
+	console.log(VFvid.get());
 }, false);
 
 var Player = function(canvas, mpd_list) {
@@ -648,6 +667,14 @@ var Player = function(canvas, mpd_list) {
 		}
 	}
 
+	var Sync = function(player) {
+		this.frames = function() {
+			for (var i = 0; i < player.slaves.length; i++) {
+
+			}
+		}
+	}
+
 	var init_players = function(player, canvas, mpd_list) {
 		var vidCount = 1;
 
@@ -810,17 +837,3 @@ var Player = function(canvas, mpd_list) {
 	};
 
 }
-
-
-
-var VFvid = VideoFrame({
-    id : 'video_1',
-    frameRate: FrameRates.web,
-	callback: function(response, format) {
-		switch (response) {
-			case "01:12:30:11": // Do something amazing.
-				console.log(VFvid.get());
-				break;
-		}
-	}
-});
