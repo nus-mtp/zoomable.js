@@ -810,3 +810,17 @@ var Player = function(canvas, mpd_list) {
 	};
 
 }
+
+
+
+var VFvid = VideoFrame({
+    id : 'video_1',
+    frameRate: FrameRates.web,
+	callback: function(response, format) {
+		switch (response) {
+			case "01:12:30:11": // Do something amazing.
+				console.log(VFvid.get());
+				break;
+		}
+	}
+});
