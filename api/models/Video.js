@@ -19,9 +19,14 @@ module.exports = {
 	    	type: 'string'
 	    },
 
+	    // each video owns multiple tags
 	    tags: {
 	    	collection: 'tag',
 	    	via: 'videoWithTags'
+	    },
+
+	    ownedBy: {
+	    	model: 'user',
 	    },
 
 	    views: {
