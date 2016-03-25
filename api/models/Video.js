@@ -70,7 +70,7 @@ module.exports = {
 	    updatedAt: {
 	    	type: 'datetime',
 	    	defaultsTo: function() {return new Date(); }
-	    }
+	    },
 		embedURL: {
 			type: 'string'
 		},
