@@ -2,11 +2,11 @@
 var mpdList = [];
 for(var i = 1; i <= 3; i++) {
 	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../upload/vid/2/2_mpd_R' + i + 'C' + j + '.mpd');
+		mpdList.push('/../../../../../../upload/vid/7/7_mpd_R' + i + 'C' + j + '.mpd');
 	}
 }
 // The audio file for the video
-mpdList.push('/../../../../../../upload/vid/2/2.mp3');
+mpdList.push('/../../../../../../upload/vid/7/7.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
@@ -208,7 +208,7 @@ var Player = function(canvas, mpd_list) {
 		/* Play or pause the video */
 		this.playPauseVideo = function() {
 			// If the player is paused, i.e. player.paused == true, play all the videos
-			if(player.paused) {
+			if (player.paused) {
 				player.util.forAllSlaves(player.controls.playVideo);
 				// Set the slavePauseArr to all false
 				player.util.setPauseArr(false);
@@ -218,6 +218,23 @@ var Player = function(canvas, mpd_list) {
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
+			}
+			// Else if the video has ended, i.e. player.ended == true,
+			// Set the seek time back to 0, play all the videos
+			else if (player.ended) {
+				player.util.forAllSlaves(player.controls.restartVideo);
+				// Set the slavePauseArr to all false
+				player.util.setPauseArr(false);
+				// Set the player's ended boolean value to false
+				player.ended = false;
+				// Set the player's pause state to false
+				player.paused = false;
+				syncPauseState(player);
+				// Change the UI controls to reflect the new play state
+				player.controls.changeToPlayState();
+				// Play the audio file
+				player.audio.play();
+
 			}
 			// Else if the player is playing, i.e. player.paused == false, pause all the videos
 			else {
@@ -240,6 +257,10 @@ var Player = function(canvas, mpd_list) {
 			slaveObj.video.pause();
 		}
 
+		this.restartVideo = function(slaveObj) {
+			slaveObj.video.currentTime = 0;
+		}
+
 		/* Updates icon to "play" button during pause state, show UI controls bar */
 		this.changeToPauseState = function() {
 			this.playPauseBtn.className = 'play';
@@ -251,6 +272,13 @@ var Player = function(canvas, mpd_list) {
 			this.playPauseBtn.className = 'pause';
 			this.uiControls.className = 'hideOnHover';
 		}
+
+		/* Updates icon to "replay" button after video has ended, show UI controls bar */
+		this.changeToReplayState = function() {
+			this.playPauseBtn.className = 'replay';
+			this.uiControls.className = '';
+		}
+
 		/* Retrieve total duration of video and update total time text */
 		this.getVideoLength = function() {
 			var convertedTotalTime = player.util.convertSecondsToHMS(player.duration);
@@ -713,6 +741,15 @@ var Player = function(canvas, mpd_list) {
 			}
 		}
 		player.time = earliestTime;
+
+		// A check to see if the video has approximately ended (workaround)
+		if (player.duration - player.time < 0.000001) {
+			// Set the player.ended to true
+			player.ended = true;
+			// Change button to replay
+			player.controls.changeToReplayState();
+		}
+
 	};
 
 	var syncPauseState = function(player) {
@@ -769,7 +806,7 @@ var Player = function(canvas, mpd_list) {
 
 	var getVideoDuration = function(player) {
 		player.slaves[0].video.onloadedmetadata = function() {
-			player.duration = Math.ceil(player.slaves[0].video.duration);
+			player.duration = player.slaves[0].video.duration;
 			player.controls.getVideoLength();
 			return player.duration;
 		};
