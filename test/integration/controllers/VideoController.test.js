@@ -180,8 +180,9 @@ describe('VideoController', function () {
 				agent
 				.delete('/api/video/4')
 				.end(function (videoDeleteErr, videoDeleteRes) {
-					if (videoDeleteErr) done (videoDeleteErr);
-					
+					if (videoDeleteErr) done(videoDeleteErr);
+
+					videoDeleteRes.body[0].should.be.instanceof(Object).and.have.property('title', 'Mission Possible');
 					// Try to find the deleted video
 					agent
 					.get('/api/video/4')
@@ -201,7 +202,7 @@ describe('VideoController', function () {
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
-				
+
 				(res.text).should.match('You are not permitted to perform this action.');
 				done();
 			});
@@ -217,14 +218,17 @@ describe('VideoController', function () {
 				.delete('/api/video/')
 				.send({'id': ['2','3']})
 				.end(function (videoDeleteErr, videoDeleteRes) {
-					if (videoDeleteErr) done (videoDeleteErr);
-					
+					if (videoDeleteErr) done(videoDeleteErr);
+
+					videoDeleteRes.body.should.be.instanceof(Array).and.have.length(2);
+					videoDeleteRes.body[0].should.be.instanceof(Object).and.have.property('title', 'Zootopia');
+					videoDeleteRes.body[1].should.be.instanceof(Object).and.have.property('title', 'The Big Short');
 					// Try to find the deleted video
 					agent
 					.get('/api/video/2')
 					.expect(404)
 					.end(function (videoDeleteErr, videoDeleteRes) {
-						if (videoDeleteErr) done (videoDeleteErr);
+						if (videoDeleteErr) done(videoDeleteErr);
 					
 						// Try to find the deleted video
 						agent
