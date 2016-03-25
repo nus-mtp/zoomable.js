@@ -274,28 +274,38 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   /* Get process status of a video from API every 5 seconds */
   $scope.getProcessStatus = function (videoId, i) {
     var interval = $interval(function() {
-      // check if video entry exists in video list
       var hasVideo = false;
+      var scope = $scope;
+      var video_index = 0;
+
+      // check if video entry exists in video list
       for (var i=0; i<$scope.videoList.length; i++) {
+
         if (videoId.id === $scope.videoList[i].id) {
           hasVideo = true;
+          video_index = i;
+
+          servicesAPI.getUploadProgress(videoId).then(function (res) {
+            // check if process status is completed
+            if (res.data.status) {
+              // update video list once video is processed
+              getVideoList();
+              $interval.cancel(interval);
+            }
+          }).catch( function (res) {
+            // if video processing has error, show error message to user
+            $scope.videoList[video_index].error = 'Error processing video. Please upload again. :(';
+            $interval.cancel(interval);
+          });
         }
       }
-      if (hasVideo) {
-        servicesAPI.getUploadProgress(videoId).then(function (data) {
-          if (data.status === 404) {
-            $interval.cancel(interval);
-          }
-          if (data.data.status) {
-            // update video list once video is processed
-            getVideoList();
-            $interval.cancel(interval);
-          }
-        });
-      } else {
+
+      // cancel interval if user deletes the video entry
+      if (!hasVideo) {
         $interval.cancel(interval);
       }
-    }, 5000);
+
+    }, 1000);
   };
 
   /* Function to catch broadcast event from login controller to perform search on video list */

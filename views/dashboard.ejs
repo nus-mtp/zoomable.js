@@ -55,9 +55,12 @@
               <span ng-if="video.hasProcessed === 'true'">
                 <img ng-src="{{ video.thumbnailDir }}" alt="{{ video.title }}" />
               </span>
-              <div ng-if="video.hasProcessed === 'false'" class="spin-container">
+              <div ng-if="video.hasProcessed === 'false' && video.error === undefined" class="spin-container">
                 <md-icon md-svg-icon="images/ic_spin.svg" class="spin"></md-icon>
                 <span class="text-process">Processing</span>
+              </div>
+              <div ng-if="video.hasProcessed === 'false' && video.error.length > 0" class="spin-container">
+                <span class="text-process-error">{{video.error}}</span>
               </div>
             </a>
 
