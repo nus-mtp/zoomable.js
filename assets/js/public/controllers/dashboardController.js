@@ -1,15 +1,11 @@
 angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog, $mdMedia, Upload, $timeout, $interval, $location){
   // VARIABLES
-  $scope.defaultImagePath = 'images/bunny.png';
   $scope.filterStates = ['Public','Private'];
   $scope.sortStates = ['Latest','Most Viewed'];
   $scope.userFilterState = '';
   $scope.userSortState = '';
   $scope.hasMouseover = 'hidden';
   $scope.videoList = [];
-
-  var videoData = {};
-  var uploadUrl = '/upload';
 
   $scope.model = {
     selectedVideoList: []
@@ -111,7 +107,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     });
   };
 
-  /* Sort video list according to filter states */
+  /* Sort video list according to sort states */
   $scope.updateSortState = function (state) {
     $scope.userSortState = state;
     if ($scope.userSortState === 'Latest') {
@@ -154,9 +150,10 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                         '<div id="loading-bar" class="loading-bar"><div class="filename">{{ file.name }}</div><div class="filesize">{{ file.calculatedsize }}</div></div>' +
                     '</div>' +
                 '</div>'+
+                '<div id="toast-area"></div>' +
                 '<md-dialog-actions>' +
                     '<div ngf-drop ngf-select ng-model="files" class="drop-box" ngf-drag-over-class="dragover" ngf-multiple="true" ngf-allow-dir="true"'+
-                    'accept="image/*,video/*" ngf-pattern="image/*,video/*">Drag videos here</br>or click to upload.</div>'+
+                    'accept="video/*" ngf-pattern="video/*">Drag videos here</br>or click to upload.</div>'+
                 '</md-dialog-actions>' +
             '</md-dialog-content>' +
         '</md-dialog>',
@@ -167,8 +164,12 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     });
   };
 
-  function DialogController($scope, $mdDialog, Upload, $timeout, ngProgressFactory) {
-    // variables
+  /* Upload Dialog Controller */
+  function DialogController($scope, $mdDialog, Upload, $timeout, ngProgressFactory, $mdToast) {
+    // Error Messages
+    var ERROR_UNSUPPORTED_FORMAT = 'is an unsupported video format. Please upload video in MP4 or MOV format only.';
+
+    // Variables
     $scope.files;
     $scope.uploadedFiles = [];
     $scope.progressBar = ngProgressFactory.createInstance();
@@ -182,8 +183,23 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
       if (files && files.length) {
         // Append files to the uploaded files array
         for (var i = 0; i < files.length; i++) {
-          files[i].calculatedsize = formatBytes(files[i].size);
-          $scope.uploadedFiles.push(files[i]);
+          var type = files[i].type.split('/');
+
+          if (type[0] !== "video") {
+            // show toast message if file format is unsupported
+    				var toast = $mdToast.simple()
+    					.content(files[i].name + ' ' + ERROR_UNSUPPORTED_FORMAT)
+    					.action('X').highlightAction(true)
+    					.hideDelay(8000)
+    					.position('top center')
+    					.parent(document.getElementById('toast-area'));
+    				$mdToast.show(toast);
+
+          } else {
+            files[i].calculatedsize = formatBytes(files[i].size);
+            $scope.uploadedFiles.push(files[i]);
+          }
+
         }
         if ($scope.uploadedFiles) {
           // Upload files to server
@@ -240,6 +256,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
       $mdDialog.cancel();
     };
   }
+
   /* Check process status for all video entries */
   $scope.getProcessStatusAll = function () {
     if ($scope.videoList){
@@ -259,7 +276,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     var interval = $interval(function() {
       // check if video entry exists in video list
       var hasVideo = false;
-      for(var i=0; i<$scope.videoList.length; i++) {
+      for (var i=0; i<$scope.videoList.length; i++) {
         if (videoId.id === $scope.videoList[i].id) {
           hasVideo = true;
         }
