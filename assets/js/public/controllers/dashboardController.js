@@ -155,6 +155,9 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                     '<div ngf-drop ngf-select ng-model="files" class="drop-box" ngf-drag-over-class="dragover" ngf-multiple="true" ngf-allow-dir="true"'+
                     'accept="video/*" ngf-pattern="video/*">Drag videos here</br>or click to upload.</div>'+
                 '</md-dialog-actions>' +
+                '<md-dialog-actions ng-show="uploadedFiles.length > 0">' +
+                  '<md-button class="md-raised md-primary" ng-click="cancel()">Done</md-button>' +
+                '</md-dialog-actions>' +
             '</md-dialog-content>' +
         '</md-dialog>',
       parent: angular.element(document.body),
@@ -170,6 +173,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     var ERROR_UNSUPPORTED_FORMAT = 'is an unsupported video format. Please upload video in MP4 or MOV format only.';
 
     // Variables
+    $scope.status = false;
     $scope.files;
     $scope.uploadedFiles = [];
     $scope.progressBar = ngProgressFactory.createInstance();
@@ -221,6 +225,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                 // call api to upload video with video id
                 servicesAPI.upload(file)
                   .then(function (resUpload) {
+                    // update video list to update file name in dialog
                     getVideoList();
 
                     // update upload progress bar of video to be completed
@@ -233,6 +238,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                         id: file.id
                     };
 
+                    // update progress status for videos
                     getVideoList();
                   });
                 });
