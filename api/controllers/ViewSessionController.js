@@ -30,38 +30,35 @@ module.exports = {
     }).exec(function (err, video) {
       if (err) throw err;
 
-      if (video === undefined) {
-        // create a new session if sessionId does not exist
-        ViewSession.findOne({
-          sessionId: req.body.sessionId
-        }).exec(function (err, session) {
-          if (err) throw err;
-
-          if (session === undefined) {
-            // if not found, create a new session first
-            ViewSession.create({
-              sessionId: req.body.sessionId,
-              videoId: req.body.videoId
-            }).exec(function (err, session) {
-              if (err) throw err;
-              // create viewData object and update into ViewSession
-              createViewData(session, req, res);
-            });
-          }
-
-          // if found, create viewData object and update into ViewSession
-          else {
-            createViewData(session, req, res);
-          }
-        });
-      }
-      else {
+      if (!video) {
         // no matched video id, return video not found
-        return res.status(404).json({ error: 'VideoNotFound' });
+        return res.status(404).notFound('VideoNotFound');
       }
+
+      // create a new session if sessionId does not exist
+      ViewSession.findOne({
+        sessionId: req.body.sessionId
+      }).exec(function (err, session) {
+        if (err) throw err;
+
+        if (!session) {
+          // no matched session id, create a new view session first
+          ViewSession.create({
+            sessionId: req.body.sessionId,
+            videoId: req.body.videoId
+          }).exec(function (err, session) {
+            if (err) throw err;
+            // create viewData object and update into ViewSession
+            createViewData(session, req, res);
+          });
+        }
+        else {
+          // a match, create viewData object and update into ViewSession
+          createViewData(session, req, res);
+        }
+      });
     });
   }
-
 };
 
 
