@@ -6,8 +6,16 @@ var Slave = function(vid, canv, coords, dims) {
 	this.dims = dims;
 	// this.scaleFactor; << might need this later
 	this.transforms;
-	this.init = function() {
+	this.vf; 				// videoframe object
+	this.init = function(id) {
 		this.transforms = new Transforms(this);
+		this.vf = VideoFrame({
+			    id : 'video_' + id,
+			    frameRate: FrameRates.web,
+				callback: function(response, format) {
+					console.log('callback response: ' + response);
+				}
+			});
 	}
 	var Transforms = function(slave) {
 		slave.video.addEventListener('play', function() {

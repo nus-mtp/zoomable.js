@@ -2,11 +2,11 @@
 var mpdList = [];
 for(var i = 1; i <= 3; i++) {
 	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../upload/vid/5/5_mpd_R' + i + 'C' + j + '.mpd');
+		mpdList.push('/../../../../../../upload/vid/3/3_mpd_R' + i + 'C' + j + '.mpd');
 	}
 }
 // The audio file for the video
-mpdList.push('/../../../../../../upload/vid/5/5.mp3');
+mpdList.push('/../../../../../../upload/vid/3/3.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
@@ -15,25 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	var loadPlayers = new Player(canvas_obj, mpdList);
 	loadPlayers.initShakaPlayers();
 	loadPlayers.init();
-
-
-	var VFvid = VideoFrame({
-	    id : 'video_1',
-	    frameRate: FrameRates.web,
-		callback: function(response, format) {
-			console.log('callback response: ' + response);
-			switch (response) {
-				case "00:00:00:05": // Do something amazing.
-					console.log("Hello");
-					console.log(this.get());
-					break;
-				default:
-					console.log(this.get());
-			}
-		}
-	});
-	console.log("hey");
-	console.log(VFvid.get());
 }, false);
 
 var Player = function(canvas, mpd_list) {
@@ -76,6 +57,7 @@ var Player = function(canvas, mpd_list) {
 	this.zoom;
 	this.transforms;
 	this.util;
+	this.sync;
 
 	// Initialization of all the Shaka players and the video elements
 	this.initShakaPlayers = function() {
@@ -94,11 +76,10 @@ var Player = function(canvas, mpd_list) {
 		this.controls = new Controls(this);
 		this.transforms = new Transforms(this);
 		this.seek = new Seek(this);
-		this.transforms = new Transforms(this);
 		this.util = new Util(this);
 		//this.transforms.draw();
 		this.last = { x: canvas.width/2, y: canvas.height/2 };
-
+		this.sync = new Sync(this);
 		this.mouseactions = new MouseActions(this);
 	};
 
@@ -669,9 +650,14 @@ var Player = function(canvas, mpd_list) {
 
 	var Sync = function(player) {
 		this.frames = function() {
+			var slowest;
 			for (var i = 0; i < player.slaves.length; i++) {
-
+				var vframe = player.slaves[i].vf.get();
+				if (slowest == undefined) slowest = vframe;
+				if (vframe < slowest) slowest = vframe;
 			}
+			console.log(slowest);
+			player.util.forAllSlaves(function(slave) { slave.vf.seekTo({frame: slowest}); });
 		}
 	}
 
@@ -728,7 +714,7 @@ var Player = function(canvas, mpd_list) {
 
 				var slaveObj = new Slave(vid, canvas, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
 				player.slaves.push(slaveObj);
-				slaveObj.init();
+				slaveObj.init(vidCount);
 
 				// Construct the Shaka player to wrap around it
 				var shakaPlayer = new shaka.player.Player(vid);
