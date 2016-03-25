@@ -23,8 +23,8 @@ module.exports = {
 		},
 
 		// Add a reference to ViewSession
-    sessionObj: {
-      model: 'ViewSession'
-    }
+		sessionObj: {
+			model: 'ViewSession'
+		}
 	}
 }
