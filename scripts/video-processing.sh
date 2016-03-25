@@ -33,7 +33,7 @@ parentdir=$(dirname $vidloc)
 # Strip out the leading directory prefixes infront of the filename
 vidname_and_ext=$(basename "$vidloc")
 # Retrieve the file extension type
-srcext="${vidname_and_ext##*.}"
+srcext=".""${vidname_and_ext##*.}"
 # Pure filename without the extension type
 vidname=$(basename "$vidname_and_ext" ${srcext})
 
