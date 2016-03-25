@@ -143,6 +143,7 @@ module.exports = {
       Video.update({
         id: req.param('id')
       },  {
+        embedURL: sails.getBaseUrl() + '/embed/' + req.param('id'),
         videoDir: fdWithExtension,
         mpdDir: mpdArray,
         thumbnailDir: fd + ".png"

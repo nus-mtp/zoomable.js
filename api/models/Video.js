@@ -71,5 +71,9 @@ module.exports = {
 	    	type: 'datetime',
 	    	defaultsTo: function() {return new Date(); }
 	    }
+		embedURL: {
+			type: 'string'
+		},
+
 	}
 }
