@@ -2,11 +2,11 @@
 var mpdList = [];
 for(var i = 1; i <= 3; i++) {
 	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../upload/vid/7/7_mpd_R' + i + 'C' + j + '.mpd');
+		mpdList.push('/../../../../../../upload/vid/9/9_mpd_R' + i + 'C' + j + '.mpd');
 	}
 }
 // The audio file for the video
-mpdList.push('/../../../../../../upload/vid/7/7.mp3');
+mpdList.push('/../../../../../../upload/vid/9/9.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
@@ -208,7 +208,7 @@ var Player = function(canvas, mpd_list) {
 		/* Play or pause the video */
 		this.playPauseVideo = function() {
 			// If the player is paused, i.e. player.paused == true, play all the videos
-			if (player.paused) {
+			if (player.paused && !player.ended) {
 				player.util.forAllSlaves(player.controls.playVideo);
 				// Set the slavePauseArr to all false
 				player.util.setPauseArr(false);
@@ -225,11 +225,13 @@ var Player = function(canvas, mpd_list) {
 				player.util.forAllSlaves(player.controls.restartVideo);
 				// Set the slavePauseArr to all false
 				player.util.setPauseArr(false);
-				// Set the player's ended boolean value to false
-				player.ended = false;
 				// Set the player's pause state to false
 				player.paused = false;
 				syncPauseState(player);
+				// Reset the player.slaveEndArr to empty again
+				player.slaveEndArr = [];
+				// Set the player's ended boolean value to false
+				player.ended = false;
 				// Change the UI controls to reflect the new play state
 				player.controls.changeToPlayState();
 				// Play the audio file
@@ -259,6 +261,7 @@ var Player = function(canvas, mpd_list) {
 
 		this.restartVideo = function(slaveObj) {
 			slaveObj.video.currentTime = 0;
+			slaveObj.video.play();
 		}
 
 		/* Updates icon to "play" button during pause state, show UI controls bar */
@@ -741,15 +744,6 @@ var Player = function(canvas, mpd_list) {
 			}
 		}
 		player.time = earliestTime;
-
-		// A check to see if the video has approximately ended (workaround)
-		if (player.duration - player.time < 0.000001) {
-			// Set the player.ended to true
-			player.ended = true;
-			// Change button to replay
-			player.controls.changeToReplayState();
-		}
-
 	};
 
 	var syncPauseState = function(player) {
@@ -798,9 +792,12 @@ var Player = function(canvas, mpd_list) {
 		}
 
 		// If the overall end state is true for all videos, reset the UI play
-		// button to be the 'play' button
+		// button to be the 'replay' button
 		if (newEndState == true) {
+			// Set the overall player end state to be true
+			player.ended = true;
 			// Reset the players
+			player.controls.changeToReplayState();
 		}
 	}
 
