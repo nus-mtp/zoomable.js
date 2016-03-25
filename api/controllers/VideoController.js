@@ -13,34 +13,42 @@ module.exports = {
    * Usage: POST /api/video
    */
   create: function (req, res) {
-    Video.create(req.body).exec(function (err, video) {
-      if (err) throw err;
-      res.json(video);
+    Video.create({
+      title: req.param('title'),
+      ownedBy: req.session.me
+    }).exec(function (err, video) {
+      if (err) return res.negotiate(err);
+      return res.json(video);
     });
   },
 
   /**
-   * `VideoController.read()`
+   * `VideoController.findOne()`
    * Usage: GET /api/video/:id
    */
-  read: function (req, res) {
+  findOne: function (req, res) {
     Video.findOne({
-      id: req.param('id')
+      id: req.param('id'),
+      ownedBy: req.session.me
     }).exec(function (err, video) {
-      if (err) throw err;
-      res.json(video);
-    });
+      if (err) return res.negotiate(err); 
+      if (video == undefined) return res.notFound();
+      return res.json(video);
+    })
   },
 
   /**
-   * `VideoController.readAll()`
+   * `VideoController.find()`
    * Usage: GET /api/video
    */
-  readAll: function (req, res) {
-    Video.find().exec(function (err, videos) {
-      if (err) throw err;
-      res.json(videos);
-    });
+  find: function (req, res) {
+    Video.find({
+      ownedBy: req.session.me
+    }).exec(function (err, video) {
+      if (err) return res.negotiate(err);
+      if (video.length == 0) return res.notFound();
+      return res.json(video);
+    })
   },
 
   /**
@@ -49,10 +57,12 @@ module.exports = {
    */
   destroy: function (req, res) {
     Video.destroy({
-      id: req.param('id')
+      id: req.param('id'),
+      ownedBy: req.session.me
     }).exec(function (err, video) {
-      if (err) throw err;
-      res.json(video);
+      if (err) return res.negotiate(err);
+      if (video.length == 0) return res.notFound();
+      return res.json(video);
     });
   },
 
@@ -62,9 +72,13 @@ module.exports = {
    * Content: {id: [:id]}
    */
    destroyAll: function(req, res) {
-    Video.destroy(req.body.id).exec(function (err, deletedVideos) {
-      if (err) throw err;
-      res.json(deletedVideos);
+    Video.destroy({
+      id: req.param('id'), 
+      ownedBy: req.session.me
+    }).exec(function (err, deletedVideos) {
+      if (err) return res.negotiate(err);
+      if (deletedVideos.length == 0) return res.notFound();
+      return res.json(deletedVideos);
     });
    },
 
@@ -74,10 +88,11 @@ module.exports = {
    */
   update: function (req, res) {
     Video.update({
-      id: req.param('id')
+      id: req.param('id'),
+      ownedBy: req.session.me
     }, req.body).exec(function (err, updated) {
-      if (err) throw err;
-      res.json(updated);
+      if (err) return res.negotiate(err);
+      return res.json(updated);
     });
   },
 
@@ -101,8 +116,8 @@ module.exports = {
     Video.findOne({
       id: req.param('id')
     }).exec(function (err, video) {
-      if (err) throw err;
-      res.json(video.videoDir);
+      if (err) return res.negotiate(err);
+      return res.json(video.videoDir);
     });
   },
 
@@ -183,7 +198,7 @@ module.exports = {
     }
 
     // return 404 not found if the id doesnt exists
-    res.notFound();
+    return res.notFound();
   }
 
 };
