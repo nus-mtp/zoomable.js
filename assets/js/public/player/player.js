@@ -1,12 +1,16 @@
 // The list of MPDs are hardcoded here for now, will eventually run a script to detect the relevant MPDs to retrieve
 var mpdList = [];
+
+// Retrieve the embed link to get the URL of the MPD location
+var url = document.URL;
+var vidId = url.substring(url.lastIndexOf('/'));
 for(var i = 1; i <= 3; i++) {
 	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../upload/vid/9/9_mpd_R' + i + 'C' + j + '.mpd');
+		mpdList.push('/../../../../../../upload/vid/' + vidId + '/' + vidId + '_mpd_R' + i + 'C' + j + '.mpd');
 	}
 }
 // The audio file for the video
-mpdList.push('/../../../../../../upload/vid/9/9.mp3');
+mpdList.push('/../../../../../../upload/vid/' + vidId + '/' + vidId + '.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
