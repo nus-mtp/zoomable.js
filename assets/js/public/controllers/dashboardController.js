@@ -1,4 +1,5 @@
-angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog, $mdMedia, Upload, $timeout, $interval, $location){
+angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog,
+   $mdMedia, Upload, $timeout, $interval, $location, $q){
   // VARIABLES
   $scope.filterStates = ['Public','Private'];
   $scope.sortStates = ['Latest','Most Viewed'];
@@ -19,7 +20,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     servicesAPI.get()
       .success(function(data) {
         $scope.videoList = data;
-        $scope.getProcessStatusAll();
+        getProcessStatusAll();
       })
       .error(function(data) {
         $scope.error = 'Error: ' + data;
@@ -56,16 +57,16 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
 
   /* Dialog Handler for delete action by checkbox */
   $scope.showConfirmDeleteByCheckbox = function(ev) {
-    // Check if at least 1 video is checked
+    // check if at least 1 video is checked
     if($scope.model.selectedVideoList.length > 0) {
       var MESSAGE_VIDEO = 'videos';
 
-      // Check plural for confirm dialog text
+      // check plural for confirm dialog text
       if($scope.model.selectedVideoList.length === 1) {
         MESSAGE_VIDEO =  MESSAGE_VIDEO.substring(0, MESSAGE_VIDEO.length - 1);
       }
 
-      // Appending dialog to document.body to cover sidenav in docs app
+      // appending dialog to document.body to cover sidenav in docs app
       var confirm = $mdDialog.confirm()
         .title('Delete Video?')
         .textContent('Are you sure you want to delete ' + $scope.model.selectedVideoList.length + ' ' + MESSAGE_VIDEO + '?')
@@ -91,7 +92,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
 
   /* Dialog Handler for delete action by button */
   $scope.showConfirmDeleteByButton = function(ev,video) {
-    // Appending dialog to document.body to cover sidenav in docs app
+    // append dialog to document.body to cover sidenav in docs app
     var confirm = $mdDialog.confirm()
       .title('Delete Video?')
       .textContent('Are you sure you want to delete ' + video.title + ' video?')
@@ -150,7 +151,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
                         '<div id="loading-bar" class="loading-bar"><div class="filename">{{ file.name }}</div><div class="filesize">{{ file.calculatedsize }}</div></div>' +
                     '</div>' +
                 '</div>'+
-                '<div id="toast-area"></div>' +
+                '<div id="toast-error"></div>' +
                 '<md-dialog-actions>' +
                     '<div ngf-drop ngf-select ng-model="files" class="drop-box" ngf-drag-over-class="dragover" ngf-multiple="true" ngf-allow-dir="true"'+
                     'accept="video/*" ngf-pattern="video/*">Drag videos here</br>or click to upload.</div>'+
@@ -162,18 +163,16 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         '</md-dialog>',
       parent: angular.element(document.body),
       targetEvent: ev,
-      clickOutsideToClose: true,
       fullscreen: useFullScreen
     });
   };
 
   /* Upload Dialog Controller */
   function DialogController($scope, $mdDialog, Upload, $timeout, ngProgressFactory, $mdToast) {
-    // Error Messages
+    // error Messages
     var ERROR_UNSUPPORTED_FORMAT = 'is an unsupported video format. Please upload video in MP4 or MOV format only.';
 
-    // Variables
-    $scope.status = false;
+    // variables
     $scope.files;
     $scope.uploadedFiles = [];
     $scope.progressBar = ngProgressFactory.createInstance();
@@ -182,21 +181,21 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         $scope.upload($scope.files);
     });
 
-    // Upload videos to API
+    // upload videos to API
     $scope.upload = function (files) {
       if (files && files.length) {
-        // Append files to the uploaded files array
+        // append files to the uploaded files array
         for (var i = 0; i < files.length; i++) {
-          var type = files[i].type.split('/');
 
-          if (type[0] !== "video") {
+          // check for unsupported video format
+          if ( !((files[i].type !== "video/mp4") || (files[i].type !== "video/quicktime"))) {
             // show toast message if file format is unsupported
     				var toast = $mdToast.simple()
     					.content(files[i].name + ' ' + ERROR_UNSUPPORTED_FORMAT)
     					.action('X').highlightAction(true)
     					.hideDelay(8000)
     					.position('top center')
-    					.parent(document.getElementById('toast-area'));
+    					.parent(document.getElementById('toast-error'));
     				$mdToast.show(toast);
 
           } else {
@@ -205,55 +204,55 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
           }
 
         }
-        if ($scope.uploadedFiles) {
+        if ($scope.uploadedFiles.length > 0) {
           // Upload files to server
           for (var i = 0; i < files.length; i++) {
             var file = files[i];
 
             if (!file.$error) {
-              var videoName = { title: file.name };
-              // call api to create a video entry
-              servicesAPI.createVideo(videoName).then(function (res) {
-                // append new video entry to existing video list
-                file.id = res.data.id;
-                // set progress bar for uploading video
-                $scope.progressBar.setParent(document.getElementById('loading-bar'));
-                $scope.progressBar.setColor('#66b38a');
-                $scope.progressBar.setHeight('20px');
-                $scope.progressBar.start();
-
-                // call api to upload video with video id
-                servicesAPI.upload(file)
-                  .then(function (resUpload) {
-                    // update video list to update file name in dialog
-                    getVideoList();
-
-                    // update upload progress bar of video to be completed
-                    $scope.progressBar.complete();
-                    var bar = angular.element( document.getElementById('loading-bar') );
-                    bar.removeAttr('id');
-                    bar.addClass('completed-bar');
-
-                    var videoID = {
-                        id: file.id
-                    };
-
-                    // update progress status for videos
-                    getVideoList();
-                  });
-                });
+              createAndUploadVideo(file).then(function(){
+                //
+              });
             }
           }
         }
-
       }
+    };
+
+    /* Return promise after creating a video entry and uploading video */
+    function createAndUploadVideo(file) {
+      var deferred = $q.defer();
+
+      var videoName = { title: file.name };
+      // call api to create a video entry
+      servicesAPI.createVideo(videoName).then(function (res) {
+        // append new video entry to existing video list
+        file.id = res.data.id;
+        // set progress bar for uploading video
+        $scope.progressBar.setParent(document.getElementById('loading-bar'));
+        $scope.progressBar.setColor('#66b38a');
+        $scope.progressBar.setHeight('20px');
+        $scope.progressBar.start();
+
+        servicesAPI.upload(file)
+          .then(function (resUpload) {
+
+            // update upload progress bar of video to be completed
+            $scope.progressBar.complete();
+            var bar = angular.element( document.getElementById('loading-bar') );
+            bar.removeAttr('id');
+            bar.addClass('completed-bar');
+            deferred.resolve(null);
+          });
+      });
+      return deferred.promise;
     };
 
     function formatBytes(bytes) {
       if (bytes < 1024) return bytes + " Bytes";
-      else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + " KB";
-      else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + " MB";
-      else return(bytes / 1073741824).toFixed(3) + " GB";
+      else if(bytes < 1048576) return(bytes / 1024).toFixed(1) + " KB";
+      else if(bytes < 1073741824) return(bytes / 1048576).toFixed(1) + " MB";
+      else return(bytes / 1073741824).toFixed(1) + " GB";
     }
 
     $scope.cancel = function() {
@@ -264,21 +263,21 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   }
 
   /* Check process status for all video entries */
-  $scope.getProcessStatusAll = function () {
+  function getProcessStatusAll() {
     if ($scope.videoList){
       for (var i = 0; i < $scope.videoList.length; i++) {
         if ($scope.videoList[i].hasProcessed === "false") {
           var videoId = {
             id : $scope.videoList[i].id
           }
-          $scope.getProcessStatus(videoId, i);
+          getProcessStatus(videoId, i);
         }
       }
     }
   };
 
   /* Get process status of a video from API every 5 seconds */
-  $scope.getProcessStatus = function (videoId, i) {
+  function getProcessStatus (videoId, i) {
     var interval = $interval(function() {
       var hasVideo = false;
       var scope = $scope;
