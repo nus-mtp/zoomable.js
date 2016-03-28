@@ -190,13 +190,13 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
           // check for unsupported video format
           if ( !((files[i].type !== "video/mp4") || (files[i].type !== "video/quicktime"))) {
             // show toast message if file format is unsupported
-    				var toast = $mdToast.simple()
-    					.content(files[i].name + ' ' + ERROR_UNSUPPORTED_FORMAT)
-    					.action('X').highlightAction(true)
-    					.hideDelay(8000)
-    					.position('top center')
-    					.parent(document.getElementById('toast-error'));
-    				$mdToast.show(toast);
+            var toast = $mdToast.simple()
+              .content(files[i].name + ' ' + ERROR_UNSUPPORTED_FORMAT)
+              .action('X').highlightAction(true)
+              .hideDelay(8000)
+              .position('top center')
+              .parent(document.getElementById('toast-error'));
+            $mdToast.show(toast);
 
           } else {
             files[i].calculatedsize = formatBytes(files[i].size);
