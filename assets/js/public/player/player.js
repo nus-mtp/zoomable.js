@@ -87,7 +87,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		this.sync = new Sync(this);
 		this.mouseactions = new MouseActions(this);
 
-		this.minimap = new Minimap(minimap_canvas, mini_video);
+		this.minimap = new Minimap(minimap_canvas, mini_video, this);
 	};
 
 	var MouseActions = function(player) {
