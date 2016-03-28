@@ -49,10 +49,6 @@ module.exports = {
 	    	defaultsTo: 0
 	    },
 
-	    videoDir: {
-	    	type: 'string'
-	    },
-
 	    mpdDir: {
 	    	type: 'array'
 	    },

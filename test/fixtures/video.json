@@ -1,21 +1,18 @@
 [
 	{
-		"title": "Finding Nemo", 
-		"videoDir": "/video/2", 
-		"thumbnailDir": "/video/2/a.jpg",
+		"title": "Finding Nemo",
+		"thumbnailDir": "/video/1/a.jpg",
 		"ownedBy" : "1"
 	},
 
 	{
 		"title": "Zootopia",
-		"videoDir": "/video/3",
-		"thumbnailDir": "/video/3/a.jpg",
+		"thumbnailDir": "/video/2/a.jpg",
 		"ownedBy" : "1"
 	},
 
 	{
 		"title": "The Big Short",
-		"videoDir": "/video/3",
 		"thumbnailDir": "/video/3/a.jpg",
 		"ownedBy" : "1"
 	}
