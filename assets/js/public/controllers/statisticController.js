@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, moment, servicesAPI){
+angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter, moment, servicesAPI){
   // VARIABLES
   $scope.location = location.pathname.split('/');           // location array contains path name in array[1]
   $scope.criteria = 'DAY';                                  // default set to day for date criteria
@@ -6,7 +6,11 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   $scope.maxDate = new Date();                              // default end date is today's date
   $scope.noStatisticsYet = false;                           // scope to track if statistics should be shown
   $scope.viewSessions = [];                                 // scope to store viewSessions to empty array
+  $scope.viewsCount = [];                                   // scope to store processed viewSessions into date and count
   $scope.userVideoLength = 0;                               // scope to store user uploaded video length
+
+  // CHART VARIABLES
+  $scope.series = ['Views'];                                // default series to show for graph
 
   /* Get all user view data required for stats */
   var init = function() {
@@ -25,6 +29,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
             $scope.viewSessions = data.viewSessions;
             $scope.userVideoLength = data.videoLength;
             setStartAndMinDate($scope.accountCreatedDate);
+            processViewSessions();
           }
         });
       });
@@ -40,6 +45,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
           $scope.viewSessions = data.viewSessions;
           $scope.videoCreatedDate = data.createdDate;
           setStartAndMinDate($scope.videoCreatedDate);
+          processViewSessions();
         }
       });
     }
@@ -59,6 +65,33 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     }
     // default min date is creation date
     $scope.minDate = moment(createdDate).toDate();
+  };
+
+  /* Function to order view sessions and count by date */
+  function processViewSessions() {
+    // order view sessions in ascending order
+    var orderByDate = $filter('orderBy')($scope.viewSessions, 'createdAt', false);
+    var vc_index = 0;  // track viewsCount array index
+    var sessionObj = {
+      date: orderByDate[0].createdAt,
+      count: 1
+    }
+    $scope.viewsCount.push(sessionObj); // add sessionObj for first session
+    for (var i=1; i<orderByDate.length; i++) {
+      if (moment(orderByDate[i].createdAt).isSame(moment(orderByDate[i-1].createdAt), 'day')) {
+        // if same date, add to count of the current viewsCount[vc_index]
+        $scope.viewsCount[vc_index].count++;
+      }
+      else {
+        // push new sessionObj into viewsCount array and increment vc_index
+        sessionObj = {
+          date: orderByDate[i].createdAt,
+          count: 1
+        }
+        $scope.viewsCount.push(sessionObj);
+        vc_index++;
+      }
+    }
   };
 
   // Chart Variables
