@@ -5,8 +5,7 @@
 video, canvas,
 #canvasPlayerArea {
 	width: 100%;
-	height: auto;
-	max-height: 100%;
+	height: 100%;
 	position: relative;
 
 	&:hover {
@@ -18,6 +17,7 @@ video, canvas,
 
 #canvasPlayerArea {
 	background-color: @color-black;
+	overflow: hidden;
 }
 
 #uiControls {
@@ -29,10 +29,28 @@ video, canvas,
 	}
 }
 
+#miniMapControls {
+	background-color: rgba(0, 0, 0, 0.5);
+	height: 20%;
+	width: 20%;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+}
+
+#miniMapIndicator {
+	position: absolute;
+	border: 1px solid @color-white;
+	height: 50%;
+	width: 50%;
+	top: 20px;
+	left: 30px;
+}
+
 #zoomBarControls {
 	position: absolute;
-	top: 60%;
-	right: -90px;
+	top: calc(~'55% + (135px / 2)');
+	left: 95%;
 	transform-origin: 0% 0%;
 	z-index: 10;
 	background-color: rgba(0, 0, 0, 0.5);
@@ -262,18 +280,4 @@ video, canvas,
 }
 #fullscreenBtn.exit {
 	background: url(../images/ic_fullscreen_exit.svg) no-repeat;
-}
-
-/* Fix styles when embed in edit page */
-#edit {
-	video, canvas,
-	#canvasPlayerArea {
-		width: 100%;
-		height: 100%;
-	}
-
-	#zoomBarControls {
-		top: 68%;
-		right: -100px;
-	}
 }
