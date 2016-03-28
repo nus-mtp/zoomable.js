@@ -40,6 +40,7 @@ module.exports = {
         success: function () {
           // Store user id in the user session
           req.session.me = user.id;
+          req.session.username = user.username;
 
           // All working, let the client know everything worked
           return res.ok();
@@ -81,7 +82,7 @@ module.exports = {
                 return res.emailAddressInUse();
             }
 
-            return res.negotitate(err);
+            return res.negotiate(err);
           }
 
           // Log user in

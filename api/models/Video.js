@@ -5,6 +5,7 @@ module.exports = {
 	autoPK: false,
 	attributes: {
 		id :{
+			type: 'integer',
 			autoIncrement: true,
 			primaryKey: true,
 			columnName: 'video_id'
@@ -15,61 +16,71 @@ module.exports = {
 			required: true
 		},
 
-	    description: {
-	    	type: 'string'
-	    },
+		description: {
+			type: 'string'
+		},
 
-	    tags: {
-	    	collection: 'tag',
-	    	via: 'videoWithTags'
-	    },
+		tags: {
+			collection: 'tag',
+			via: 'videoWithTags'
+		},
 
-	    views: {
-	    	type: 'integer',
-	    	defaultsTo: 0
-	    },
+		ownedBy: {
+			model: 'user',
+		},
 
-	    // 0 for self only, 1 for public
-	    privacy: {
-	    	type: 'integer', 
-	    	defaultsTo: 1
-	    },
+		views: {
+			type: 'integer',
+			defaultsTo: 0
+		},
 
-	    duration: {
-	    	type: 'string'
-	    },
+		// 0 for self only, 1 for public
+		privacy: {
+			type: 'integer',
+			defaultsTo: 1
+		},
 
-	    shares: {
-	    	type: 'integer',
-	    	defaultsTo: 0
-	    },
+		duration: {
+			type: 'string'
+		},
 
-	    videoDir: {
-	    	type: 'string'
-	    },
+		shares: {
+			type: 'integer',
+			defaultsTo: 0
+		},
 
-	    mpdDir: {
-	    	type: 'array'
-	    },
+		videoDir: {
+			type: 'string'
+		},
 
-	    thumbnailDir: {
-	    	type: 'string'
-	    },
+		mpdDir: {
+			type: 'array'
+		},
 
-	    hasProcessed: {
-	    	type: 'string',
-	    	enum: ['false', 'true'],
-	    	defaultsTo: 'false'
-	    },
-	    
-	    createdAt: {
-	    	type: 'datetime',
-	    	defaultsTo: function() {return new Date(); }
-	    },
+		thumbnailDir: {
+			type: 'string'
+		},
 
-	    updatedAt: {
-	    	type: 'datetime',
-	    	defaultsTo: function() {return new Date(); }
-	    }
+		hasProcessed: {
+			type: 'string',
+			enum: ['false', 'true'],
+			defaultsTo: 'false'
+		},
+
+		createdAt: {
+			type: 'datetime',
+			defaultsTo: function() {return new Date(); }
+		},
+
+		updatedAt: {
+			type: 'datetime',
+			defaultsTo: function() {return new Date(); }
+		},
+
+		// Add a reference to ViewSession
+		viewedSessions: {
+			collection: 'ViewSession',
+			via: 'videoId'
+		}
 	}
 }

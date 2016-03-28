@@ -10,7 +10,7 @@ module.exports = {
 		username: {
 			type: 'string',
 			required: true,
-			unique: true
+			unique: true,
 		},	
 
 		encryptedPassword: {
@@ -32,10 +32,16 @@ module.exports = {
 			unique: true
 		},
 
-		// 0 for admin, 1 for normal user
 		permission: {
-			type: 'integer',
-			defaultsTo: 1
+			type: 'string',
+			enum: ['admin', 'normal'],
+			defaultsTo: 'normal'
+		},
+
+		// each user owns multiple videos
+		videos: {
+			collection: 'video',
+			via: 'ownedBy'
 		}
 	},
 }
