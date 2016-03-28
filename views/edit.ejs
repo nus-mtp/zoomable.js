@@ -20,44 +20,34 @@
           </md-tab-label>
           <md-tab-body>
             <md-content class="md-padding">
-              <div layout="row"> <!-- start top row -->
-                <div flex="60">
-                  <!-- TODO: Update video SRC after upload video to server is successful -->
-                  <div class="wrapper">
-                  	<div class="sixteen-by-nine aspect-ratio"></div>
-                  	<div class="content">
-                  		<%- partial('fullplayer.ejs') %>
-                  	</div>
+              <div layout="row" class="video-and-info"> <!-- start top row -->
+                <iframe width="640" height="360" src="{{ video.embedURL }}" allowfullscreen></iframe>
+                <div layout="column" class="video-info-column">
+                  <div layout="row" layout-align="end start">
+                    <md-button class="md-raised cancel-btn" ng-click="showConfirm($event)">Cancel</md-button>
+                    <md-button class="md-raised md-primary save-btn" ng-click="saveChanges()" ng-disabled="videoForm.$pristine || !videoForm.$valid">Save</md-button>
                   </div>
-                </div>
-                <div flex="40">
-                  <div layout="column">
-                    <div flex>
-                      <div layout="row" layout-align="end start">
-                        <md-button class="md-raised cancel-btn" ng-click="showConfirm($event)">Cancel</md-button>
-                        <md-button class="md-raised md-primary save-btn" ng-click="saveChanges()" ng-disabled="videoForm.$pristine || !videoForm.$valid">Save</md-button>
-                      </div>
-                    </div>
-                    <div id="toast-area"></div>
-                    <div flex layout-margin class="video-info">
-                      <p class="title">Video Information</p>
-                      <p>
-                        <span class="field">Time Uploaded:</span>
-                        <span class="value">{{ video.createdAt | date:'MMMM d, y h:mma' }}</span>
-                      </p>
-                      <p>
-                        <span class="field">Video Duration:</span>
-                        <span class="value">{{ video.duration }}</span>
-                      </p>
-                      <p class="embed-link-area">
-                        <span class="field">Embed Link:</span>
+                  <div id="toast-area"></div>
+                  <div flex layout-margin class="video-info">
+                    <p class="title">Video Information</p>
+                    <p>
+                      <span class="field">Time Uploaded:</span>
+                      <span class="value">{{ video.createdAt | date:'MMMM d, y h:mma' }}</span>
+                    </p>
+                    <p>
+                      <span class="field">Video Duration:</span>
+                      <span class="value">{{ video.duration ? video.duration : 'Unavailable' }}</span>
+                    </p>
+                    <p class="embed-link-area">
+                      <span class="field">Embed Link:</span>
+                      <span class="value">
                         <input id="embedURL" value="{{ video.embedURL }}" readonly="readonly"/>
                         <md-button class="md-icon-button" aria-label="Copy" md-ink-ripple="false" md-no-ink ngclipboard data-clipboard-target="#embedURL" ng-click="copyEmbedLink(video.videoDir)">
                           <md-icon class="copy-btn" md-svg-icon="images/ic_insert_link_black_24px.svg"></md-icon>
                           <md-tooltip md-direction="bottom">Copy</md-tooltip>
                         </md-button>
-                      </p>
-                    </div>
+                      </span>
+                    </p>
                   </div>
                 </div>
               </div>  <!-- end top row -->

@@ -159,6 +159,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		this.zoomOutBtn = document.getElementById('zoomOutBtn');
 		this.zoomCtrl = document.getElementById('zoomCtrl');
 		this.zoomInBtn = document.getElementById('zoomInBtn');
+		this.fullscreenBtn = document.getElementById('fullscreenBtn');
 
 		this.playPauseBtn.addEventListener('click',function(){
 			player.controls.playPauseVideo();
@@ -214,6 +215,12 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		// event occurs
 		this.zoomCtrl.addEventListener('mousemove',function(){
 			player.controls.updateSliderUI(player.controls.zoomCtrl);
+		},false);
+
+		// This is to check and update the FULLSCREEN button on the UI controls
+		// and toggle full screen when clicked
+		this.fullscreenBtn.addEventListener('click',function(){
+			player.controls.toggleFullscreen();
 		},false);
 
 		/* Play or pause the video */
@@ -319,6 +326,48 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			gradient.push('rgba(255, 255, 255, 0.3) 100%');
 			element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
 		};
+
+		/* Toggle fullscreen video */
+		this.toggleFullscreen = function() {
+			if (this.fullscreenBtn.className === '') {
+				// player is currently not in full screen mode
+				// set player to full screen
+				var playerArea = document.getElementById('canvasPlayerArea');
+				if (playerArea.webkitRequestFullScreen)
+					playerArea.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);   // chrome and safari
+				else if (playerArea.mozRequestFullScreen)
+					playerArea.mozRequestFullScreen();  	// firefox
+				else if (playerArea.msRequestFullScreen)
+					playerArea.msRequestFullScreen();  		// IE
+				else
+					playerArea.requestFullscreen();     	// standard
+				// update button class
+				this.fullscreenBtn.className = 'exit';
+			}
+			else if (this.fullscreenBtn.className == 'exit') {
+				// player is currently in full screen mode
+				// exit from fullscreen
+				if (document.webkitExitFullscreen)
+					document.webkitExitFullscreen();
+				else if (document.mozCancelFullscreen)
+					document.mozCancelFullscreen();
+				else if (document.msExitFullscreen)
+					document.msExitFullscreen();
+				else
+					document.exitFullscreen();
+				// update button class
+				this.fullscreenBtn.className = '';
+			}
+		};
+
+		/* Function to check whether browser is in full screen, called when full screen is toggled */
+		$(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function() {
+			if (!window.screenTop && !window.screenY) {
+				// force update of button class if exiting from full screen
+				// when using esc key and browser button
+				$('#fullscreenBtn').removeClass('exit');
+			}
+		});
 	}
 
 	var Volume = function(player){
