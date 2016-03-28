@@ -13,12 +13,12 @@ var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
 	canvas_obj = document.getElementById('canvas');
 	minimap = document.getElementById('minimap');
-	var player = new Player(canvas_obj, mpdList);
+	var player = new Player(canvas_obj, minimap, mpdList);
 	player.initShakaPlayers();
 	player.init();
 }, false);
 
-var Player = function(main_canvas, mpd_list) {
+var Player = function(canvas, minimap_canvas, mpd_list) {
 
 	var VID_WIDTH = canvas.width / 4;
 	var VID_HEIGHT = canvas.height / 3;
@@ -62,6 +62,8 @@ var Player = function(main_canvas, mpd_list) {
 	this.util;
 	this.sync;
 
+	this.minimap;
+
 	// Initialization of all the Shaka players and the video elements
 	this.initShakaPlayers = function() {
 		init_players(this, canvas, mpd_list);
@@ -84,6 +86,8 @@ var Player = function(main_canvas, mpd_list) {
 		this.last = { x: canvas.width/2, y: canvas.height/2 };
 		this.sync = new Sync(this);
 		this.mouseactions = new MouseActions(this);
+
+		this.minimap = new Minimap(minimap_canvas, mini_video);
 	};
 
 	var MouseActions = function(player) {
