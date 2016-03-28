@@ -12,12 +12,13 @@ mpdList.push('/../../../../../../upload/vid/3/3.mp3');
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
 	canvas_obj = document.getElementById('canvas');
-	var loadPlayers = new Player(canvas_obj, mpdList);
-	loadPlayers.initShakaPlayers();
-	loadPlayers.init();
+	minimap = document.getElementById('minimap');
+	var player = new Player(canvas_obj, mpdList);
+	player.initShakaPlayers();
+	player.init();
 }, false);
 
-var Player = function(canvas, mpd_list) {
+var Player = function(main_canvas, mpd_list) {
 
 	var VID_WIDTH = canvas.width / 4;
 	var VID_HEIGHT = canvas.height / 3;
