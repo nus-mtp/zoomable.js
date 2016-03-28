@@ -1,30 +1,72 @@
 angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, moment, servicesAPI){
   // VARIABLES
-  $scope.location = location.pathname.split('/');  // location array contains path name in array[1]
-  $scope.criteria = 'DAY';  // default set to day for date criteria
-  $scope.startDate = moment().subtract(1, 'months').toDate();  // default start date is previous month
-  $scope.minDate = moment().subtract(1, 'months').toDate();  // default min date is previous month
-  $scope.endDate = moment().subtract(1, 'days').toDate();  // default end date is current date - 1
-  $scope.maxDate = moment().subtract(1, 'days').toDate();  // default max date is current date - 1
-  $scope.userInfo = {};   // store user info object
+  $scope.location = location.pathname.split('/');           // location array contains path name in array[1]
+  $scope.criteria = 'DAY';                                  // default set to day for date criteria
+  $scope.endDate = new Date();                              // default end date is today's date
+  $scope.maxDate = new Date();                              // default end date is today's date
+  $scope.noStatisticsYet = false;                           // scope to track if statistics should be shown
+  $scope.viewSessions = [];                                 // scope to store viewSessions to empty array
+  $scope.userVideoLength = 0;                               // scope to store user uploaded video length
 
-  /* Function to get user info object */
-  servicesAPI.getUserInfo().then(function (res) {
-    $scope.userInfo = res.data;
-  });
+  /* Get all user view data required for stats */
+  var init = function() {
+    if ($scope.location[1] === 'statistics') {
+      // get user account created date
+      servicesAPI.getUserAccountDate().success(function (data) {
+        $scope.accountCreatedDate = data.createdDate;
+
+        // call stats api to get all of user's videos with stats
+        servicesAPI.getVideoStats().success(function(data) {
+          if (data.length === 0) {
+            $scope.noStatisticsYet = true;
+            $scope.userVideoLength = 0;
+          }
+          else {
+            $scope.viewSessions = data.viewSessions;
+            $scope.userVideoLength = data.videoLength;
+            setStartAndMinDate($scope.accountCreatedDate);
+          }
+        });
+      });
+    }
+    else if ($scope.location[1] === 'edit') {
+      // call stats api for selected video with id = $scope.location[2]
+      var uid = $scope.location[2];
+      servicesAPI.getVideoStat(uid).success(function(data) {
+        if (data.length === 0) {
+          $scope.noStatisticsYet = true;
+        }
+        else {
+          $scope.viewSessions = data.viewSessions;
+          $scope.videoCreatedDate = data.createdDate;
+          setStartAndMinDate($scope.videoCreatedDate);
+        }
+      });
+    }
+  };
+  init();
+
+  /* Function to set start and minimum date for statistics */
+  function setStartAndMinDate(createdDate) {
+    var oneMonthAgo = moment().subtract(1, 'months').toDate();
+
+    // default start date is previous month if created date is more than a month ago
+    if (moment(createdDate).isBefore(oneMonthAgo)) {
+      $scope.startDate = moment(oneMonthAgo).toDate();
+    }
+    else {
+      $scope.startDate = moment(createdDate).toDate();
+    }
+    // default min date is creation date
+    $scope.minDate = moment(createdDate).toDate();
+  };
 
   // Chart Variables
   $scope.series = ['Views'];  // default series to show for graph
 
   /* Function to initialise statistics data */
   $scope.initStatsView = function() {
-    // TODO: Call appropriate API to get default selected date range data
-    if ($scope.location[1] === 'statistics') {
-      // call stats api for all of user's videos
-    }
-    else if ($scope.location[1] === 'edit') {
-      // call stats api for selected video with id = $scope.location[2]
-    }
+    /* TODO: process stats accordingly to datepicker */
 
     // use sample data values for a month
     $scope.originalData = [
