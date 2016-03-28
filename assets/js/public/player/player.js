@@ -16,18 +16,25 @@ mpdList.push('/../../../../../../upload/vid/' + vidId + '/' + vidId + '.mp3');
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
 	canvas_obj = document.getElementById('canvas');
-	var loadPlayers = new Player(canvas_obj, mpdList);
+	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
+		return v.toString(16);
+	});
+	var loadPlayers = new Player(canvas_obj, mpdList, vidId, uuid);
 	loadPlayers.initShakaPlayers();
 	loadPlayers.init();
 }, false);
 
-var Player = function(canvas, mpd_list) {
+var Player = function(canvas, mpd_list, vidId, uuid) {
 
 	var VID_WIDTH = canvas.width / 4;
 	var VID_HEIGHT = canvas.height / 3;
 	var NUM_SLAVES = 12;
 	var NUM_ROWS = 3;
 	var NUM_COLS = 4;
+
+	this.vidId = vidId;	// The unique video ID assigned by the server side
+	this.uuid = uuid;	// The uuid to denote each viewing session's stats
 
 	this.time = null;
 	this.timeArr = [];  // Array of current time for each video object
@@ -74,8 +81,8 @@ var Player = function(canvas, mpd_list) {
 		this.volume = new Volume(this); // To initialize the volume of the audio file
 		this.volume.setVolume(0.5); //set default vol of video
 
-		this.scroll = new Scroll(this); // NOT WORKING YET
-		this.zoom = new Zoom(this); // NOT WORKING YET
+		this.scroll = new Scroll(this);
+		this.zoom = new Zoom(this);
 		this.controls = new Controls(this);
 		this.transforms = new Transforms(this);
 		this.seek = new Seek(this);
@@ -650,6 +657,21 @@ var Player = function(canvas, mpd_list) {
 				player.slavePauseArr[i] = isPaused;
 			}
 		}
+
+		// Temporarily commented out
+		/*
+		this.sendStats = function(currTime) {
+			var statObj = {
+				coordinates: [player.transforms.xform.e, player.transforms.xform.f],
+				width: (player.transforms.xform.a) * (player.dimensions.cw),
+				videoTime: currTime,
+				videoId: player.vidId,
+				sessionId: player.uuid
+			};
+			// Make a HTTP POST message to send this JSON object to the server
+			xhttp.open("POST", )
+		}
+		*/
 	}
 
 	var init_players = function(player, canvas, mpd_list) {
@@ -725,9 +747,7 @@ var Player = function(canvas, mpd_list) {
 			}
 		}
 
-		// Inject the audio element into the HTML
-		// HARDCODED!!!!!! for now
-		var audHtmlEle;
+ 		var audHtmlEle;
 		audHtmlEle = '<audio id="aud_file" controls><source src="' + mpd_list[12] + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
 		document.getElementById('zoomableAudElements').innerHTML = audHtmlEle;
 		// Set the audio object of the Player
