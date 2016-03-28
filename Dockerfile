@@ -1,6 +1,6 @@
 # Pre-existing docker image with ffmpeg preloaded (Centos)
-# To build: sudo docker build -t jiale/zoomable .
-# To run: sudo docker run -it -p 1337:1337 --entrypoint='bash' jiale/zoomable 
+# To build: sudo docker build -t <your-username>/<repository-name> .
+# To run: sudo docker run -it -p 1337:1337 --entrypoint='bash' <yout-username>/<repository-name> 
 FROM	jrottenberg/ffmpeg
 
 # install utilities
