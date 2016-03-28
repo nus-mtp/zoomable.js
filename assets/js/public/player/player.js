@@ -26,7 +26,9 @@ var Player = function(canvas, mpd_list) {
 	var NUM_COLS = 4;
 
 	this.time = null;
+	this.frame = 0;
 	this.timeArr = [];  // Array of current time for each video object
+	this.frameArr = [];  // Array of current frame for each video object
 	this.duration = null;
 
 	this.slaves = []; //array of slave objects
@@ -213,11 +215,12 @@ var Player = function(canvas, mpd_list) {
 				// Set the slavePauseArr to all false
 				player.util.setPauseArr(false);
 				player.paused = false;
-				syncPauseState(player);
+				player.sync.pauseState();
 				// Change the UI controls to reflect the new play state
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
+				player.sync.frames();
 			}
 			// Else if the video has ended, i.e. player.ended == true,
 			// Set the seek time back to 0, play all the videos
@@ -227,7 +230,7 @@ var Player = function(canvas, mpd_list) {
 				player.util.setPauseArr(false);
 				// Set the player's pause state to false
 				player.paused = false;
-				syncPauseState(player);
+				player.sync.pauseState();
 				// Reset the player.slaveEndArr to empty again
 				player.slaveEndArr = [];
 				// Set the player's ended boolean value to false
@@ -243,7 +246,7 @@ var Player = function(canvas, mpd_list) {
 				player.util.forAllSlaves(player.controls.pauseVideo);
 				player.util.setPauseArr(true);
 				player.paused = true;
-				syncPauseState(player);
+				player.sync.pauseState();
 				// Change the UI controls to reflect the new pause state
 				player.controls.changeToPauseState();
 				// Pause the audio file
@@ -650,15 +653,106 @@ var Player = function(canvas, mpd_list) {
 
 	var Sync = function(player) {
 		this.frames = function() {
-			var slowest;
-			for (var i = 0; i < player.slaves.length; i++) {
-				var vframe = player.slaves[i].vf.get();
-				if (slowest == undefined) slowest = vframe;
-				if (vframe < slowest) slowest = vframe;
+			function seek(slave) {
+				slave.vf.seekTo({frame: player.frame});
 			}
-			console.log(slowest);
-			player.util.forAllSlaves(function(slave) { slave.vf.seekTo({frame: slowest}); });
+			function redraw(slave) {
+				slave.transforms.redraw();
+			}
+			player.util.forAllSlaves(seek);
+			var str = "";
+			for (var i = 0; i < player.slaves.length; i++) {
+				str += i + ": " + player.slaves[i].vf.get() + "  ";
+			}
+			console.log(str);
+			player.util.forAllSlaves(redraw);
+			//requestAnimationFrame(player.sync.frames);
 		}
+		this.currentTime = function() {
+			var earliestTime = null;
+			for (var i = 0; i < (player.timeArr.length) - 1; i++) {
+				if (earliestTime === null) {
+					earliestTime = player.timeArr[i];
+				}
+				else {
+					if (player.timeArr[i] < earliestTime) {
+						earliestTime = player.timeArr[i];
+					}
+				}
+			}
+			player.time = earliestTime;
+		};
+		this.currentFrame = function() {
+			var earliestFrame = null;
+			for (var i = 0; i < (player.frameArr.length) - 1; i++) {
+				if (earliestFrame === null) {
+					earliestFrame = player.frameArr[i];
+				}
+				else {
+					if (player.frameArr[i] < earliestFrame) {
+						earliestFrame = player.frameArr[i];
+					}
+				}
+			}
+			player.frame = player.frameArr[4];
+			console.log(player.frame);
+		};
+
+		this.pauseState = function() {
+			var newPauseState = player.paused;
+			// After the for-loop, as long as 1 video is still playing, the paused
+			// state will still be set to an overall false. i.e. Player is NOT paused
+			for (var i = 0; i < (player.slavePauseArr.length) - 1; i++) {
+				if (newPauseState == null) {
+					newPauseState = player.slavePauseArr[i];
+				}
+				else {
+					newPauseState = newPauseState && player.slavePauseArr[i];
+				}
+			}
+
+			// Check if the values been changed, i.e. False -> True / True -> False
+			// If they have been changed, update the UI controls
+			if (player.paused != newPauseState) {
+				player.paused = newPauseState;
+				// Call the UI controls update
+				// If the state is PAUSED, i.e. newPauseState == true
+				if (player.paused == true) {
+					player.controls.changeToPauseState();
+				}
+				else if (player.paused == false) {
+					player.controls.changeToPlayState();
+				}
+				else {
+					// For now: console log the error
+					console.log("UH OH...");
+				}
+			}
+		};
+
+		this.endState = function() {
+			// Check if there are NUM_SLAVES number of elements in the array, else
+			// don't even bother doing comparisons
+			if (player.slaveEndArr.length < NUM_SLAVES) {
+				return;
+			}
+			var newEndState = true;
+			// After the for-loop, as long as 1 video has not ended their session,
+			// the overall end state will be set to false, i.e. Video has NOT ended
+			for (var i = 0; i < (player.slaveEndArr.length) - 1; i++) {
+				newEndState = newEndState && player.slaveEndArr[i];
+			}
+
+			// If the overall end state is true for all videos, reset the UI play
+			// button to be the 'replay' button
+			if (newEndState == true) {
+				// Set the overall player end state to be true
+				player.ended = true;
+				// Reset the players
+				player.controls.changeToReplayState();
+			}
+		}
+
 	}
 
 	var init_players = function(player, canvas, mpd_list) {
@@ -683,28 +777,6 @@ var Player = function(canvas, mpd_list) {
 				// Locate the video element
 				var vid = document.getElementById('video_' + vidCount);
 
-				// Attach the event handlers to the video element first
-				vid.ontimeupdate = function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.timeArr[vidTimeArrIndex] = vid.currentTime;   // Update the global array of current time value for this video object
-					syncCurrentTime(player);  // Run the synchronization check for the current time
-					player.seek.updateSeekTime();   // Update the seek time based on this new time
-				};
-
-				// Upon the 'pause' event
-				vid.onpause = function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.slavePauseArr[vidTimeArrIndex] = true;   // Update the global array of pause state value for this video object
-					syncPauseState(player);	// Run the synchronization check for the overall pause state
-				};
-
-				// Upon the 'ended' event
-				vid.addEventListener('ended', function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.slaveEndArr[vidTimeArrIndex] = true;	// Update the global array of truth value for video end state
-					syncEndState(player);	// Run the synchronization check for the overall end state
-				}, false);
-
 				// Set the src mpd for that video element
 				vid.src = mpd_list[vidCount - 1];
 
@@ -712,7 +784,7 @@ var Player = function(canvas, mpd_list) {
 				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
 				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
 
-				var slaveObj = new Slave(vid, canvas, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
+				var slaveObj = new Slave(vid, canvas, coords, dimensions, player); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
 				player.slaves.push(slaveObj);
 				slaveObj.init(vidCount);
 
@@ -743,77 +815,6 @@ var Player = function(canvas, mpd_list) {
 		player.audio = document.getElementById('aud_file');
 
 	}
-
-	var syncCurrentTime = function(player) {
-		var earliestTime = null;
-		for (var i = 0; i < (player.timeArr.length) - 1; i++) {
-			if (earliestTime === null) {
-				earliestTime = player.timeArr[i];
-			}
-			else {
-				if (player.timeArr[i] < earliestTime) {
-					earliestTime = player.timeArr[i];
-				}
-			}
-		}
-		player.time = earliestTime;
-	};
-
-	var syncPauseState = function(player) {
-		var newPauseState = player.paused;
-		// After the for-loop, as long as 1 video is still playing, the paused
-		// state will still be set to an overall false. i.e. Player is NOT paused
-		for (var i = 0; i < (player.slavePauseArr.length) - 1; i++) {
-			if (newPauseState == null) {
-				newPauseState = player.slavePauseArr[i];
-			}
-			else {
-				newPauseState = newPauseState && player.slavePauseArr[i];
-			}
-		}
-
-		// Check if the values been changed, i.e. False -> True / True -> False
-		// If they have been changed, update the UI controls
-		if (player.paused != newPauseState) {
-			player.paused = newPauseState;
-			// Call the UI controls update
-			// If the state is PAUSED, i.e. newPauseState == true
-			if (player.paused == true) {
-				player.controls.changeToPauseState();
-			}
-			else if (player.paused == false) {
-				player.controls.changeToPlayState();
-			}
-			else {
-				// For now: console log the error
-				console.log("UH OH...");
-			}
-		}
-	};
-
-	var syncEndState = function(player) {
-		// Check if there are NUM_SLAVES number of elements in the array, else
-		// don't even bother doing comparisons
-		if (player.slaveEndArr.length < NUM_SLAVES) {
-			return;
-		}
-		var newEndState = true;
-		// After the for-loop, as long as 1 video has not ended their session,
-		// the overall end state will be set to false, i.e. Video has NOT ended
-		for (var i = 0; i < (player.slaveEndArr.length) - 1; i++) {
-			newEndState = newEndState && player.slaveEndArr[i];
-		}
-
-		// If the overall end state is true for all videos, reset the UI play
-		// button to be the 'replay' button
-		if (newEndState == true) {
-			// Set the overall player end state to be true
-			player.ended = true;
-			// Reset the players
-			player.controls.changeToReplayState();
-		}
-	}
-
 	var getVideoDuration = function(player) {
 		player.slaves[0].video.onloadedmetadata = function() {
 			player.duration = player.slaves[0].video.duration;
