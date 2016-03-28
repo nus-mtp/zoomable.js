@@ -15,9 +15,9 @@
           <md-card-header-text>
             <span class="md-title"><%= user.username %></span>
             <span class="md-subhead">
-              Joined since: <span>{{ userInfo.createdDate | date:'d MMM yyyy' }}</span>
+              Joined since: <span>{{ accountCreatedDate | date:'d MMM yyyy' }}</span>
               &nbsp;&nbsp;|&nbsp;&nbsp;
-              Total Videos: <span>{{ userInfo.totalVideos.length }}</span>
+              Total Videos: <span>{{ userVideoLength }}</span>
             </span>
           </md-card-header-text>
         </md-card-header>
