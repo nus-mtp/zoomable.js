@@ -158,7 +158,6 @@ module.exports = {
       Video.update({
         id: req.param('id')
       },  {
-        videoDir: fdWithExtension,
         mpdDir: mpdArray,
         thumbnailDir: fd + ".png"
       }).exec(function (err, updatedVideo) {
