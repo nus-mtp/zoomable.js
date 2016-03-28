@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, moment){
+angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, moment, servicesAPI){
   // VARIABLES
   $scope.location = location.pathname.split('/');  // location array contains path name in array[1]
   $scope.criteria = 'DAY';  // default set to day for date criteria
@@ -6,6 +6,12 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   $scope.minDate = moment().subtract(1, 'months').toDate();  // default min date is previous month
   $scope.endDate = moment().subtract(1, 'days').toDate();  // default end date is current date - 1
   $scope.maxDate = moment().subtract(1, 'days').toDate();  // default max date is current date - 1
+  $scope.userInfo = {};   // store user info object
+
+  /* Function to get user info object */
+  servicesAPI.getUserInfo().then(function (res) {
+    $scope.userInfo = res.data;
+  });
 
   // Chart Variables
   $scope.series = ['Views'];  // default series to show for graph

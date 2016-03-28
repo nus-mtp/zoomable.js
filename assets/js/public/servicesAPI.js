@@ -27,6 +27,9 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
     login : function(accountData) {
       return $http.post('/api/user/login', accountData);
     },
+    getUserInfo : function() {
+      return $http.get('/api/user/getInfo');
+    },
     upload : function (file) {
       return $q(function(resolve, reject) {
         setTimeout(function() {
