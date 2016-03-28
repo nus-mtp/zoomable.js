@@ -133,12 +133,12 @@ module.exports = {
 
   /**
    * `UserController.getInfo()`
-   * Usage: GET /api/user/getInfo
+   * Usage: GET /api/user/getAccountDate
    */
-  getInfo: function (req, res) {
+  getAccountDate: function (req, res) {
     // Look up the user record from the database which is
     // referenced by the id in the user session (req.session.me)
-    User.findOne(req.session.me).populate('videos').exec(function foundUser(err, user) {
+    User.findOne(req.session.me).exec(function foundUser(err, user) {
       if (err) return res.negotiate(err);
 
       // no matched user, return user not found
@@ -146,10 +146,9 @@ module.exports = {
         return res.status(404).notFound('UserNotFound');
       }
 
-      // only return user account creation date and uploaded video length for statistic page
+      // only return user account creation date
       return res.json({
-        createdDate: user.createdAt,
-        totalVideos: user.videos
+        createdDate: user.createdAt
       });
 
     });
