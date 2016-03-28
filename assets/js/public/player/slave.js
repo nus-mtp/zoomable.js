@@ -23,9 +23,11 @@ var Slave = function(vid, canv, coords, dims) {
 		},false);
 
 		this.draw = function() {
-			//if(v.paused || v.ended) return false;
-			slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
-			setTimeout(slave.transforms.draw,20);
+			if (!slave.video.paused) { 	//if(v.paused || v.ended) return false;
+				slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
+			}
+			requestAnimationFrame(slave.transforms.draw)
+			//setTimeout(slave.transforms.draw,20);
 		}
 
 		this.redraw = function(){
