@@ -31,7 +31,7 @@ module.exports = {
       id: req.param('id'),
       ownedBy: req.session.me
     }).exec(function (err, video) {
-      if (err) return res.negotiate(err); 
+      if (err) return res.negotiate(err);
       if (video == undefined) return res.notFound();
       return res.json(video);
     })
@@ -73,7 +73,7 @@ module.exports = {
    */
    destroyAll: function(req, res) {
     Video.destroy({
-      id: req.param('id'), 
+      id: req.param('id'),
       ownedBy: req.session.me
     }).exec(function (err, deletedVideos) {
       if (err) return res.negotiate(err);
@@ -159,7 +159,6 @@ module.exports = {
         id: req.param('id')
       },  {
         embedURL: sails.getBaseUrl() + '/embed/' + req.param('id'),
-        videoDir: fdWithExtension,
         mpdDir: mpdArray,
         thumbnailDir: fd + ".png"
       }).exec(function (err, updatedVideo) {

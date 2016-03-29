@@ -20,9 +20,14 @@ module.exports = {
 	    	type: 'string'
 	    },
 
+	    // each video owns multiple tags
 	    tags: {
 	    	collection: 'tag',
 	    	via: 'videoWithTags'
+	    },
+
+	    ownedBy: {
+	    	model: 'user',
 	    },
 
 	    views: {
@@ -40,10 +45,6 @@ module.exports = {
 			type: 'string'
 		},
 
-		ownedBy: {
-			model: 'user',
-		},
-
 		duration: {
 			type: 'string'
 		},
@@ -51,10 +52,6 @@ module.exports = {
 		shares: {
 			type: 'integer',
 			defaultsTo: 0
-		},
-
-		videoDir: {
-			type: 'string'
 		},
 
 		mpdDir: {

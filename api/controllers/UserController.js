@@ -102,6 +102,9 @@ module.exports = {
    * Usage: GET /api/user/logout
    */
   logout: function (req, res) {
+    // Handle the case when logout is called when not signed in
+    if (!req.session.me) return res.backToHomePage();
+
     // Look up the user record from the database which is
     // referenced by the id in the user session (req.session.me)
     User.findOne(req.session.me, function foundUser(err, user) {

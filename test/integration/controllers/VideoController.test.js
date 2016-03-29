@@ -2,8 +2,8 @@ var request = require('supertest');
 
 describe('VideoController', function () {
 	var credentials = { username: 'test', password: 'testtesttest'};
-	var vid1 = {title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
-	var vid2 = {title: 'Mission Possible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
+	var vid1 = {title: 'Mission Impossible', thumbnailDir: '/video/1/a.jpg'};
+	var vid2 = {title: 'Mission Possible', thumbnailDir: '/video/1/a.jpg'};
 
 	describe('#create', function () {
 		var agent = request.agent('http://localhost:1337');
