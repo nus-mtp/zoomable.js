@@ -1,29 +1,32 @@
-// Retrieve the list of MPDs and audio file through a HTTP GET request to the server
-var url = document.URL;
-var vidId = url.substring(url.lastIndexOf('/'));
-var mpdList;
-var xhr = new XMLHttpRequest();
-xhr.open("GET", "/api/video" + vidId, true);
-xhr.send();
-xhr.onreadystatechange = getMpds;
-
-function getMpds(e) {
-	if (xhr.readyState == 4 && xhr.status == 200) {
-		mpdList = JSON.parse(xhr.response).mpdDir;
-	}
-}
-
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
-	canvas_obj = document.getElementById('canvas');
-	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
-		return v.toString(16);
-	});
-	var loadPlayers = new Player(canvas_obj, mpdList, vidId, uuid);
-	loadPlayers.initShakaPlayers();
-	loadPlayers.init();
+	// Retrieve the list of MPDs and audio file through a HTTP GET request to the server
+	var url = document.URL;
+	var vidId = url.substring(url.lastIndexOf('/'));
+	var mpdList;
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/api/video" + vidId, true);
+	xhr.send();
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			// To add the list of MPDs
+			mpdList = JSON.parse(xhr.response).mpdDir;
+			// To add the mp3 audio file location to the list of MPDs
+			mpdList.push(JSON.parse(xhr.response).mp3Dir);
+
+			canvas_obj = document.getElementById('canvas');
+			var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+				var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
+				return v.toString(16);
+			});
+
+			var loadPlayers = new Player(canvas_obj, mpdList, vidId, uuid);
+			loadPlayers.initShakaPlayers();
+			loadPlayers.init();
+		}
+	};
+
 }, false);
 
 var Player = function(canvas, mpd_list, vidId, uuid) {
@@ -710,13 +713,13 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 
 		this.sendStats = function(currTime) {
 			var statObj = {
-				coordinates: [player.transforms.xform.e, player.transforms.xform.f],
 				width: (player.transforms.xform.a) * (player.dimensions.cw),
 				videoTime: currTime,
 				videoId: player.vidId,
 				sessionId: player.uuid
 			};
 			// Make a HTTP POST message to send this JSON object to the server
+			var xhr = new XMLHttpRequest();
 			//xhttp.open("POST", )
 		}
 	}
