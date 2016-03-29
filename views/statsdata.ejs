@@ -1,6 +1,6 @@
 <div class="statsdata">
   <div class="no-stats" ng-if="noStatisticsYet">
-    <md-list-item>Statistics not available yet. Please upload a video to get started.</md-list-item>
+    <md-list-item>Statistics not available yet.</md-list-item>
   </div>
 
   <div ng-if="!noStatisticsYet">
@@ -35,7 +35,7 @@
         <div class="graph-numbers">
           Lifetime Views: <span>{{ viewSessions.length }}</span>
           <br />
-          Total Views From {{startDate | date:'d MMM yyyy'}} to {{endDate | date:'d MMM yyyy'}}: <span>{{ totalViewsForPeriod }}</span> <!-- TODO: Process correct views for selected period -->
+          Total Views From {{startDate | date:'d MMM yyyy'}} to {{endDate | date:'d MMM yyyy'}}: <span>{{ totalViewsForPeriod }}</span>
         </div>
       </div>
       <div flex="50" class="shares-stats-area">

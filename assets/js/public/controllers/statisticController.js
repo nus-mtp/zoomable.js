@@ -39,7 +39,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       // call stats api for selected video with id = $scope.location[2]
       var uid = $scope.location[2];
       servicesAPI.getVideoStat(uid).success(function(data) {
-        if (data.length === 0) {
+        if (data.length === 0 || data.viewSessions.length === 0) {
           $scope.noStatisticsYet = true;
         }
         else {
@@ -140,18 +140,27 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
       // update the data to show
       for (var idx = 0; idx < $scope.labels.length; idx++) {
-        // format view count date to same format as labels
-        var formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
-        if ($scope.labels[idx] === formatedVCDate) {
-          // assign count to data[0] scope if date is the same
-          $scope.data[0][idx] = $scope.viewsCount[vc_index].count;
-          // add to total view count for selected period
-          $scope.totalViewsForPeriod = $scope.totalViewsForPeriod + $scope.viewsCount[vc_index].count;
-          // increase vc_index
-          vc_index++;
+
+        // add all view counts from the array
+        if (vc_index < $scope.viewsCount.length) {
+          // format view count date to same format as labels
+          var formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
+
+          if ($scope.labels[idx] === formatedVCDate) {
+            // assign count to data[0] scope if date is the same
+            $scope.data[0][idx] = $scope.viewsCount[vc_index].count;
+            // add to total view count for selected period
+            $scope.totalViewsForPeriod = $scope.totalViewsForPeriod + $scope.viewsCount[vc_index].count;
+            // increase vc_index
+            vc_index++;
+          }
+          else {
+            // add count to be zero if date is not the same
+            $scope.data[0][idx] = 0;
+          }
         }
         else {
-          // add count to be zero if date is not the same
+          // add count of zero for rest of the remaining days not including in viewsCount array
           $scope.data[0][idx] = 0;
         }
       }
