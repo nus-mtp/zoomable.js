@@ -77,8 +77,20 @@ $ grunt test
 `to be updated`
 
 
+## Team 
+### Team Meteoria
+- [Kathy Phua](http://github.com/kphua)
+- [Lin Xiu’En Ann](http://github.com/linxea)
+- [Tan Yui Wei](http://github.com/tyuiwei)
+- [Choo Jia Le](http://github.com/jials)
+- [Nelson Goh Wei Qiang](https://github.com/nelsongoh)
+
+## Supervisors
+- [Professor Ooi Wei Tsang](http://github.com/weitsang)
+- Ray Neo
+
 ## License
-`to be updated`
+Copyright (c) 2016 Team Meteoria. Licensed under the MIT license.
 
 [travis-image]: https://travis-ci.org/nus-mtp/zoomable.js.svg?branch=develop
 [travis-url]: https://travis-ci.org/nus-mtp/zoomable.js
