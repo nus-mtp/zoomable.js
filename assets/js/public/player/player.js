@@ -12,7 +12,7 @@ mpdList.push('/../../../../../../upload/vid/3/3.mp3');
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
 	canvas_obj = document.getElementById('canvas');
-	minimap = document.getElementById('minimap');
+	//minimap = document.getElementById('minimap');
 	var player = new Player(canvas_obj, minimap, mpdList);
 	player.initShakaPlayers();
 	player.init();
@@ -87,7 +87,8 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		this.sync = new Sync(this);
 		this.mouseactions = new MouseActions(this);
 
-		this.minimap = new Minimap(minimap_canvas, mini_video, this);
+		//this.minimap = new Minimap(minimap_canvas, "", this);
+		//this.minimap.init();
 	};
 
 	var MouseActions = function(player) {
@@ -492,6 +493,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 	};
 
 	var Transforms = function(player) {
+		//TODO: update minimap rectangle
 		var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
 		this.savedTransforms = [];
 		this.xform = svg.createSVGMatrix();
@@ -580,6 +582,17 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 				slave.transforms.redraw();
 			}
 			player.util.forAllSlaves(slaveRedraw);
+			console.log(player.transforms.xform.e)
+
+			var x = player.transforms.xform.e;
+			var y = player.transforms.xform.f;
+			if (x < 0) x *= (-1);
+			if (y < 0) y *= (-1);
+			x /= player.transforms.xform.a;
+			y /= player.transforms.xform.a;
+			//player.minimap.ctx.clearRect(0,0,canvas.width,canvas.height);
+			//player.minimap.outline.draw(x,y, player.dimensions.cw/player.transforms.xform.a,
+			//								 player.dimensions.ch/player.transforms.xform.a);
 			// change dimensions and coords
 			// slave.redraw for slaves still in view
 		}

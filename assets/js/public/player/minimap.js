@@ -3,9 +3,11 @@ var Minimap = function(canvas, video, parent) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d');
     this.video = video;
-    this.transforms = new Transforms(this);
-    this.outline = new Outline(this);
-
+    //this.transforms = new Transforms(this);
+    this.outline;
+    this.init = function() {
+        this.outline = new Outline(this);
+    }
     var Outline = function(minimap) {
         this.draw = function(x,y,width,height) {
             //draws the red border
