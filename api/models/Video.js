@@ -37,42 +37,46 @@ module.exports = {
 
 	    // 0 for self only, 1 for public
 	    privacy: {
-	    	type: 'integer', 
+	    	type: 'integer',
 	    	defaultsTo: 1
 	    },
 
-	    duration: {
-	    	type: 'string'
-	    },
+		embedURL: {
+			type: 'string'
+		},
 
-	    shares: {
-	    	type: 'integer',
-	    	defaultsTo: 0
-	    },
+		duration: {
+			type: 'string'
+		},
 
-	    mpdDir: {
-	    	type: 'array'
-	    },
+		shares: {
+			type: 'integer',
+			defaultsTo: 0
+		},
 
-	    thumbnailDir: {
-	    	type: 'string'
-	    },
+		mpdDir: {
+			type: 'array'
+		},
 
-	    hasProcessed: {
-	    	type: 'string',
-	    	enum: ['false', 'true'],
-	    	defaultsTo: 'false'
-	    },
-	    
-	    createdAt: {
-	    	type: 'datetime',
-	    	defaultsTo: function() {return new Date(); }
-	    },
+		thumbnailDir: {
+			type: 'string'
+		},
 
-	    updatedAt: {
-	    	type: 'datetime',
-	    	defaultsTo: function() {return new Date(); }
-	    }
+		hasProcessed: {
+			type: 'string',
+			enum: ['false', 'true'],
+			defaultsTo: 'false'
+		},
+
+		createdAt: {
+			type: 'datetime',
+			defaultsTo: function() {return new Date(); }
+		},
+
+		updatedAt: {
+			type: 'datetime',
+			defaultsTo: function() {return new Date(); }
+		},
 
 		// Add a reference to ViewSession
 		viewedSessions: {

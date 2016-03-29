@@ -5,6 +5,9 @@
 <div id="canvasPlayerArea">
   <canvas id="canvas"></canvas>
   <div id="uiControls">
+    <div id="miniMapControls">
+      <div id="miniMapIndicator"></div>
+    </div>
     <div id="zoomBarControls">
       <button id="zoomOutBtn"></button>
       <input id="zoomCtrl" type="range" step="any" min="0" max="1" value="0">
@@ -15,23 +18,23 @@
     </div>
     <div id="bottomBarControls">
       <div class="flexChild">
-            <button id="playPauseBtn" class="play"></button>
-            <span id="volumeArea">
-              <button id="volumeBtn" class="low"></button>
-              <input id="volumeCtrl" type="range" step="any" min="0" max="1" value="0.5">
-            </span>
-            <div id="timeTxt">
-              <span id="currentTimeTxt">0:00:00</span> /
-              <span id="totalTimeTxt">0:00:00</span>
-            </div>
-        </div>
-        <div class="flexChild">
-            <button id="snapshotBtn"></button>
-            <button id="settingBtn"></button>
-            <button id="captionBtn"></button>
-            <button id="fullscreenBtn"></button>
+        <button id="playPauseBtn" class="play"></button>
+        <span id="volumeArea">
+          <button id="volumeBtn" class="low"></button>
+          <input id="volumeCtrl" type="range" step="any" min="0" max="1" value="0.5">
+        </span>
+        <div id="timeTxt">
+          <span id="currentTimeTxt">0:00:00</span> /
+          <span id="totalTimeTxt">0:00:00</span>
         </div>
       </div>
+      <div class="flexChild">
+        <button id="snapshotBtn"></button>
+        <button id="settingBtn"></button>
+        <button id="captionBtn"></button>
+        <button id="fullscreenBtn"></button>
+      </div>
+    </div>
   </div>
 </div>
 
