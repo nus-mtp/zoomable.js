@@ -5,6 +5,7 @@ module.exports = {
 	autoPK: false,
 	attributes: {
 		id :{
+			type: 'integer',
 			autoIncrement: true,
 			primaryKey: true,
 			columnName: 'video_id'
@@ -72,5 +73,11 @@ module.exports = {
 	    	type: 'datetime',
 	    	defaultsTo: function() {return new Date(); }
 	    }
+
+		// Add a reference to ViewSession
+		viewedSessions: {
+			collection: 'ViewSession',
+			via: 'videoId'
+		}
 	}
 }
