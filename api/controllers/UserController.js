@@ -132,6 +132,28 @@ module.exports = {
     return res.json({
       todo: 'updatePassword() is not implemented yet!'
     });
+  },
+
+  /**
+   * `UserController.getInfo()`
+   * Usage: GET /api/user/getAccountDate
+   */
+  getAccountDate: function (req, res) {
+    // Look up the user record from the database which is
+    // referenced by the id in the user session (req.session.me)
+    User.findOne(req.session.me).exec(function foundUser(err, user) {
+      if (err) return res.negotiate(err);
+
+      // no matched user, return user not found
+      if (!user) {
+        return res.status(404).notFound('UserNotFound');
+      }
+
+      // only return user account creation date
+      return res.json({
+        createdDate: user.createdAt
+      });
+
+    });
   }
 };
-
