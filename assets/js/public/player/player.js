@@ -12,7 +12,7 @@ mpdList.push('/../../../../../../upload/vid/3/3.mp3');
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
 	canvas_obj = document.getElementById('canvas');
-	//minimap = document.getElementById('minimap');
+	minimap = document.getElementById('minimap');
 	var player = new Player(canvas_obj, minimap, mpdList);
 	player.initShakaPlayers();
 	player.init();
@@ -63,6 +63,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 	this.sync;
 
 	this.minimap;
+	this.snapshotCanvas;
 
 	// Initialization of all the Shaka players and the video elements
 	this.initShakaPlayers = function() {
@@ -86,7 +87,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		this.last = { x: canvas.width/2, y: canvas.height/2 };
 		this.sync = new Sync(this);
 		this.mouseactions = new MouseActions(this);
-
+		this.snapshotCanvas = document.getElementById('snapshot_canvas');
 		//this.minimap = new Minimap(minimap_canvas, "", this);
 		//this.minimap.init();
 	};
@@ -156,6 +157,8 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		this.zoomOutBtn = document.getElementById('zoomOutBtn');
 		this.zoomCtrl = document.getElementById('zoomCtrl');
 		this.zoomInBtn = document.getElementById('zoomInBtn');
+		this.snapshotBtn = document.getElementById('snapshotBtn');
+
 
 		this.playPauseBtn.addEventListener('click',function(){
 			player.controls.playPauseVideo();
@@ -211,6 +214,11 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		// event occurs
 		this.zoomCtrl.addEventListener('mousemove',function(){
 			player.controls.updateSliderUI(player.controls.zoomCtrl);
+		},false);
+
+		// Triggers the snapshot to be downloaded
+		this.snapshotBtn.addEventListener('click',function(){
+			player.controls.takeSnapshot();
 		},false);
 
 		/* Play or pause the video */
@@ -317,6 +325,14 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 			gradient.push('rgba(255, 255, 255, 0.3) 100%');
 			element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
 		};
+
+		this.takeSnapshot = function() {
+			var snapContext = player.snapshotCanvas.getContext('2d');
+			snapContext.drawImage(player.canvas,0,0);
+			player.snapshotCanvas.toBlob(function(blob) {
+    			saveAs(blob, "snapshot.jpg");
+			}, "image/jpeg");
+		}
 	}
 
 	var Volume = function(player){
@@ -582,8 +598,6 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 				slave.transforms.redraw();
 			}
 			player.util.forAllSlaves(slaveRedraw);
-			console.log(player.transforms.xform.e)
-
 			var x = player.transforms.xform.e;
 			var y = player.transforms.xform.f;
 			if (x < 0) x *= (-1);
@@ -677,10 +691,10 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 			function redraw(slave) {
 				slave.transforms.redraw();
 			}
-			player.util.forAllSlaves(seek);
+			//player.util.forAllSlaves(seek);
 			var str = "";
 			for (var i = 0; i < player.slaves.length; i++) {
-				str += i + ": " + player.slaves[i].vf.get() + "  ";
+				str += i + ": " + player.slaves[i].vf.get() + "  at the time: " + Date.now() + "\n";
 			}
 			console.log(str);
 			player.util.forAllSlaves(redraw);
@@ -713,7 +727,6 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 				}
 			}
 			player.frame = player.frameArr[4];
-			console.log(player.frame);
 		};
 
 		this.pauseState = function() {

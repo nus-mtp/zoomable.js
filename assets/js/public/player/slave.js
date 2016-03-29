@@ -65,6 +65,7 @@ var Slave = function(vid, canv, coords, dims, parent) {
 		},false);
 
 		this.draw = function() {
+			slave.master.sync.frames();
 			if (!slave.video.paused) { 	//if(v.paused || v.ended) return false;
 				//slave.frameCnt += 1;
 				//console.log(slave.frameCnt);
