@@ -52,5 +52,5 @@ module.exports.routes = {
   * for configuration options and examples.                                  *
   *                                                                          *
   ***************************************************************************/
-
+  'DELETE /api/video/': 'VideoController.destroyAll'
 };
