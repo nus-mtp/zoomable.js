@@ -1,17 +1,27 @@
-// The list of MPDs are hardcoded here for now, will eventually run a script to detect the relevant MPDs to retrieve
-var mpdList = [];
-for(var i = 1; i <= 3; i++) {
-	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../upload/vid/3/3_mpd_R' + i + 'C' + j + '.mpd');
+
+// Retrieve the list of MPDs and audio file through a HTTP GET request to the server
+var url = document.URL;
+var vidId = url.substring(url.lastIndexOf('/'));
+var mpdList;
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "/api/video" + vidId, true);
+xhr.send();
+xhr.onreadystatechange = getMpds;
+
+function getMpds(e) {
+	if (xhr.readyState == 4 && xhr.status == 200) {
+		mpdList = JSON.parse(xhr.response).mpdDir;
 	}
 }
-// The audio file for the video
-mpdList.push('/../../../../../../upload/vid/3/3.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
 	canvas_obj = document.getElementById('canvas');
+	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
+		return v.toString(16);
+	});
 	minimap = document.getElementById('minimap');
 	var player = new Player(canvas_obj, minimap, mpdList);
 	player.initShakaPlayers();
@@ -25,6 +35,9 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 	var NUM_SLAVES = 12;
 	var NUM_ROWS = 3;
 	var NUM_COLS = 4;
+
+	this.vidId = vidId;	// The unique video ID assigned by the server side
+	this.uuid = uuid;	// The uuid to denote each viewing session's stats
 
 	this.time = null;
 	this.frame = 0;
@@ -77,8 +90,8 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		this.volume = new Volume(this); // To initialize the volume of the audio file
 		this.volume.setVolume(0.5); //set default vol of video
 
-		this.scroll = new Scroll(this); // NOT WORKING YET
-		this.zoom = new Zoom(this); // NOT WORKING YET
+		this.scroll = new Scroll(this);
+		this.zoom = new Zoom(this);
 		this.controls = new Controls(this);
 		this.transforms = new Transforms(this);
 		this.seek = new Seek(this);
@@ -158,7 +171,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		this.zoomCtrl = document.getElementById('zoomCtrl');
 		this.zoomInBtn = document.getElementById('zoomInBtn');
 		this.snapshotBtn = document.getElementById('snapshotBtn');
-
+		this.fullscreenBtn = document.getElementById('fullscreenBtn');
 
 		this.playPauseBtn.addEventListener('click',function(){
 			player.controls.playPauseVideo();
@@ -219,6 +232,11 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		// Triggers the snapshot to be downloaded
 		this.snapshotBtn.addEventListener('click',function(){
 			player.controls.takeSnapshot();
+
+		// This is to check and update the FULLSCREEN button on the UI controls
+		// and toggle full screen when clicked
+		this.fullscreenBtn.addEventListener('click',function(){
+			player.controls.toggleFullscreen();
 		},false);
 
 		/* Play or pause the video */
@@ -333,6 +351,47 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
     			saveAs(blob, "snapshot.jpg");
 			}, "image/jpeg");
 		}
+		/* Toggle fullscreen video */
+		this.toggleFullscreen = function() {
+			if (this.fullscreenBtn.className === '') {
+				// player is currently not in full screen mode
+				// set player to full screen
+				var playerArea = document.getElementById('canvasPlayerArea');
+				if (playerArea.webkitRequestFullScreen)
+					playerArea.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);   // chrome and safari
+				else if (playerArea.mozRequestFullScreen)
+					playerArea.mozRequestFullScreen();  	// firefox
+				else if (playerArea.msRequestFullScreen)
+					playerArea.msRequestFullScreen();  		// IE
+				else
+					playerArea.requestFullscreen();     	// standard
+				// update button class
+				this.fullscreenBtn.className = 'exit';
+			}
+			else if (this.fullscreenBtn.className == 'exit') {
+				// player is currently in full screen mode
+				// exit from fullscreen
+				if (document.webkitExitFullscreen)
+					document.webkitExitFullscreen();
+				else if (document.mozCancelFullscreen)
+					document.mozCancelFullscreen();
+				else if (document.msExitFullscreen)
+					document.msExitFullscreen();
+				else
+					document.exitFullscreen();
+				// update button class
+				this.fullscreenBtn.className = '';
+			}
+		};
+
+		/* Function to check whether browser is in full screen, called when full screen is toggled */
+		$(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function() {
+			if (!window.screenTop && !window.screenY) {
+				// force update of button class if exiting from full screen
+				// when using esc key and browser button
+				$('#fullscreenBtn').removeClass('exit');
+			}
+		});
 	}
 
 	var Volume = function(player){
@@ -681,6 +740,18 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 				player.slavePauseArr[i] = isPaused;
 			}
 		}
+
+		this.sendStats = function(currTime) {
+			var statObj = {
+				coordinates: [player.transforms.xform.e, player.transforms.xform.f],
+				width: (player.transforms.xform.a) * (player.dimensions.cw),
+				videoTime: currTime,
+				videoId: player.vidId,
+				sessionId: player.uuid
+			};
+			// Make a HTTP POST message to send this JSON object to the server
+			//xhttp.open("POST", )
+		}
 	}
 
 	var Sync = function(player) {
@@ -837,9 +908,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 			}
 		}
 
-		// Inject the audio element into the HTML
-		// HARDCODED!!!!!! for now
-		var audHtmlEle;
+ 		var audHtmlEle;
 		audHtmlEle = '<audio id="aud_file" controls><source src="' + mpd_list[12] + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
 		document.getElementById('zoomableAudElements').innerHTML = audHtmlEle;
 		// Set the audio object of the Player
