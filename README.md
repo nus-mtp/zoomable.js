@@ -13,13 +13,13 @@ This is an open-source HTML5 video player that allows users to zoom in with grea
 To build the image:
 
 ```bash
-$ sudo docker build -t <your-username>/<repository-name> 
+$ ocker build -t <your-username>/<repository-name> 
 ```
 
 Then run the built image:
 
 ```bash
-$ sudo docker run -it -p 1337:1337 --entrypoint='bash' <yout-username>/<repository-name> 
+$ docker run -it -p 1337:1337 --entrypoint='bash' <your-username>/<repository-name> 
 ```
 
 ## Setup without Docker
