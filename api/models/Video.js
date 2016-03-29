@@ -58,6 +58,10 @@ module.exports = {
 			type: 'array'
 		},
 
+		mp3Dir: {
+			type: 'string'
+		},
+
 		thumbnailDir: {
 			type: 'string'
 		},

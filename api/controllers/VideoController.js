@@ -160,7 +160,8 @@ module.exports = {
       },  {
         embedURL: sails.getBaseUrl() + '/embed/' + req.param('id'),
         mpdDir: mpdArray,
-        thumbnailDir: fd + ".png"
+        thumbnailDir: fd + ".png",
+        mp3Dir: fd + ".mp3"
       }).exec(function (err, updatedVideo) {
         // Push into array of isDoneProcessing
         sails.isDoneProcessing.push({
