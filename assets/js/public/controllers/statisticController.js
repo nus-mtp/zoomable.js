@@ -166,8 +166,14 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       }
     }
     else if ($scope.criteria === 'WEEK') {
+      // create date clone   for manipulation (moments are mutable)
+      var startMomentCopy = startMoment.clone();
+      // set start moment copy to 1 week after start date
+      startMomentCopy.subtract(1,'days').add(1, 'weeks');
+      // set end moment to one week after end date to include extra days that don't add up to a week
+      endMoment.add(1, 'weeks');
       // populate the labels
-      for (var wk = startMoment.subtract(1,'days').add(1, 'weeks'); wk.isBefore(endMoment); wk.add(1, 'weeks')) {
+      for (var wk = startMomentCopy; wk.isBefore(endMoment); wk.add(1, 'weeks')) {
         $scope.labels.push(wk.format('D/M'));
         count++;
       }
@@ -176,11 +182,26 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       for (var idx = 0; idx < count; idx++) {
         // for each count add up the sum of the next 7 days for subsequent week
         var sum = 0;
-        for (var day = prevDate; day < (prevDate+7); day++) {
-          sum = sum + $scope.originalData[0][day];
+        for (var day = 0; day < 7; day++) {
+          // add all view counts from the array
+          if (vc_index < $scope.viewsCount.length) {
+            // format view count date to same format as labels
+            var formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
+
+            if (startMoment.format('D/M') === formatedVCDate) {
+              // add to sum if date is the same
+              sum = sum + $scope.viewsCount[vc_index].count;
+              // add to total view count for selected period
+              $scope.totalViewsForPeriod = $scope.totalViewsForPeriod + $scope.viewsCount[vc_index].count;
+              // increase vc_index
+              vc_index++;
+            }
+          }
+          // increment start date by one for each day
+          startMoment.add(1, 'days');
         }
+        // update scope data for the week
         $scope.data[0][idx] = sum;
-        prevDate = prevDate + 7;
       }
     }
     else if ($scope.criteria === 'MONTH') {
@@ -190,33 +211,33 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
         count++;
       }
 
-      // get last day of the startMoment month
-      var lastDayOfMth = moment(startMoment).endOf('month');
-      // get number of days to calculate statistics for startMoment month
-      var noOfDays = lastDayOfMth.diff(startMoment, 'days') + 1;
+      // get month of startMoment
+      var currentMonth = moment(startMoment).month();
+      // create a copy of $scope.viewsCount
+      var vcArr = $scope.viewsCount.slice(0);
 
       // update the data to show
       for (var idx = 0; idx < count; idx++) {
-        // for each count add up the sum of the next month
         var sum = 0;
-        if (idx !== 0) {
-          // count number of days in stated month except for startMoment month
-          var startOfMth = moment(startMoment).startOf('month').add(idx, 'months');
-          if (idx === (count-1)) {
-            // last day of the month will be the endMoment date instead
-            lastDayOfMth = endMoment.subtract(1, 'days'); // minus 1 to account for prev addition for loop
+
+        // add all view counts from the array
+        for (var i = 0; i < vcArr.length; i++) {
+          if (moment(vcArr[i].date).month() === currentMonth) {
+            // add to sum if month is the same
+            sum = sum + vcArr[i].count;
+            // add to total view count for selected period
+            $scope.totalViewsForPeriod = $scope.totalViewsForPeriod + vcArr[i].count;
           }
           else {
-            lastDayOfMth = moment(startOfMth).endOf('month');
+            // splice added count from vcArray
+            vcArr.splice(0, i);
+            break;
           }
-          noOfDays = lastDayOfMth.diff(startOfMth, 'days') + 1;
-
         }
-        for (var day = prevDate; day < (prevDate+noOfDays); day++) {
-          sum = sum + $scope.originalData[0][day];
-        }
+        // update scope data for the month
         $scope.data[0][idx] = sum;
-        prevDate = prevDate + noOfDays;
+        // increment month
+        currentMonth++;
       }
     }
   };
