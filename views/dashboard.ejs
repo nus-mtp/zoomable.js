@@ -91,8 +91,8 @@
 
           </md-list-item>
 
-          <md-list-item ng-hide="videoList.length" layout="row" layout-align="center center">
-            No Video Yet
+          <md-list-item ng-show="error" layout="row" layout-align="center center">
+            {{ error }}
           </md-list-item>
         </md-card-content>
 

@@ -2,6 +2,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
    $mdMedia, Upload, $timeout, $interval, $location, $q){
   // ERROR MESSAGE
   var ServiceUnavailableError = 'Service is unavailable at the moment. Please refresh your browser.';
+  var NoVideosUploaded = 'No Videos Yet';
 
   // VARIABLES
   $scope.filterStates = ['Public','Private'];
@@ -22,6 +23,9 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   function getVideoList() {
     servicesAPI.get()
       .success(function(data) {
+        if (data.length === 0) {
+          $scope.error = NoVideosUploaded;
+        }
         $scope.videoList = data;
         getProcessStatusAll();
       })

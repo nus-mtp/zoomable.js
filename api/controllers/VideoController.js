@@ -32,7 +32,10 @@ module.exports = {
       ownedBy: req.session.me
     }).exec(function (err, video) {
       if (err) return res.negotiate(err);
-      if (video == undefined) return res.notFound();
+      if (!video) {
+        // no matched video id, return empty array
+        return res.json([]);
+      }
       return res.json(video);
     })
   },
@@ -44,10 +47,13 @@ module.exports = {
   find: function (req, res) {
     Video.find({
       ownedBy: req.session.me
-    }).exec(function (err, video) {
+    }).exec(function (err, videos) {
       if (err) return res.negotiate(err);
-      if (video.length == 0) return res.notFound();
-      return res.json(video);
+      if (videos.length == 0) {
+        // no videos uploaded, return empty array
+        return res.json([]);
+      }
+      return res.json(videos);
     })
   },
 
