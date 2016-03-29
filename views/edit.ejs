@@ -125,7 +125,7 @@
             <span class="tab-header">STATISTICS</span>
           </md-tab-label>
           <md-tab-body>
-            <md-content class="md-padding">
+            <md-content class="md-padding" ng-controller="statisticController">
               <div class="video-date">Video uploaded on: {{ video.createdAt | date:'d MMM yyyy' }}</div>
               <%- partial('statsdata.ejs') %>
             </md-content>
