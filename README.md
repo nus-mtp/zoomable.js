@@ -87,7 +87,7 @@ $ grunt test
 
 ## Supervisors
 - [Professor Ooi Wei Tsang](http://github.com/weitsang)
-- Ray Neo
+- [Rey Neo](https://github.com/reyy)
 
 ## License
 Copyright (c) 2016 Team Meteoria. Licensed under the MIT license.
