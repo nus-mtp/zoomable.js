@@ -6,10 +6,10 @@
   <div ng-if="!noStatisticsYet">
     <div layout="row">
       <div flex="70" class="date-area">
-        <md-datepicker ng-model="startDate" md-placeholder="Enter start date" ng-change="getSelectedDateData()"
-          md-min-date="minDate" md-max-date="maxDate"></md-datepicker>
+        <md-datepicker ng-model="startDate" md-placeholder="Enter start date" ng-change="updateDate(startDate, endDate)"
+          md-min-date="minDate" md-max-date="endDate"></md-datepicker>
         <span class="interval-text">TO</span>
-        <md-datepicker ng-model="endDate" md-placeholder="Enter end date" ng-change="getSelectedDateData()"
+        <md-datepicker ng-model="endDate" md-placeholder="Enter end date" ng-change="updateDate(startDate, endDate)"
           md-min-date="startDate" md-max-date="maxDate"></md-datepicker>
       </div>
       <div flex="30" class="custom-btn-group date-labels">
@@ -35,7 +35,7 @@
         <div class="graph-numbers">
           Lifetime Views: <span>{{ viewSessions.length }}</span>
           <br />
-          Total Views From {{startDate | date:'d MMM yyyy'}} to {{endDate | date:'d MMM yyyy'}}: <span>{{ totalViewsSelected }}</span> <!-- TODO: Process correct views for selected period -->
+          Total Views From {{startDate | date:'d MMM yyyy'}} to {{endDate | date:'d MMM yyyy'}}: <span>{{ totalViewsForPeriod }}</span> <!-- TODO: Process correct views for selected period -->
         </div>
       </div>
       <div flex="50" class="shares-stats-area">

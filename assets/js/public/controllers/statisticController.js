@@ -30,6 +30,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
             $scope.userVideoLength = data.videoLength;
             setStartAndMinDate($scope.accountCreatedDate);
             processViewSessions();
+            updateLabelsAndData();
           }
         });
       });
@@ -46,6 +47,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
           $scope.videoCreatedDate = data.createdDate;
           setStartAndMinDate($scope.videoCreatedDate);
           processViewSessions();
+          updateLabelsAndData();
         }
       });
     }
@@ -71,21 +73,28 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   function processViewSessions() {
     // order view sessions in ascending order
     var orderByDate = $filter('orderBy')($scope.viewSessions, 'createdAt', false);
-    var vc_index = 0;  // track viewsCount array index
+    // track viewsCount array index
+    var vc_index = 0;
+    // convert time to local time zone
+    var localTime  = moment.utc(orderByDate[0].createdAt).toDate();
+
+    // create a session obj and push to viewsCount array
     var sessionObj = {
-      date: orderByDate[0].createdAt,
+      date: moment(localTime).format('YYYY-MM-DD HH:mm:ss'),
       count: 1
     }
-    $scope.viewsCount.push(sessionObj); // add sessionObj for first session
+    $scope.viewsCount.push(sessionObj);
+
     for (var i=1; i<orderByDate.length; i++) {
       if (moment(orderByDate[i].createdAt).isSame(moment(orderByDate[i-1].createdAt), 'day')) {
         // if same date, add to count of the current viewsCount[vc_index]
         $scope.viewsCount[vc_index].count++;
       }
       else {
+        localTime  = moment.utc(orderByDate[i].createdAt).toDate();
         // push new sessionObj into viewsCount array and increment vc_index
         sessionObj = {
-          date: orderByDate[i].createdAt,
+          date: moment(localTime).format('YYYY-MM-DD HH:mm:ss'),
           count: 1
         }
         $scope.viewsCount.push(sessionObj);
@@ -94,67 +103,58 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     }
   };
 
-  // Chart Variables
-  $scope.series = ['Views'];  // default series to show for graph
-
-  /* Function to initialise statistics data */
-  $scope.initStatsView = function() {
-    /* TODO: process stats accordingly to datepicker */
-
-    // use sample data values for a month
-    $scope.originalData = [
-      [65, 59, 80, 81, 56, 55, 40, 28, 48, 40, 19, 86, 27, 90, 22,
-        45, 67, 33, 50, 28, 78, 66, 91, 23, 72, 60, 20, 84, 88]
-    ];
-
-    // update the chart accordingly
-    updateLabelsAndData();
-
-    // get total views for selected date range (to update with real data)
-    var length = $scope.originalData[0].length;
-    var sum = 0;
-    while (--length) {
-      sum += $scope.originalData[0][length];
-    }
-    $scope.totalViewsSelected = sum + $scope.originalData[0][0];  // account for first element not added in while loop
-
-  };
-
-  /* Function to get data for selected date range */
-  $scope.getSelectedDateData = function() {
-    console.log('not implemented yet');
-
-    // TODO: Call API to get default selected date range data
-  };
-
   /* Function to set date criteria */
   $scope.updateCriteria = function(event) {
     $scope.criteria = event.target.id.toUpperCase();
     updateLabelsAndData();
   };
 
+  $scope.updateDate = function(start, end) {
+    // pass start and end date again to make sure scope from view is updated correctly
+    $scope.startDate = start;
+    $scope.endDate = end;
+    updateLabelsAndData();
+  };
+
   /* Function to update chart data and labels */
   function updateLabelsAndData() {
-    var count = 0;
     var prevDate = 0;
 
-    // clear previous scope labels
+    // initialse scope label, data and other variables
     $scope.labels = [];
     $scope.data = [[]];
+    $scope.totalViewsForPeriod = 0;
+    var vc_index = 0;
+    var count = 0;
 
     // convert Javascript Date object to Moment object
-    var startMoment = moment($scope.startDate);
-    var endMoment = moment($scope.endDate).add(1, 'days');  // add an additional day to include end date
+    var startMoment = moment($scope.startDate).startOf('day');
+    var endMoment = moment($scope.endDate).add(1, 'days').startOf('day');  // add an additional day to include end date
 
     // update the labels and data to use for chart
     if ($scope.criteria === 'DAY') {
       // populate the labels
-      for (var idx = startMoment; idx.isBefore(endMoment); idx.add(1, 'days')) {
-        $scope.labels.push(idx.format('D/M'));
+      for (var dd = startMoment; dd.isBefore(endMoment); dd.add(1, 'days')) {
+        $scope.labels.push(dd.format('D/M'));
       }
 
       // update the data to show
-      $scope.data = $scope.originalData;
+      for (var idx = 0; idx < $scope.labels.length; idx++) {
+        // format view count date to same format as labels
+        var formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
+        if ($scope.labels[idx] === formatedVCDate) {
+          // assign count to data[0] scope if date is the same
+          $scope.data[0][idx] = $scope.viewsCount[vc_index].count;
+          // add to total view count for selected period
+          $scope.totalViewsForPeriod = $scope.totalViewsForPeriod + $scope.viewsCount[vc_index].count;
+          // increase vc_index
+          vc_index++;
+        }
+        else {
+          // add count to be zero if date is not the same
+          $scope.data[0][idx] = 0;
+        }
+      }
     }
     else if ($scope.criteria === 'WEEK') {
       // populate the labels
