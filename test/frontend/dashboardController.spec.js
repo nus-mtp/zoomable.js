@@ -139,7 +139,6 @@ describe('dashboardController', function(){
     });
   });
 
-  // tests start here
   describe('#getVideoList', function() {
     beforeEach(inject(function($controller, $rootScope, $httpBackend) {
       scope = $rootScope.$new();
