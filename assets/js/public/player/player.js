@@ -719,6 +719,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				sessionId: player.uuid
 			};
 			// Make a HTTP POST message to send this JSON object to the server
+			var xhr = new XMLHttpRequest();
 			//xhttp.open("POST", )
 		}
 	}
