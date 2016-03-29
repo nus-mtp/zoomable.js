@@ -16,66 +16,63 @@ module.exports = {
 			required: true
 		},
 
-		description: {
-			type: 'string'
-		},
+	    description: {
+	    	type: 'string'
+	    },
 
-		tags: {
-			collection: 'tag',
-			via: 'videoWithTags'
-		},
+	    // each video owns multiple tags
+	    tags: {
+	    	collection: 'tag',
+	    	via: 'videoWithTags'
+	    },
 
-		ownedBy: {
-			model: 'user',
-		},
+	    ownedBy: {
+	    	model: 'user',
+	    },
 
-		views: {
-			type: 'integer',
-			defaultsTo: 0
-		},
+	    views: {
+	    	type: 'integer',
+	    	defaultsTo: 0
+	    },
 
-		// 0 for self only, 1 for public
-		privacy: {
-			type: 'integer',
-			defaultsTo: 1
-		},
+	    // 0 for self only, 1 for public
+	    privacy: {
+	    	type: 'integer', 
+	    	defaultsTo: 1
+	    },
 
-		duration: {
-			type: 'string'
-		},
+	    duration: {
+	    	type: 'string'
+	    },
 
-		shares: {
-			type: 'integer',
-			defaultsTo: 0
-		},
+	    shares: {
+	    	type: 'integer',
+	    	defaultsTo: 0
+	    },
 
-		videoDir: {
-			type: 'string'
-		},
+	    mpdDir: {
+	    	type: 'array'
+	    },
 
-		mpdDir: {
-			type: 'array'
-		},
+	    thumbnailDir: {
+	    	type: 'string'
+	    },
 
-		thumbnailDir: {
-			type: 'string'
-		},
+	    hasProcessed: {
+	    	type: 'string',
+	    	enum: ['false', 'true'],
+	    	defaultsTo: 'false'
+	    },
+	    
+	    createdAt: {
+	    	type: 'datetime',
+	    	defaultsTo: function() {return new Date(); }
+	    },
 
-		hasProcessed: {
-			type: 'string',
-			enum: ['false', 'true'],
-			defaultsTo: 'false'
-		},
-
-		createdAt: {
-			type: 'datetime',
-			defaultsTo: function() {return new Date(); }
-		},
-
-		updatedAt: {
-			type: 'datetime',
-			defaultsTo: function() {return new Date(); }
-		},
+	    updatedAt: {
+	    	type: 'datetime',
+	    	defaultsTo: function() {return new Date(); }
+	    }
 
 		// Add a reference to ViewSession
 		viewedSessions: {

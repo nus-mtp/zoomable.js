@@ -1,45 +1,57 @@
 # zoomable.js [![Build Status][travis-image]][travis-url] 
+## Overview
 This is an open-source HTML5 video player that allows users to zoom in with greater detail and pan around the video with bandwith efficiency. The Javascript-based zoomable video player streams dash-compliant videos and adapts to network conditions to provide continuous video playback by reducing the video resolutions where necessary.
 
-## Installation
+## Setup with Docker
 
-### Step 1: Cloning the project
+### Install the necessary pre-requisites
 
-Pull a copy of this project from GitHub (link above) or download the project as a zipped folder (Download ZIP above) to your computer.
+- [Docker](https://www.docker.com/)
 
-### Step 2: Installing the necessary pre-requisites
+### Setup
+
+To build the image:
+
+```bash
+$ sudo docker build -t <your-username>/<repository-name> 
+```
+
+Then run the built image:
+
+```bash
+$ sudo docker run -it -p 1337:1337 --entrypoint='bash' <yout-username>/<repository-name> 
+```
+
+## Setup without Docker
+
+### Installing the necessary pre-requisites
 
 #### The following packages are required for using zoomable.js:
-[Node.js](http://nodejs.org) - For package installation
-[Grunt](http://gruntjs.com/) - For generating front-end assets
-[Bower](http://www.npmjs.com/package/bower) - For package installation
-[Sails.js](http://sailsjs.org/get-started) - For server creation
-[FFMPEG](https://ffmpeg.org/download.html) - For video conversion, thumnbnail generation
-[MP4Box](https://gpac.wp.mines-telecom.fr/downloads/) - For MPD creation for the videos
+- [Node.js](http://nodejs.org) 
+- [Sails.js](http://sailsjs.org/get-started)
+- [FFMPEG](https://ffmpeg.org/download.html) - For video conversion, thumnbnail generation
+- [MP4Box](https://gpac.wp.mines-telecom.fr/downloads/) - For MPD creation for the videos
 
-### Step 3: Install additional dependencies and libraries
+### Install necessary packages
 
-Run the npm and bower install commands to install the dependencies and libraries that the project requires. These dependencies and libraries are indicated inside package.json (for npm install) and bower.json (for bower install).
+Run the npm and bower install commands to install the packages that the project requires.
 
 For bash:
-```
+```bash
+$ npm install -g bower grunt-cli
 $ npm install 
 $ bower install 
 ```
 
-### Step 4: Generate latest front-end assets
+### Additional Configurations
 
-Run the Grunt command to update the changes made to the front-end assets and compile it for further use later.
-```
-$ grunt
-```
 Make the video-processing script executable.
 ```
 $ cd scripts
 $ chmod +x video-processing.sh
 ```
 
-### Step 5: Starting the server
+## Start the Server for Development
 
 Start the server by running the Sails command:
 ```
@@ -53,15 +65,32 @@ If this server is setup locally, open your browser and enter the url: [http://lo
 
 
 ## Tests
-`to be updated`
+[Mocha](https://mochajs.org/) and [PhantomJS](http://phantomjs.org/) are used for frontend and backend testing.
+
+To run the full test suites:
+```bash
+$ grunt test
+```
 
 
 ## Documentation
 `to be updated`
 
 
+## Team 
+### Team Meteoria
+- [Kathy Phua](http://github.com/kphua)
+- [Lin Xiu’En Ann](http://github.com/linxea)
+- [Tan Yui Wei](http://github.com/tyuiwei)
+- [Choo Jia Le](http://github.com/jials)
+- [Nelson Goh Wei Qiang](https://github.com/nelsongoh)
+
+## Supervisors
+- [Professor Ooi Wei Tsang](http://github.com/weitsang)
+- [Rey Neo](https://github.com/reyy)
+
 ## License
-`to be updated`
+Copyright (c) 2016 Team Meteoria. Licensed under the MIT license.
 
 [travis-image]: https://travis-ci.org/nus-mtp/zoomable.js.svg?branch=develop
 [travis-url]: https://travis-ci.org/nus-mtp/zoomable.js
