@@ -113,9 +113,13 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
         // redirect to dashboard page
         window.location = '/';
 	    })
-	    .error(function(data) {
-	      console.log('Error: ' + data);
-        // add prompt if email is not unique
+	    .error(function(error, status) {
+        if (status === 409) {
+          // email address already in use, reset password field
+          $scope.password = '';
+        }
+        // update error message
+        $scope.errorMsg = error;
 	    });
     }
     else {
@@ -130,11 +134,13 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
         // redirect to dashboard page
         window.location = '/';
 	    })
-	    .error(function(data) {
-	      console.log('Error: ' + data);
-        // unsuccessful login, update error message and initialise password field
-        $scope.errorMsg = "Incorrect username/password. Please try again.";
-        $scope.password = '';
+	    .error(function(error, status) {
+        if (status === 401) {
+          // unsuccessful login, initialise password field
+          $scope.password = '';
+        }
+        // update error message
+        $scope.errorMsg = error;
 	    });
     }
   };

@@ -21,7 +21,10 @@ module.exports = {
       username: req.param('username')
     }, function foundUser(err, user) {
       if (err) return res.negotiate(err);
-      if (!user) return res.notFound();
+      if (!user) {
+        // prompt incorrect credentials error to prevent hackers from trying to guess password combination
+        return res.send(401, 'Incorrect username/password. Please try again.');
+      }
 
       Passwords.checkPassword({
         passwordAttempt: req.param('password'),
@@ -34,7 +37,7 @@ module.exports = {
 
         // If the password attempted is different from stored encrypted password
         incorrect: function () {
-          return res.notFound();
+          return res.send(401, 'Incorrect username/password. Please try again.');
         },
 
         success: function () {
