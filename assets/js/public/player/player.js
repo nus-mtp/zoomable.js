@@ -1,16 +1,17 @@
-// The list of MPDs are hardcoded here for now, will eventually run a script to detect the relevant MPDs to retrieve
-var mpdList = [];
-
-// Retrieve the embed link to get the URL of the MPD location
+// Retrieve the list of MPDs and audio file through a HTTP GET request to the server
 var url = document.URL;
 var vidId = url.substring(url.lastIndexOf('/'));
-for(var i = 1; i <= 3; i++) {
-	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../upload/vid/' + vidId + '/' + vidId + '_mpd_R' + i + 'C' + j + '.mpd');
+var mpdList;
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "/api/video" + vidId, true);
+xhr.send();
+xhr.onreadystatechange = getMpds;
+
+function getMpds(e) {
+	if (xhr.readyState == 4 && xhr.status == 200) {
+		mpdList = JSON.parse(xhr.response).mpdDir;
 	}
 }
-// The audio file for the video
-mpdList.push('/../../../../../../upload/vid/' + vidId + '/' + vidId + '.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
@@ -707,8 +708,6 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			}
 		}
 
-		// Temporarily commented out
-		/*
 		this.sendStats = function(currTime) {
 			var statObj = {
 				coordinates: [player.transforms.xform.e, player.transforms.xform.f],
@@ -718,9 +717,8 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				sessionId: player.uuid
 			};
 			// Make a HTTP POST message to send this JSON object to the server
-			xhttp.open("POST", )
+			//xhttp.open("POST", )
 		}
-		*/
 	}
 
 	var init_players = function(player, canvas, mpd_list) {
