@@ -166,7 +166,7 @@ do
 	# For each row
 	for j in {1..3}
 	do
-		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${parentdir}${slash}${vidname}${mpd_name}${r}${j}${c}${i}${mpd_ext} ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
+		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${parentdir}${slash}${vidname}${r}${j}${c}${i}${mpd_ext} ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
 	done
 done
 
