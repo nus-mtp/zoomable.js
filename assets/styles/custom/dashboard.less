@@ -17,10 +17,43 @@
         }
     }
 
-    img {
+    img, .spin-container {
         height: @dashboard-video-height;
         width: @dashboard-video-width;
         margin-right: 10px;
+    }
+
+    .spin-container {
+      border: 1px solid @color-grey-500;
+      text-align: center;
+      position: relative;
+
+      .text-process {
+        position: absolute;
+        left: calc(~'(100% - 100px) / 2');
+        top: calc(~'(100% - 70px) / 2');
+        height: 20px;
+        width: 100px;
+        color: @color-black;
+      }
+
+      .text-process-error {
+        font-size: 0.8em;
+        position: absolute;
+        left: calc(~'(100% - 140px) / 2');
+        top: calc(~'(100% - 30px) / 2');
+        height: 20px;
+        width: 140px;
+        color: @color-red-500;
+      }
+
+      .spin {
+        position: absolute;
+        left: calc(~'(100% - 50px) / 2');
+        top: calc(~'(100% - 20px) / 2');
+        height: 50px;
+        width: 50px;
+      }
     }
 
     .md-avatar-icon {

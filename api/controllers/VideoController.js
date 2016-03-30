@@ -4,6 +4,7 @@
  * @description :: Server-side logic for managing videos
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
+var path = require('path');
 
 module.exports = {
 
@@ -12,34 +13,48 @@ module.exports = {
    * Usage: POST /api/video
    */
   create: function (req, res) {
-    Video.create(req.body).exec(function (err, video) {
-      if (err) throw err;
-      res.json(video);
+    Video.create({
+      title: req.param('title'),
+      ownedBy: req.session.me
+    }).exec(function (err, video) {
+      if (err) return res.negotiate(err);
+      return res.json(video);
     });
   },
 
   /**
-   * `VideoController.read()`
+   * `VideoController.findOne()`
    * Usage: GET /api/video/:id
    */
-  read: function (req, res) {
+  findOne: function (req, res) {
     Video.findOne({
-      id: req.param('id')
+      id: req.param('id'),
+      ownedBy: req.session.me
     }).exec(function (err, video) {
-      if (err) throw err;
-      res.json(video);
-    });
+      if (err) return res.negotiate(err);
+      if (!video) {
+        // no matched video id, return empty array
+        return res.json([]);
+      }
+      return res.json(video);
+    })
   },
 
   /**
-   * `VideoController.readAll()`
+   * `VideoController.find()`
    * Usage: GET /api/video
    */
-  readAll: function (req, res) {
-    Video.find().exec(function (err, videos) {
-      if (err) throw err;
-      res.json(videos);
-    });
+  find: function (req, res) {
+    Video.find({
+      ownedBy: req.session.me
+    }).exec(function (err, videos) {
+      if (err) return res.negotiate(err);
+      if (videos.length == 0) {
+        // no videos uploaded, return empty array
+        return res.json([]);
+      }
+      return res.json(videos);
+    })
   },
 
   /**
@@ -48,22 +63,28 @@ module.exports = {
    */
   destroy: function (req, res) {
     Video.destroy({
-      id: req.param('id')
+      id: req.param('id'),
+      ownedBy: req.session.me
     }).exec(function (err, video) {
-      if (err) throw err;
-      res.json(video);
+      if (err) return res.negotiate(err);
+      if (video.length == 0) return res.notFound();
+      return res.json(video);
     });
   },
 
   /**
-   * `VideoController.destroy()`
+   * `VideoController.destroyAll()`
    * Usage: DELETE /api/video/
    * Content: {id: [:id]}
    */
    destroyAll: function(req, res) {
-    Video.destroy(req.body.id).exec(function (err, deletedVideos) {
-      if (err) throw err;
-      res.json(deletedVideos);
+    Video.destroy({
+      id: req.param('id'),
+      ownedBy: req.session.me
+    }).exec(function (err, deletedVideos) {
+      if (err) return res.negotiate(err);
+      if (deletedVideos.length == 0) return res.notFound();
+      return res.json(deletedVideos);
     });
    },
 
@@ -73,10 +94,11 @@ module.exports = {
    */
   update: function (req, res) {
     Video.update({
-      id: req.param('id')
+      id: req.param('id'),
+      ownedBy: req.session.me
     }, req.body).exec(function (err, updated) {
-      if (err) throw err;
-      res.json(updated);
+      if (err) return res.negotiate(err);
+      return res.json(updated);
     });
   },
 
@@ -100,8 +122,8 @@ module.exports = {
     Video.findOne({
       id: req.param('id')
     }).exec(function (err, video) {
-      if (err) throw err;
-      res.json(video.videoDir);
+      if (err) return res.negotiate(err);
+      return res.json(video.videoDir);
     });
   },
 
@@ -114,7 +136,11 @@ module.exports = {
     req.file('video').upload({
       dirname: sails.config.appPath + '/.tmp/public/upload/vid/' + req.param('id'),
       // maximum size of 2GB
-      maxBytes: 2 * 1000 * 1000 * 1000
+      maxBytes: 2 * 1000 * 1000 * 1000,
+      // save as id + file extension
+      saveAs: function(_newFileStream, cb) {
+        cb(null, req.param('id') + path.extname(_newFileStream.filename))
+      }
     }, function (err, uploadedFiles) {
       if (err) return res.negotiate(err);
 
@@ -124,7 +150,7 @@ module.exports = {
       }
 
       // generate a list of mpd dir
-      var fdWithExtension = uploadedFiles[0].fd;
+      var fdWithExtension = sails.getBaseUrl() + uploadedFiles[0].fd.split('/public')[1];
       var fd = fdWithExtension.substr(0, fdWithExtension.lastIndexOf('.')) || fdWithExtension;
 
       var mpdArray = [];
@@ -138,9 +164,10 @@ module.exports = {
       Video.update({
         id: req.param('id')
       },  {
-        videoDir: fdWithExtension,
+        embedURL: sails.getBaseUrl() + '/embed/' + req.param('id'),
         mpdDir: mpdArray,
-        thumbnailDir: fd + ".png"
+        thumbnailDir: fd + ".png",
+        mp3Dir: fd + ".mp3"
       }).exec(function (err, updatedVideo) {
         // Push into array of isDoneProcessing
         sails.isDoneProcessing.push({
@@ -149,7 +176,7 @@ module.exports = {
         });
 
         // run the video processing service
-        VideoProcessingService.run({id: req.param('id'), dir: fdWithExtension});
+        VideoProcessingService.run({id: req.param('id'), dir: uploadedFiles[0].fd});
 
         return res.json({
           message: uploadedFiles.length + ' file(s) uploaded successfully',
@@ -178,7 +205,64 @@ module.exports = {
     }
 
     // return 404 not found if the id doesnt exists
-    res.notFound();
+    return res.notFound();
+  },
+
+  /**
+   * `VideoController.getStat()`
+   * Usage: GET /api/video/getStat/:id
+   */
+  getStat: function (req, res) {
+    Video.find({
+      id: req.param('id'),
+      ownedBy: req.session.me
+    }).populate('viewedSessions').exec(function (err, video) {
+      if (err) return res.negotiate(err);
+
+      if (!video) {
+        // no matched video id, return empty array
+        return res.json([]);
+      }
+
+      // get view sessions of selected video object
+      var videoStat = video[0].viewedSessions;
+      // also pass video creation date
+      var videoDate = video[0].createdAt;
+      return res.json({
+        viewSessions: videoStat,
+        createdDate: videoDate
+      });
+    })
+  },
+
+  /**
+   * `VideoController.getStats()`
+   * Usage: GET /api/video/getStats
+   */
+  getStats: function (req, res) {
+    Video.find({
+      ownedBy: req.session.me
+    }).populate('viewedSessions').exec(function (err, videos) {
+      if (err) return res.negotiate(err);
+
+      if (videos.length == 0) {
+        // no videos uploaded, return empty array
+        return res.json([]);
+      }
+
+      var videoCount = videos.length;
+      // combine all video view sessions as an array of object
+      var videoStats = [];
+      videos.forEach(function (video) {
+        video.viewedSessions.forEach(function (session) {
+          videoStats.push(session);
+        })
+      });
+      return res.json({
+        viewSessions: videoStats,
+        videoLength: videoCount
+      });
+    })
   }
 
 };

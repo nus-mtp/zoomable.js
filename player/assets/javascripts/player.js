@@ -2,10 +2,10 @@
 var mpdList = [];
 for(var i = 1; i <= 3; i++) {
 	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../TEST/squirrel_video_mpd_R' + i + 'C' + j + '.mpd');
+		mpdList.push('/../../../../../../testvids/squirrel_video_mpd_R' + i + 'C' + j + '.mpd');
 	}
 }
-mpdList.push('/../../../../../../TEST/squirrel_video.mp3');
+mpdList.push('/../../../../../../testvids/squirrel_video.mp3');
 
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;

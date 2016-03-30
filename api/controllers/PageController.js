@@ -92,10 +92,19 @@ module.exports = {
   },
 
   showPlayerPage: function (req, res) {
-      return res.view('fullplayer', {
-        user: [],
-        video: []
-      });
+
+		// retreive the video object using the id
+		Video.findOne(req.param('id'), function(err, video){
+			if (err) {
+				// return error
+			}
+
+			return res.view('fullplayer', {
+				user: [],
+				video: video
+			});
+
+		});
   },
 
 	showStatPage: function (req, res) {

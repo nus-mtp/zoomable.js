@@ -5,6 +5,7 @@ module.exports = {
 	autoPK: false,
 	attributes: {
 		id :{
+			type: 'integer',
 			autoIncrement: true,
 			primaryKey: true,
 			columnName: 'video_id'
@@ -19,9 +20,14 @@ module.exports = {
 	    	type: 'string'
 	    },
 
+	    // each video owns multiple tags
 	    tags: {
 	    	collection: 'tag',
 	    	via: 'videoWithTags'
+	    },
+
+	    ownedBy: {
+	    	model: 'user',
 	    },
 
 	    views: {
@@ -31,39 +37,55 @@ module.exports = {
 
 	    // 0 for self only, 1 for public
 	    privacy: {
-	    	type: 'integer', 
+	    	type: 'integer',
 	    	defaultsTo: 1
 	    },
 
-	    duration: {
-	    	type: 'string'
-	    },
+		embedURL: {
+			type: 'string'
+		},
 
-	    shares: {
-	    	type: 'integer',
-	    	defaultsTo: 0
-	    },
+		duration: {
+			type: 'string'
+		},
 
-	    videoDir: {
-	    	type: 'string'
-	    },
+		shares: {
+			type: 'integer',
+			defaultsTo: 0
+		},
 
-	    mpdDir: {
-	    	type: 'array'
-	    },
+		mpdDir: {
+			type: 'array'
+		},
 
-	    thumbnailDir: {
-	    	type: 'string'
-	    },
-	    
-	    createdAt: {
-	    	type: 'datetime',
-	    	defaultsTo: function() {return new Date(); }
-	    },
+		mp3Dir: {
+			type: 'string'
+		},
 
-	    updatedAt: {
-	    	type: 'datetime',
-	    	defaultsTo: function() {return new Date(); }
-	    }
+		thumbnailDir: {
+			type: 'string'
+		},
+
+		hasProcessed: {
+			type: 'string',
+			enum: ['false', 'true'],
+			defaultsTo: 'false'
+		},
+
+		createdAt: {
+			type: 'datetime',
+			defaultsTo: function() {return new Date(); }
+		},
+
+		updatedAt: {
+			type: 'datetime',
+			defaultsTo: function() {return new Date(); }
+		},
+
+		// Add a reference to ViewSession
+		viewedSessions: {
+			collection: 'ViewSession',
+			via: 'videoId'
+		}
 	}
 }

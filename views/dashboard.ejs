@@ -52,11 +52,16 @@
           <md-list-item class="md-3-line video-item" ng-repeat="video in videoList | orderBy: sortType | filter: filterType" ng-show="videoList.length" ng-mouseover="hasMouseover = 'visibile'" ng-mouseleave="hasMouseover = 'hidden'">
             <md-checkbox ng-model="video.selected" ng-change="isLabelChecked()"></md-checkbox>
             <a href="/edit/{{ video.id }}">
-              <!-- TODO: Uncomment after server side can auto generate image directory
-              <span ng-show="video.thumbnailDir">
-              <img ng-src="{{ video.thumbnail }}" alt="{{ video.title }}" />
-            </span> -->
-              <img ng-src="{{ defaultImagePath }}" alt="{{ video.title }}" />
+              <span ng-if="video.hasProcessed === 'true'">
+                <img ng-src="{{ video.thumbnailDir }}" alt="{{ video.title }}" />
+              </span>
+              <div ng-if="video.hasProcessed === 'false' && video.error === undefined" class="spin-container">
+                <md-icon md-svg-icon="images/ic_spin.svg" class="spin"></md-icon>
+                <span class="text-process">Processing</span>
+              </div>
+              <div ng-if="video.hasProcessed === 'false' && video.error.length > 0" class="spin-container">
+                <span class="text-process-error">{{video.error}}</span>
+              </div>
             </a>
 
             <div class="md-list-item-text">
@@ -86,8 +91,8 @@
 
           </md-list-item>
 
-          <md-list-item ng-hide="videoList.length" layout="row" layout-align="center center">
-            No Video Yet
+          <md-list-item ng-show="error" layout="row" layout-align="center center">
+            {{ error }}
           </md-list-item>
         </md-card-content>
 
