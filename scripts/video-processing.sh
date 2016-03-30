@@ -1,6 +1,7 @@
-#!/bin/bash
+# UPDATE THIS PATH IN YOUR SERVER
+#!/usr/local/bin/bash
 
-# Credits to: 
+# Credits to:
 # http://www.unix.com/shell-programming-and-scripting/136694-automated-ffmpeg-convert-bash-script.html
 # http://superuser.com/questions/538112/meaningful-thumbnails-for-a-video-using-ffmpeg
 # http://blog.streamroot.io/encode-multi-bitrate-videos-mpeg-dash-mse-based-media-players-22/
@@ -12,7 +13,8 @@
 # Directory on the server where uploaded videos go to
 srclocation=$*
 # Extensions recognizable by FFMPEG and that can be processed
-srcext=".mp4"
+srcext_mp4=".mp4"
+srcext_mov=".mov"
 # Final output format type
 finalformat=".mp4"
 # The slash character
@@ -25,11 +27,13 @@ c="C"
 # Looking for a file that ends in .mp4 and executes the FFMPEG commands to commence processing
 # Retrieve the video's directory location, including its name (e.g. /usr/bin/test.txt)
 # ASSUMPTION: There is only 1 file in that directory with that specified extension
-vidloc=$(find "${srclocation}" -iname "*${srcext}")
+vidloc=$(find "${srclocation}" -iname "*${srcext_mp4}" -o -iname "*${srcext_mov}")
 # Retrieve the parent directory of this file
 parentdir=$(dirname $vidloc)
 # Strip out the leading directory prefixes infront of the filename
 vidname_and_ext=$(basename "$vidloc")
+# Retrieve the file extension type
+srcext=".""${vidname_and_ext##*.}"
 # Pure filename without the extension type
 vidname=$(basename "$vidname_and_ext" ${srcext})
 
@@ -162,7 +166,7 @@ do
 	# For each row
 	for j in {1..3}
 	do
-		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${parentdir}${slash}${vidname}${mpd_name}${r}${j}${c}${i}${mpd_ext} ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
+		MP4Box -dash 10000 -rap -frag-rap -profile dashavc264:onDemand -out ${parentdir}${slash}${vidname}${r}${j}${c}${i}${mpd_ext} ${parentdir}${slash}${vidname}${_360p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_480p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_720p_ext}${r}${j}${c}${i}${finalformat}#video ${parentdir}${slash}${vidname}${_1080p_ext}${r}${j}${c}${i}${finalformat}#video
 	done
 done
 

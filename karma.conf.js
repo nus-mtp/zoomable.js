@@ -31,6 +31,7 @@ module.exports = function(config) {
       'libs/angular-moment/angular-moment.js',
       'libs/Chart.js/Chart.js',
       'libs/angular-chart.js/dist/angular-chart.js',
+      'libs/ngprogress/build/ngprogress.js',
 
       'assets/js/public/zoomableApp.js',
       'assets/js/public/directives.js',

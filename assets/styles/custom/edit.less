@@ -107,6 +107,18 @@
         }
     }
 
+    .video-and-info {
+        flex-wrap: wrap;
+
+        iframe {
+            border: none;
+        }
+    }
+
+    .video-info-column {
+        width: calc(~'100% - 650px');
+    }
+
     .video-date {
         color: fade(@color-black, 50%);
         font-size: 13px;
@@ -118,7 +130,7 @@
 
         button.md-button.md-icon-button {
             height: 20px;
-            margin: 0px 0px 0px 5px;
+            min-height: 20px;
             padding: 0px;
             width: 20px;
 
@@ -129,11 +141,14 @@
         }
 
         .embed-link-area {
-            span {
-                padding-top: 9px;
+            .field {
+                margin-top: 5px;
             }
             input {
-                width: 225px;
+                width: 210px;
+            }
+            .value {
+              display: block;
             }
         }
 
@@ -141,7 +156,7 @@
             color: fade(@color-black, 87%);
             float: left;
             font-weight: 300;
-            width: 110px;
+            width: 95px;
         }
 
         .title {

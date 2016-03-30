@@ -40,7 +40,7 @@ module.exports.routes = {
   'GET /': 'PageController.showHomePage',
   'GET /statistics': 'PageController.showStatPage',
   'GET /edit/:id': 'PageController.showEditPage',
-  'GET /embed': 'PageController.showPlayerPage',
+  'GET /embed/:id': 'PageController.showPlayerPage',
 
 
   /***************************************************************************
@@ -52,5 +52,5 @@ module.exports.routes = {
   * for configuration options and examples.                                  *
   *                                                                          *
   ***************************************************************************/
-
+  'DELETE /api/video/': 'VideoController.destroyAll'
 };

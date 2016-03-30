@@ -1,29 +1,44 @@
-// The list of MPDs are hardcoded here for now, will eventually run a script to detect the relevant MPDs to retrieve
-var mpdList = [];
-for(var i = 1; i <= 3; i++) {
-	for(var j = 1; j <= 4; j++) {
-		mpdList.push('/../../../../../../TEST/squirrel_video_mpd_R' + i + 'C' + j + '.mpd');
-	}
-}
-mpdList.push('/../../../../../../TEST/squirrel_video.mp3');
-
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
-	canvas_obj = document.getElementById('canvas');
-	var loadPlayers = new Player(canvas_obj, mpdList);
-	loadPlayers.initShakaPlayers();
-	loadPlayers.initSlaves();
-	loadPlayers.init();
+	// Retrieve the list of MPDs and audio file through a HTTP GET request to the server
+	var url = document.URL;
+	var vidId = url.substring(url.lastIndexOf('/'));
+	var mpdList;
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/api/video" + vidId, true);
+	xhr.send();
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			// To add the list of MPDs
+			mpdList = JSON.parse(xhr.response).mpdDir;
+			// To add the mp3 audio file location to the list of MPDs
+			mpdList.push(JSON.parse(xhr.response).mp3Dir);
+
+			canvas_obj = document.getElementById('canvas');
+			var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+				var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
+				return v.toString(16);
+			});
+
+			var loadPlayers = new Player(canvas_obj, mpdList, vidId, uuid);
+			loadPlayers.initShakaPlayers();
+			loadPlayers.init();
+		}
+	};
+
 }, false);
 
-var Player = function(canvas, mpd_list) {
+var Player = function(canvas, mpd_list, vidId, uuid) {
 
-	var VID_WIDTH = 160;
-	var VID_HEIGHT = 120;
+	var VID_WIDTH = canvas.width / 4;
+	var VID_HEIGHT = canvas.height / 3;
 	var NUM_SLAVES = 12;
 	var NUM_ROWS = 3;
 	var NUM_COLS = 4;
+
+	this.vidId = vidId;	// The unique video ID assigned by the server side
+	this.uuid = uuid;	// The uuid to denote each viewing session's stats
 
 	this.time = null;
 	this.timeArr = [];  // Array of current time for each video object
@@ -63,11 +78,6 @@ var Player = function(canvas, mpd_list) {
 		init_players(this, canvas, mpd_list);
 	};
 
-	// Initialization of all the Slave objects
-	this.initSlaves = function() {
-		initSlaveObjs(this);
-	};
-
 	// Initialization will only be called once during the creation of the Player object the first time
 	this.init = function() {
 
@@ -75,8 +85,8 @@ var Player = function(canvas, mpd_list) {
 		this.volume = new Volume(this); // To initialize the volume of the audio file
 		this.volume.setVolume(0.5); //set default vol of video
 
-		this.scroll = new Scroll(this); // NOT WORKING YET
-		this.zoom = new Zoom(this); // NOT WORKING YET
+		this.scroll = new Scroll(this);
+		this.zoom = new Zoom(this);
 		this.controls = new Controls(this);
 		this.transforms = new Transforms(this);
 		this.seek = new Seek(this);
@@ -153,6 +163,7 @@ var Player = function(canvas, mpd_list) {
 		this.zoomOutBtn = document.getElementById('zoomOutBtn');
 		this.zoomCtrl = document.getElementById('zoomCtrl');
 		this.zoomInBtn = document.getElementById('zoomInBtn');
+		this.fullscreenBtn = document.getElementById('fullscreenBtn');
 
 		this.playPauseBtn.addEventListener('click',function(){
 			player.controls.playPauseVideo();
@@ -195,13 +206,13 @@ var Player = function(canvas, mpd_list) {
 		// This is to check and update the UI controls when the 'Zoom Out'
 		// button is clicked
 		this.zoomOutBtn.addEventListener('click',function(){
-			player.zoom.out();  // NEED TO TAKE NOTE OF THIS
+			player.zoom.out();
 		},false);
 
 		// This is to check and update the UI controls when the 'change' event
 		// occurs on the zoom controls
 		this.zoomCtrl.addEventListener('change',function(){
-			player.zoom.adjust(); // NEED TO TAKE NOTE OF THIS
+			player.zoom.adjust();
 		},false);
 
 		// This is to check and update the UI controls when the 'mousemove'
@@ -210,10 +221,16 @@ var Player = function(canvas, mpd_list) {
 			player.controls.updateSliderUI(player.controls.zoomCtrl);
 		},false);
 
+		// This is to check and update the FULLSCREEN button on the UI controls
+		// and toggle full screen when clicked
+		this.fullscreenBtn.addEventListener('click',function(){
+			player.controls.toggleFullscreen();
+		},false);
+
 		/* Play or pause the video */
 		this.playPauseVideo = function() {
 			// If the player is paused, i.e. player.paused == true, play all the videos
-			if(player.paused) {
+			if (player.paused && !player.ended) {
 				player.util.forAllSlaves(player.controls.playVideo);
 				// Set the slavePauseArr to all false
 				player.util.setPauseArr(false);
@@ -223,6 +240,25 @@ var Player = function(canvas, mpd_list) {
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
+			}
+			// Else if the video has ended, i.e. player.ended == true,
+			// Set the seek time back to 0, play all the videos
+			else if (player.ended) {
+				player.util.forAllSlaves(player.controls.restartVideo);
+				// Set the slavePauseArr to all false
+				player.util.setPauseArr(false);
+				// Set the player's pause state to false
+				player.paused = false;
+				syncPauseState(player);
+				// Reset the player.slaveEndArr to empty again
+				player.slaveEndArr = [];
+				// Set the player's ended boolean value to false
+				player.ended = false;
+				// Change the UI controls to reflect the new play state
+				player.controls.changeToPlayState();
+				// Play the audio file
+				player.audio.play();
+
 			}
 			// Else if the player is playing, i.e. player.paused == false, pause all the videos
 			else {
@@ -245,6 +281,11 @@ var Player = function(canvas, mpd_list) {
 			slaveObj.video.pause();
 		}
 
+		this.restartVideo = function(slaveObj) {
+			slaveObj.video.currentTime = 0;
+			slaveObj.video.play();
+		}
+
 		/* Updates icon to "play" button during pause state, show UI controls bar */
 		this.changeToPauseState = function() {
 			this.playPauseBtn.className = 'play';
@@ -256,6 +297,13 @@ var Player = function(canvas, mpd_list) {
 			this.playPauseBtn.className = 'pause';
 			this.uiControls.className = 'hideOnHover';
 		}
+
+		/* Updates icon to "replay" button after video has ended, show UI controls bar */
+		this.changeToReplayState = function() {
+			this.playPauseBtn.className = 'replay';
+			this.uiControls.className = '';
+		}
+
 		/* Retrieve total duration of video and update total time text */
 		this.getVideoLength = function() {
 			var convertedTotalTime = player.util.convertSecondsToHMS(player.duration);
@@ -282,6 +330,48 @@ var Player = function(canvas, mpd_list) {
 			gradient.push('rgba(255, 255, 255, 0.3) 100%');
 			element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
 		};
+
+		/* Toggle fullscreen video */
+		this.toggleFullscreen = function() {
+			if (this.fullscreenBtn.className === '') {
+				// player is currently not in full screen mode
+				// set player to full screen
+				var playerArea = document.getElementById('canvasPlayerArea');
+				if (playerArea.webkitRequestFullScreen)
+					playerArea.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);   // chrome and safari
+				else if (playerArea.mozRequestFullScreen)
+					playerArea.mozRequestFullScreen();  	// firefox
+				else if (playerArea.msRequestFullScreen)
+					playerArea.msRequestFullScreen();  		// IE
+				else
+					playerArea.requestFullscreen();     	// standard
+				// update button class
+				this.fullscreenBtn.className = 'exit';
+			}
+			else if (this.fullscreenBtn.className == 'exit') {
+				// player is currently in full screen mode
+				// exit from fullscreen
+				if (document.webkitExitFullscreen)
+					document.webkitExitFullscreen();
+				else if (document.mozCancelFullscreen)
+					document.mozCancelFullscreen();
+				else if (document.msExitFullscreen)
+					document.msExitFullscreen();
+				else
+					document.exitFullscreen();
+				// update button class
+				this.fullscreenBtn.className = '';
+			}
+		};
+
+		/* Function to check whether browser is in full screen, called when full screen is toggled */
+		$(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function() {
+			if (!window.screenTop && !window.screenY) {
+				// force update of button class if exiting from full screen
+				// when using esc key and browser button
+				$('#fullscreenBtn').removeClass('exit');
+			}
+		});
 	}
 
 	var Volume = function(player){
@@ -373,9 +463,9 @@ var Player = function(canvas, mpd_list) {
 				gradient.push('rgba(255, 255, 255, 0.1) 0%');
 			} else {
 				// NOTE: the fallback to zero eliminates NaN.
-				var bufferStartFraction = (buffered.start(0) / this.duration) || 0;
-				var bufferEndFraction = (buffered.end(0) / this.duration) || 0;
-				var playheadFraction = (this.time / this.duration) || 0;
+				var bufferStartFraction = (buffered.start(0) / player.duration) || 0;
+				var bufferEndFraction = (buffered.end(0) / player.duration) || 0;
+				var playheadFraction = (player.time / player.duration) || 0;
 				gradient.push('rgba(255, 255, 255, 0.1) ' + (bufferStartFraction * 100) + '%');
 				gradient.push('rgba(255, 255, 255, 0.7) ' + (bufferStartFraction * 100) + '%');
 				gradient.push('rgba(255, 255, 255, 0.7) ' + (playheadFraction * 100) + '%');
@@ -390,9 +480,9 @@ var Player = function(canvas, mpd_list) {
 		/* Change current video time and text according to seek control value */
 		this.setAudioVideoTime = function(){
 			// Set the time of the video to be playing at
-			var seekTo = this.duration * player.controls.seekCtrl.value;
+			var seekTo = player.duration * player.controls.seekCtrl.value;
 			// Update the global current time value
-			this.time = seekTo;
+			player.time = seekTo;
 			// Update the UI controls to reflect the correct time
 			player.controls.updateCurrentTimeText(seekTo);
 
@@ -620,6 +710,18 @@ var Player = function(canvas, mpd_list) {
 				player.slavePauseArr[i] = isPaused;
 			}
 		}
+
+		this.sendStats = function(currTime) {
+			var statObj = {
+				width: (player.transforms.xform.a) * (player.dimensions.cw),
+				videoTime: currTime,
+				videoId: player.vidId,
+				sessionId: player.uuid
+			};
+			// Make a HTTP POST message to send this JSON object to the server
+			var xhr = new XMLHttpRequest();
+			//xhttp.open("POST", )
+		}
 	}
 
 	var init_players = function(player, canvas, mpd_list) {
@@ -631,7 +733,7 @@ var Player = function(canvas, mpd_list) {
 		// Inject the video elements into the HTML
 		var vidHtmlEle;
 		for(var i = 1; i <= NUM_SLAVES; i++) {
-			vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + mpd_list[i - 1] + '">Your browser does not support HTML5 video.</video>';
+			vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + '">Your browser does not support HTML5 video.</video>';
 		}
 		document.getElementById('zoomableVidElements').innerHTML = vidHtmlEle;
 
@@ -640,8 +742,42 @@ var Player = function(canvas, mpd_list) {
 		for(var rowNum = 0; rowNum < NUM_ROWS; rowNum++) {
 			// To loop through the columns while we are on a row
 			for(var colNum = 0; colNum < NUM_COLS; colNum++) {
+
 				// Locate the video element
 				var vid = document.getElementById('video_' + vidCount);
+
+				// Attach the event handlers to the video element first
+				vid.ontimeupdate = function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.timeArr[vidTimeArrIndex] = vid.currentTime;   // Update the global array of current time value for this video object
+					syncCurrentTime(player);  // Run the synchronization check for the current time
+					player.seek.updateSeekTime();   // Update the seek time based on this new time
+				};
+
+				// Upon the 'pause' event
+				vid.onpause = function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.slavePauseArr[vidTimeArrIndex] = true;   // Update the global array of pause state value for this video object
+					syncPauseState(player);	// Run the synchronization check for the overall pause state
+				};
+
+				// Upon the 'ended' event
+				vid.addEventListener('ended', function(evt) {
+					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
+					player.slaveEndArr[vidTimeArrIndex] = true;	// Update the global array of truth value for video end state
+					syncEndState(player);	// Run the synchronization check for the overall end state
+				}, false);
+
+				// Set the src mpd for that video element
+				vid.src = mpd_list[vidCount - 1];
+
+				// Construct the Slave object and initialize it
+				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
+				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
+
+				var slaveObj = new Slave(vid, canvas, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
+				player.slaves.push(slaveObj);
+				slaveObj.init();
 
 				// Construct the Shaka player to wrap around it
 				var shakaPlayer = new shaka.player.Player(vid);
@@ -661,9 +797,7 @@ var Player = function(canvas, mpd_list) {
 			}
 		}
 
-		// Inject the audio element into the HTML
-		// HARDCODED!!!!!! for now
-		var audHtmlEle;
+ 		var audHtmlEle;
 		audHtmlEle = '<audio id="aud_file" controls><source src="' + mpd_list[12] + '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
 		document.getElementById('zoomableAudElements').innerHTML = audHtmlEle;
 		// Set the audio object of the Player
@@ -732,9 +866,12 @@ var Player = function(canvas, mpd_list) {
 		}
 
 		// If the overall end state is true for all videos, reset the UI play
-		// button to be the 'play' button
+		// button to be the 'replay' button
 		if (newEndState == true) {
+			// Set the overall player end state to be true
+			player.ended = true;
 			// Reset the players
+			player.controls.changeToReplayState();
 		}
 	}
 
@@ -746,45 +883,4 @@ var Player = function(canvas, mpd_list) {
 		};
 	};
 
-	var initSlaveObjs = function(player) {
-		var newVidCount = 1;
-		// To loop through the rows while we are on a column
-		for(var rowNum = 0; rowNum < NUM_ROWS; rowNum++) {
-			// To loop through the columns while we are on a row
-			for(var colNum = 0; colNum < NUM_COLS; colNum++) {
-				// To instantiate a new Slave object for each Shaka video player
-				var slaveVid = document.getElementById('video_' + newVidCount);
-				var playerCanv = this.canvas;
-				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
-				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
-				// Attach an event listener to each video object for each Slave object
-				// Upon the 'timeupdate' event
-				slaveVid.addEventListener('timeupdate', function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.timeArr[vidTimeArrIndex] = slaveVid.currentTime;   // Update the global array of current time value for this video object
-					syncCurrentTime(player);  // Run the synchronization check for the current time
-					player.seek.updateSeekTime();   // Update the seek time based on this new time
-				}, false);
-
-				// Upon the 'pause' event
-				slaveVid.addEventListener('pause', function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.slavePauseArr[vidTimeArrIndex] = true;   // Update the global array of pause state value for this video object
-					syncPauseState(player);	// Run the synchronization check for the overall pause state
-				}, false);
-
-				// Upon the 'ended' event
-				slaveVid.addEventListener('ended', function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.slaveEndArr[vidTimeArrIndex] = true;	// Update the global array of truth value for video end state
-					syncEndState(player);	// Run the synchronization check for the overall end state
-				}, false);
-
-				var slaveObj = new Slave(slaveVid, playerCanv, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
-				player.slaves.push(slaveObj);
-				slaveObj.init();
-				newVidCount++;
-			}
-		}
-	};
 }
