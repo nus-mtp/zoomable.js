@@ -15,7 +15,7 @@ describe('VideoController', function () {
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
-				
+
 				(res.text).should.match('You are not permitted to perform this action.');
 				done();
 			});
@@ -37,7 +37,7 @@ describe('VideoController', function () {
 				.expect(200)
 				.end(function (videoCreateErr, videoCreateRes) {
 					if (videoCreateErr)  done(videoCreateErr);
-					
+
 					(videoCreateRes.body.title).should.equal('Mission Impossible');
 					done();
 				});
@@ -54,7 +54,7 @@ describe('VideoController', function () {
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
-				
+
 				(res.text).should.match('You are not permitted to perform this action.');
 				done();
 			});
@@ -72,7 +72,7 @@ describe('VideoController', function () {
 				.expect(200)
 				.end(function (videoCreateErr, videoCreateRes) {
 					if (videoCreateErr)  done(videoCreateErr);
-					
+
 					(videoCreateRes.body.title).should.equal('Mission Impossible');
 					done();
 				});
@@ -89,7 +89,7 @@ describe('VideoController', function () {
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
-				
+
 				(res.text).should.match('You are not permitted to perform this action.');
 				done();
 			});
@@ -118,7 +118,7 @@ describe('VideoController', function () {
 			});
 		});
 	});
-	
+
 	describe('#update', function () {
 		var agent = request.agent('http://localhost:1337');
 
@@ -129,7 +129,7 @@ describe('VideoController', function () {
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
-				
+
 				(res.text).should.match('You are not permitted to perform this action.');
 				done();
 			});
@@ -148,11 +148,11 @@ describe('VideoController', function () {
 				.expect(200)
 				.end(function (err, res) {
 					if (err) done(err);
-					
+
 					res.body[0].should.be.instanceof(Object).and.have.property('title', 'Mission Possible');
 					done();
 				});
-			});	
+			});
 		});
 	});
 
@@ -165,7 +165,7 @@ describe('VideoController', function () {
 			.expect(403)
 			.end(function (err, res) {
 				if (err) done(err);
-				
+
 				(res.text).should.match('You are not permitted to perform this action.');
 				done();
 			});
@@ -186,7 +186,14 @@ describe('VideoController', function () {
 					// Try to find the deleted video
 					agent
 					.get('/api/video/4')
-					.expect(404, done);
+					.expect(200)
+					.end(function (err, res) {
+						if (err) done(err);
+
+						// empty array should be returned if video not found
+						res.body.should.be.instanceof(Array).and.have.length(0);
+						done();
+					});
 				});
 			});
 		});
@@ -223,17 +230,28 @@ describe('VideoController', function () {
 					videoDeleteRes.body.should.be.instanceof(Array).and.have.length(2);
 					videoDeleteRes.body[0].should.be.instanceof(Object).and.have.property('title', 'Zootopia');
 					videoDeleteRes.body[1].should.be.instanceof(Object).and.have.property('title', 'The Big Short');
-					// Try to find the deleted video
+
+					// Try to find deleted video 2
 					agent
 					.get('/api/video/2')
-					.expect(404)
-					.end(function (videoDeleteErr, videoDeleteRes) {
-						if (videoDeleteErr) done(videoDeleteErr);
-					
-						// Try to find the deleted video
+					.expect(200)
+					.end(function (video2CheckErr, video2CheckRes) {
+						if (video2CheckErr) done(video2CheckErr);
+
+						// empty array should be returned if video not found
+						video2CheckRes.body.should.be.instanceof(Array).and.have.length(0);
+
+						// try to find deleted video 3
 						agent
 						.get('/api/video/3')
-						.expect(404, done);
+						.expect(200)
+						.end(function (video3CheckErr, video3CheckRes) {
+							if (video3CheckErr) done(video3CheckErr);
+
+							// empty array should be returned if video not found
+							video3CheckRes.body.should.be.instanceof(Array).and.have.length(0);
+							done();
+						});
 					});
 				});
 			});

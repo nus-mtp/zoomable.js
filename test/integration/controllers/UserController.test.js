@@ -46,7 +46,7 @@ describe('UserController', function () {
 			request(sails.hooks.http.app)
 			.post('/api/user/login')
 			.send(existingEmailCredentials)
-			.expect(404, done);
+			.expect(401, done);
 		});
 	});
 

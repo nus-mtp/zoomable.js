@@ -3,7 +3,8 @@ var request = require('supertest');
 describe('ViewSessionController', function () {
 	var credentials = { username: 'test', password: 'testtesttest'};
 	var video = {title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
-	var session = {sessionId: 'session_id', videoId: 0, coordinates: [0, 0], width: 99.99, videoTime: 2.55};
+	var incompleteSession = {sessionId: 'session_id'};
+	var session = {sessionId: 'session_id', videoId: 9999, coordinates: [0, 0], width: 99.99, videoTime: 2.55};
 	var video_id = 0;
 
 	before(function(done) {
@@ -35,8 +36,22 @@ describe('ViewSessionController', function () {
 	describe('#create', function () {
 		var agent = request.agent('http://localhost:1337');
 
+		it('should not create a new View Session if there are missing fields', function (done) {
+			agent
+			.post('/api/viewsession')
+			.send(incompleteSession)
+			.expect(200)
+			.end(function (err, res) {
+				if (err) done(err);
+
+				res.body.should.be.instanceof(Object);
+				res.body.should.have.property('error', 'Required fields are not entered.');
+				done();
+			});
+		});
+
 		it('should not create a new View Session if video id is not found', function (done) {
-			// session has invalid video id of 0
+			// session has invalid video id of 9999
 			agent
 			.post('/api/viewsession')
 			.send(session)
