@@ -3,6 +3,26 @@
     <md-list-item>Statistics not available yet.</md-list-item>
   </div>
 
+  <div class="zoom-analysis-area" ng-show="location[1] === 'edit'">
+    <div layout="row">
+      <div flex="100" class="zoom-stats-area">
+        <div class="graph-title">
+          <md-icon class="zoom-icon" md-svg-icon="images/ic_zoom.svg"></md-icon>Zoom Frequency Analysis
+        </div>
+      </div>
+    </div>
+    <div layout="row">
+      <div flex="50" class="zoom-stats-video">
+        One video here
+      </div>
+      <div flex="50" class="zoom-stats-video">
+        Another video here
+      </div>
+    </div>
+  </div>
+
+  <md-divider class="video-divider" ng-show="location[1] === 'edit'"></md-divider>
+
   <div ng-if="!noStatisticsYet">
     <div layout="row">
       <div flex="70" class="date-area">
