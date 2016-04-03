@@ -70,10 +70,12 @@ var Slave = function(vid, canv, coords, dims, parent) {
 		this.draw = function() {
 			//slave.master.sync.frames();
 			if (slave.id == 1) {
-				slave.master.frameArr[0] = slave.vf.get()
+				//slave.master.frameArr[0] = slave.vf.get()
+				slave.master.timeArr[0] = slave.video.currentTime;
 			}
 			if (slave.id != 1) {
-				slave.vf.seekTo({frame: slave.master.frameArr[0]});
+				//slave.vf.seekTo({frame: slave.master.frameArr[0]});
+				slave.video.currentTime = slave.master.timeArr[0];
 				//console.log(slave.master.frameArr[0])
 				//slave.controls.updateTime(slave.id - 1);
 				//slave.controls.updateFrame(slave.id - 1);

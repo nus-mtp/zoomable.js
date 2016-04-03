@@ -17,12 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			mpdList.push(JSON.parse(xhr.response).mp3Dir);
 
 			canvas_obj = document.getElementById('canvas');
+			var minimap_canvas = document.getElementById('minimap');
 			var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 				var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
 				return v.toString(16);
 			});
 
-			var loadPlayers = new Player(canvas_obj, mpdList, vidId, uuid);
+			var loadPlayers = new Player(canvas_obj, mpdList, vidId, uuid, minimap_canvas);
 			loadPlayers.initShakaPlayers();
 			loadPlayers.init();
 		}
@@ -30,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 }, false);
 
-var Player = function(canvas, mpd_list, vidId, uuid) {
+var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 	var VID_WIDTH = canvas.width / 4;
 	var VID_HEIGHT = canvas.height / 3;
@@ -239,6 +240,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		this.fullscreenBtn.addEventListener('click',function(){
 			player.controls.toggleFullscreen();
 		},false);
+	});
 
 		/* Play or pause the video */
 		this.playPauseVideo = function() {
@@ -393,7 +395,6 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				$('#fullscreenBtn').removeClass('exit');
 			}
 		});
->>>>>>> a5841db0414d0796ba8194891155aebdae14ba76
 	}
 
 	var Volume = function(player){
