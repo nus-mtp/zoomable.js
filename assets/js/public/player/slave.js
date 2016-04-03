@@ -25,11 +25,13 @@ var Slave = function(vid, canv, coords, dims, parent) {
 	}
 	var Controls = function(slave) {
 		// Attach the event handlers to the video element first
-		slave.video.addEventListener('timeupdate', function(evt) {
-			slave.controls.updateTime(evt);
-			slave.controls.updateFrame(evt);
-		} );
-
+		if (slave.id == 1) {
+			slave.video.addEventListener('timeupdate', function(evt) {
+				slave.controls.updateTime(evt);
+				//slave.controls.updateFrame(evt);
+				slave.master.seek.updateSeekTime();
+			} );
+		}
 		// Upon the 'pause' event
 		slave.video.addEventListener('pause', function(evt) { slave.controls.updatePause(evt); } );
 
@@ -44,6 +46,7 @@ var Slave = function(vid, canv, coords, dims, parent) {
 		}
 		this.updateFrame = function(evt) {
 			var vidFrameArrIndex = (evt.srcElement.id.substring(6) - 1);
+	//		console.log(slave.vf.get());
 			slave.master.frameArr[vidFrameArrIndex] = slave.vf.get();   // Update the global array of current frame value for this video object
 			slave.master.sync.currentFrame();  // Run the synchronization check for the current frame
 		}
@@ -65,14 +68,25 @@ var Slave = function(vid, canv, coords, dims, parent) {
 		},false);
 
 		this.draw = function() {
-			slave.master.sync.frames();
+			//slave.master.sync.frames();
+			if (slave.id == 1) {
+				slave.master.frameArr[0] = slave.vf.get()
+			}
+			if (slave.id != 1) {
+				slave.vf.seekTo({frame: slave.master.frameArr[0]});
+				//console.log(slave.master.frameArr[0])
+				//slave.controls.updateTime(slave.id - 1);
+				//slave.controls.updateFrame(slave.id - 1);
+			}
+			//slave.master.seek.updateSeekTime();
 			if (!slave.video.paused) { 	//if(v.paused || v.ended) return false;
 				//slave.frameCnt += 1;
 				//console.log(slave.frameCnt);
+				if (slave.id != 1) console.log('id: ' + slave.id + " drawing");
 				slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
 			}
 			//slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
-			requestAnimationFrame(slave.transforms.draw)
+			setTimeout(slave.transforms.draw,1000);
 			//setTimeout(slave.transforms.draw,20);
 		}
 

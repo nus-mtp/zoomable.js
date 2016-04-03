@@ -88,8 +88,8 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 		this.sync = new Sync(this);
 		this.mouseactions = new MouseActions(this);
 		this.snapshotCanvas = document.getElementById('snapshot_canvas');
-		//this.minimap = new Minimap(minimap_canvas, "", this);
-		//this.minimap.init();
+		this.minimap = new Minimap(minimap_canvas, "", this);
+		this.minimap.init();
 	};
 
 	var MouseActions = function(player) {
@@ -234,7 +234,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
-				player.sync.frames();
+				//player.sync.frames();
 			}
 			// Else if the video has ended, i.e. player.ended == true,
 			// Set the seek time back to 0, play all the videos
@@ -604,10 +604,10 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 			if (y < 0) y *= (-1);
 			x /= player.transforms.xform.a;
 			y /= player.transforms.xform.a;
-			//player.minimap.ctx.clearRect(0,0,canvas.width,canvas.height);
-			//player.minimap.outline.draw(x,y, player.dimensions.cw/player.transforms.xform.a,
-			//								 player.dimensions.ch/player.transforms.xform.a);
-			// change dimensions and coords
+			player.minimap.ctx.clearRect(0,0,canvas.width,canvas.height);
+			player.minimap.outline.draw(x,y, player.dimensions.cw/player.transforms.xform.a,
+											 player.dimensions.ch/player.transforms.xform.a);
+			//change dimensions and coords
 			// slave.redraw for slaves still in view
 		}
 		this.outerTranslate = function() {
@@ -696,9 +696,10 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 			for (var i = 0; i < player.slaves.length; i++) {
 				str += i + ": " + player.slaves[i].vf.get() + "  at the time: " + Date.now() + "\n";
 			}
-			console.log(str);
+			player.util.forAllSlaves(seek);
+			//console.log(str);
 			player.util.forAllSlaves(redraw);
-			//requestAnimationFrame(player.sync.frames);
+			requestAnimationFrame(player.sync.frames);
 		}
 		this.currentTime = function() {
 			var earliestTime = null;
@@ -712,7 +713,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 					}
 				}
 			}
-			player.time = earliestTime;
+			player.time = player.timeArr[0];
 		};
 		this.currentFrame = function() {
 			var earliestFrame = null;
@@ -726,7 +727,7 @@ var Player = function(canvas, minimap_canvas, mpd_list) {
 					}
 				}
 			}
-			player.frame = player.frameArr[4];
+			player.frame = player.frameArr[0];
 		};
 
 		this.pauseState = function() {
