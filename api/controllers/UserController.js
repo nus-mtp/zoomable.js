@@ -21,7 +21,10 @@ module.exports = {
       username: req.param('username')
     }, function foundUser(err, user) {
       if (err) return res.negotiate(err);
-      if (!user) return res.notFound();
+      if (!user) {
+        // prompt incorrect credentials error to prevent hackers from trying to guess password combination
+        return res.send(401, 'Incorrect username/password. Please try again.');
+      }
 
       Passwords.checkPassword({
         passwordAttempt: req.param('password'),
@@ -34,7 +37,7 @@ module.exports = {
 
         // If the password attempted is different from stored encrypted password
         incorrect: function () {
-          return res.notFound();
+          return res.send(401, 'Incorrect username/password. Please try again.');
         },
 
         success: function () {
@@ -102,6 +105,9 @@ module.exports = {
    * Usage: GET /api/user/logout
    */
   logout: function (req, res) {
+    // Handle the case when logout is called when not signed in
+    if (!req.session.me) return res.backToHomePage();
+
     // Look up the user record from the database which is
     // referenced by the id in the user session (req.session.me)
     User.findOne(req.session.me, function foundUser(err, user) {
@@ -129,6 +135,28 @@ module.exports = {
     return res.json({
       todo: 'updatePassword() is not implemented yet!'
     });
+  },
+
+  /**
+   * `UserController.getInfo()`
+   * Usage: GET /api/user/getAccountDate
+   */
+  getAccountDate: function (req, res) {
+    // Look up the user record from the database which is
+    // referenced by the id in the user session (req.session.me)
+    User.findOne(req.session.me).exec(function foundUser(err, user) {
+      if (err) return res.negotiate(err);
+
+      // no matched user, return user not found
+      if (!user) {
+        return res.status(404).notFound('UserNotFound');
+      }
+
+      // only return user account creation date
+      return res.json({
+        createdDate: user.createdAt
+      });
+
+    });
   }
 };
-

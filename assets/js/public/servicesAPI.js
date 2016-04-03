@@ -12,6 +12,12 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
     getOne : function(id) {
       return $http.get('/api/video/' + id);
     },
+    getVideoStat : function(id) {
+      return $http.get('/api/video/getStat/' + id);
+    },
+    getVideoStats : function() {
+      return $http.get('/api/video/getStats');
+    },
     getUploadProgress : function(id) {
       return $http.post('/api/video/isComplete', id);
     },
@@ -26,6 +32,9 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
     },
     login : function(accountData) {
       return $http.post('/api/user/login', accountData);
+    },
+    getUserAccountDate : function() {
+      return $http.get('/api/user/getAccountDate');
     },
     upload : function (file) {
       return $q(function(resolve, reject) {

@@ -1,5 +1,9 @@
 angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog,
    $mdMedia, Upload, $timeout, $interval, $location, $q){
+  // ERROR MESSAGE
+  var ServiceUnavailableError = 'Service is unavailable at the moment. Please refresh your browser.';
+  var NoVideosUploaded = 'No Videos Yet';
+
   // VARIABLES
   $scope.filterStates = ['Public','Private'];
   $scope.sortStates = ['Latest','Most Viewed'];
@@ -10,7 +14,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
 
   $scope.model = {
     selectedVideoList: []
-  }
+  };
 
   /* Update video list */
   getVideoList();
@@ -19,11 +23,14 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   function getVideoList() {
     servicesAPI.get()
       .success(function(data) {
+        if (data.length === 0) {
+          $scope.error = NoVideosUploaded;
+        }
         $scope.videoList = data;
         getProcessStatusAll();
       })
       .error(function(data) {
-        $scope.error = 'Error: ' + data;
+        $scope.error = ServiceUnavailableError;
       });
   }
 

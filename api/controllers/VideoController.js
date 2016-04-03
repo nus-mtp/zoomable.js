@@ -31,8 +31,11 @@ module.exports = {
       id: req.param('id'),
       ownedBy: req.session.me
     }).exec(function (err, video) {
-      if (err) return res.negotiate(err); 
-      if (video == undefined) return res.notFound();
+      if (err) return res.negotiate(err);
+      if (!video) {
+        // no matched video id, return empty array
+        return res.json([]);
+      }
       return res.json(video);
     })
   },
@@ -44,10 +47,13 @@ module.exports = {
   find: function (req, res) {
     Video.find({
       ownedBy: req.session.me
-    }).exec(function (err, video) {
+    }).exec(function (err, videos) {
       if (err) return res.negotiate(err);
-      if (video.length == 0) return res.notFound();
-      return res.json(video);
+      if (videos.length == 0) {
+        // no videos uploaded, return empty array
+        return res.json([]);
+      }
+      return res.json(videos);
     })
   },
 
@@ -73,7 +79,7 @@ module.exports = {
    */
    destroyAll: function(req, res) {
     Video.destroy({
-      id: req.param('id'), 
+      id: req.param('id'),
       ownedBy: req.session.me
     }).exec(function (err, deletedVideos) {
       if (err) return res.negotiate(err);
@@ -158,9 +164,10 @@ module.exports = {
       Video.update({
         id: req.param('id')
       },  {
-        videoDir: fdWithExtension,
+        embedURL: sails.getBaseUrl() + '/embed/' + req.param('id'),
         mpdDir: mpdArray,
-        thumbnailDir: fd + ".png"
+        thumbnailDir: fd + ".png",
+        mp3Dir: fd + ".mp3"
       }).exec(function (err, updatedVideo) {
         // Push into array of isDoneProcessing
         sails.isDoneProcessing.push({
@@ -199,6 +206,63 @@ module.exports = {
 
     // return 404 not found if the id doesnt exists
     return res.notFound();
+  },
+
+  /**
+   * `VideoController.getStat()`
+   * Usage: GET /api/video/getStat/:id
+   */
+  getStat: function (req, res) {
+    Video.find({
+      id: req.param('id'),
+      ownedBy: req.session.me
+    }).populate('viewedSessions').exec(function (err, video) {
+      if (err) return res.negotiate(err);
+
+      if (!video) {
+        // no matched video id, return empty array
+        return res.json([]);
+      }
+
+      // get view sessions of selected video object
+      var videoStat = video[0].viewedSessions;
+      // also pass video creation date
+      var videoDate = video[0].createdAt;
+      return res.json({
+        viewSessions: videoStat,
+        createdDate: videoDate
+      });
+    })
+  },
+
+  /**
+   * `VideoController.getStats()`
+   * Usage: GET /api/video/getStats
+   */
+  getStats: function (req, res) {
+    Video.find({
+      ownedBy: req.session.me
+    }).populate('viewedSessions').exec(function (err, videos) {
+      if (err) return res.negotiate(err);
+
+      if (videos.length == 0) {
+        // no videos uploaded, return empty array
+        return res.json([]);
+      }
+
+      var videoCount = videos.length;
+      // combine all video view sessions as an array of object
+      var videoStats = [];
+      videos.forEach(function (video) {
+        video.viewedSessions.forEach(function (session) {
+          videoStats.push(session);
+        })
+      });
+      return res.json({
+        viewSessions: videoStats,
+        videoLength: videoCount
+      });
+    })
   }
 
 };

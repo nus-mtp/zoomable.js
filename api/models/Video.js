@@ -16,28 +16,33 @@ module.exports = {
 			required: true
 		},
 
-		description: {
+	    description: {
+	    	type: 'string'
+	    },
+
+	    // each video owns multiple tags
+	    tags: {
+	    	collection: 'tag',
+	    	via: 'videoWithTags'
+	    },
+
+	    ownedBy: {
+	    	model: 'user',
+	    },
+
+	    views: {
+	    	type: 'integer',
+	    	defaultsTo: 0
+	    },
+
+	    // 0 for self only, 1 for public
+	    privacy: {
+	    	type: 'integer',
+	    	defaultsTo: 1
+	    },
+
+		embedURL: {
 			type: 'string'
-		},
-
-		tags: {
-			collection: 'tag',
-			via: 'videoWithTags'
-		},
-
-		ownedBy: {
-			model: 'user',
-		},
-
-		views: {
-			type: 'integer',
-			defaultsTo: 0
-		},
-
-		// 0 for self only, 1 for public
-		privacy: {
-			type: 'integer',
-			defaultsTo: 1
 		},
 
 		duration: {
@@ -49,12 +54,12 @@ module.exports = {
 			defaultsTo: 0
 		},
 
-		videoDir: {
-			type: 'string'
-		},
-
 		mpdDir: {
 			type: 'array'
+		},
+
+		mp3Dir: {
+			type: 'string'
 		},
 
 		thumbnailDir: {
