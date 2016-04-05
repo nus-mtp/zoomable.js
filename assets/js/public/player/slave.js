@@ -14,7 +14,7 @@ var Slave = function(vid, canv, coords, dims, parent) {
 		this.id = id;
 		this.controls = new Controls(this);
 		this.transforms = new Transforms(this);
-
+		console.log(dims);
 
 		this.vf = VideoFrame({
 			    id : 'video_' + id,
@@ -64,7 +64,7 @@ var Slave = function(vid, canv, coords, dims, parent) {
 				slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
 			}
 			//slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
-			setTimeout(slave.transforms.draw,1000);
+			setTimeout(slave.transforms.draw,33);
 		}
 
 		this.redraw = function(){

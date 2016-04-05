@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			mpdList.push(JSON.parse(xhr.response).mp3Dir);
 
 			canvas_obj = document.getElementById('canvas');
+			canvas_obj.width = 1920;
+			canvas_obj.height = 1080;
+
 			var minimap_canvas = document.getElementById('minimap');
 			var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 				var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
@@ -88,6 +91,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 	// Initialization will only be called once during the creation of the Player object the first time
 	this.init = function() {
+		this.dimensions = { cw:canvas.width, ch:canvas.height };
 
 		this.duration = getVideoDuration(this); // To intialize the video duration
 		this.volume = new Volume(this); // To initialize the volume of the audio file
@@ -106,6 +110,8 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		this.snapshotCanvas = document.getElementById('snapshot_canvas');
 		this.minimap = new Minimap(minimap_canvas, "", this);
 		this.minimap.init();
+		console.log(canvas.width);
+
 	};
 
 	var MouseActions = function(player) {
@@ -773,7 +779,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			}
 			player.time = player.timeArr[0];
 		};
-		
+
 		this.pauseState = function() {
 			var newPauseState = player.paused;
 			// After the for-loop, as long as 1 video is still playing, the paused
@@ -840,7 +846,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		// Inject the video elements into the HTML
 		var vidHtmlEle;
 		for(var i = 1; i <= NUM_SLAVES; i++) {
-			vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + '">Your browser does not support HTML5 video.</video>';
+			vidHtmlEle += '<video id="video_' + i + '" width="'+ canvas.width + '" height="' + canvas.height + '" crossorigin="anonymous" controls src="' + '">Your browser does not support HTML5 video.</video>';
 		}
 		document.getElementById('zoomableVidElements').innerHTML = vidHtmlEle;
 
