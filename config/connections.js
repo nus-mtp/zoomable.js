@@ -18,6 +18,7 @@
  * For more information on configuration, check out:
  * http://sailsjs.org/#/documentation/reference/sails.config/sails.config.connections.html
  */
+var config = require('../config.json');
 
 module.exports.connections = {
 
@@ -74,12 +75,13 @@ module.exports.connections = {
   *                                                                          *
   *                                                                          *
   ***************************************************************************/
-  somePostgresqlServer: {
-    adapter: 'sails-postgresql',
-    host: 'YOUR_POSTGRES_SERVER_HOSTNAME_OR_IP_ADDRESS',
-    user: 'YOUR_POSTGRES_USER',
-    password: 'YOUR_POSTGRES_PASSWORD',
-    database: 'YOUR_POSTGRES_DB'
+  postgresqlServer: {
+    adapter: config.database.postgresql.adapter,
+    host: config.database.postgresql.host,
+    user: config.database.postgresql.user,
+    password: config.database.postgresql.password,
+    database: config.database.postgresql.database,
+    port: config.database.postgresql.port
   },
 
 
@@ -91,5 +93,4 @@ module.exports.connections = {
   test: {
     adapter: 'sails-memory'
   }
-  
 };

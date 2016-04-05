@@ -21,9 +21,16 @@ module.exports = {
 	    },
 
 	    // each video owns multiple tags
+	    // tags: {
+	    // 	collection: 'tag',
+	    // 	via: 'videoWithTags'
+	    // },
+
+
+	    // naive method
+	    // can be improve by doing many-to-many association
 	    tags: {
-	    	collection: 'tag',
-	    	via: 'videoWithTags'
+	    	type: 'array'
 	    },
 
 	    ownedBy: {

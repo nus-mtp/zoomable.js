@@ -58,6 +58,24 @@ module.exports = {
   },
 
   /**
+   * `VideoController.findByTags()`
+   * Usage: POST /api/video/findByTags
+   * DO NOT WORK ATM
+   */
+  findByTags: function (req, res) {
+    Tag.find({
+      tags: req.param('tags')
+    })
+    .populate('videoWithTags')
+    .exec(function (err, tags) {
+      if (err) return res.negotiate(err);
+      if (video.length == 0) return res.notFound();
+      var videoList = tags.videoWithTags;
+      return res.json(videoList);
+    });
+  },
+
+  /**
    * `VideoController.destroy()`
    * Usage: DELETE /api/video/:id
    */
@@ -105,9 +123,11 @@ module.exports = {
 
   /**
    * `VideoController.tags()`
-   * Usage:
+   * Usage: POST /api/video/
+   * Content: {id: :id, tags: [:tags]}
    */
-  tags: function (req, res) {
+  addTags: function (req, res) {
+    Video.find()
     return res.json({
       todo: 'tags() is not implemented yet!'
     });
@@ -216,7 +236,9 @@ module.exports = {
     Video.find({
       id: req.param('id'),
       ownedBy: req.session.me
-    }).populate('viewedSessions').exec(function (err, video) {
+    })
+    .populate('viewedSessions')
+    .exec(function (err, video) {
       if (err) return res.negotiate(err);
 
       if (!video) {
@@ -242,7 +264,9 @@ module.exports = {
   getStats: function (req, res) {
     Video.find({
       ownedBy: req.session.me
-    }).populate('viewedSessions').exec(function (err, videos) {
+    })
+    .populate('viewedSessions')
+    .exec(function (err, videos) {
       if (err) return res.negotiate(err);
 
       if (videos.length == 0) {
