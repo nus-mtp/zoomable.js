@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			canvas_obj.width = 1920;
 			canvas_obj.height = 1080;
 
-			var minimap_canvas = document.getElementById('minimap');
+			var minimap_canvas = []
+			minimap_canvas[0] = document.getElementById('minimap');
+			minimap_canvas[1] = document.getElementById('minimap_rect');
 			var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 				var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
 				return v.toString(16);
@@ -108,7 +110,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		this.sync = new Sync(this);
 		this.mouseactions = new MouseActions(this);
 		this.snapshotCanvas = document.getElementById('snapshot_canvas');
-		this.minimap = new Minimap(minimap_canvas, "", this);
+		this.minimap = new Minimap(minimap_canvas[0], minimap_canvas[1], "", this);
 		this.minimap.init();
 		console.log(canvas.width);
 

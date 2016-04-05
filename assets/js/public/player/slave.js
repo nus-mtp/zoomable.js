@@ -22,6 +22,7 @@ var Slave = function(vid, canv, coords, dims, parent) {
 				callback: function(response, format) {
 				}
 			});
+		console.log(this.vf);
 	}
 	var Controls = function(slave) {
 		// Attach the event handlers to the video element first
@@ -58,11 +59,16 @@ var Slave = function(vid, canv, coords, dims, parent) {
 		},false);
 
 		this.draw = function() {
-			//slave.master.sync.frames();
-			//slave.master.seek.updateSeekTime();
-			if (!slave.video.paused) { 	//if(v.paused || v.ended) return false;
+			var canv_to_minimap = slave.master.minimap.canvas.width / slave.master.canvas.width;
+			//if (!slave.video.paused) { 	//if(v.paused || v.ended) return false;
 				slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
-			}
+				var x = coords.x * canv_to_minimap;
+				var y = coords.y * canv_to_minimap;
+				var new_width = dims.width*canv_to_minimap;
+				var new_height = dims.height*canv_to_minimap;
+				slave.master.minimap.ctx_v.drawImage(slave.video,x,y,new_width,new_height);
+
+			//}
 			//slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
 			setTimeout(slave.transforms.draw,33);
 		}

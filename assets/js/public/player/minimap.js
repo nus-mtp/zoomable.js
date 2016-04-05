@@ -1,7 +1,9 @@
-var Minimap = function(canvas, video, parent) {
+var Minimap = function(canvas, rect_canv, video, parent) {
     this.player = parent;
     this.canvas = canvas;
-    this.ctx = this.canvas.getContext('2d');
+    this.rect_canv = rect_canv;
+    this.ctx = this.rect_canv.getContext('2d');
+    this.ctx_v = this.canvas.getContext('2d');
     this.video = video;
     //this.transforms = new Transforms(this);
     this.outline;
