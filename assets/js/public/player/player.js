@@ -758,23 +758,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 	}
 
 	var Sync = function(player) {
-		this.frames = function() {
-			function seek(slave) {
-				slave.vf.seekTo({frame: player.frame});
-			}
-			function redraw(slave) {
-				slave.transforms.redraw();
-			}
-			//player.util.forAllSlaves(seek);
-			var str = "";
-			for (var i = 0; i < player.slaves.length; i++) {
-				str += i + ": " + player.slaves[i].vf.get() + "  at the time: " + Date.now() + "\n";
-			}
-			player.util.forAllSlaves(seek);
-			//console.log(str);
-			player.util.forAllSlaves(redraw);
-			requestAnimationFrame(player.sync.frames);
-		}
+
 		this.currentTime = function() {
 			var earliestTime = null;
 			for (var i = 0; i < (player.timeArr.length) - 1; i++) {
@@ -789,21 +773,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			}
 			player.time = player.timeArr[0];
 		};
-		this.currentFrame = function() {
-			var earliestFrame = null;
-			for (var i = 0; i < (player.frameArr.length) - 1; i++) {
-				if (earliestFrame === null) {
-					earliestFrame = player.frameArr[i];
-				}
-				else {
-					if (player.frameArr[i] < earliestFrame) {
-						earliestFrame = player.frameArr[i];
-					}
-				}
-			}
-			player.frame = player.frameArr[0];
-		};
-
+		
 		this.pauseState = function() {
 			var newPauseState = player.paused;
 			// After the for-loop, as long as 1 video is still playing, the paused
