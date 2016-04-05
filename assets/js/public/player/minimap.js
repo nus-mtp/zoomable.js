@@ -15,7 +15,7 @@ var Minimap = function(canvas, rect_canv, video, parent) {
             //draws the red border
             minimap.ctx.beginPath();
             minimap.ctx.lineWidth="1.5";
-            minimap.ctx.strokeStyle="white";
+            minimap.ctx.strokeStyle="#00BCD4";
             minimap.ctx.rect(x,y,width,height);
             minimap.ctx.stroke();
         }
