@@ -1,9 +1,33 @@
 <div class="statsdata">
+  <!-- MESSAGE TO SHOW WHEN NO VIEW SESSIONS ARE AVAILABLE -->
   <div class="no-stats" ng-if="noStatisticsYet">
-    <md-list-item>Statistics not available yet.</md-list-item>
+    <md-list-item>Video statistics are not available yet.</md-list-item>
   </div>
 
   <div ng-if="!noStatisticsYet">
+    <!-- HEATMAP AREA -->
+    <div class="zoom-analysis-area" ng-show="location[1] === 'edit'">
+      <div layout="row">
+        <div flex="100" class="zoom-stats-area">
+          <div class="graph-title">
+            <md-icon class="zoom-icon" md-svg-icon="images/ic_zoom.svg"></md-icon>Zoom Frequency Analysis
+          </div>
+        </div>
+      </div>
+      <div layout="row">
+        <div flex="50" class="zoom-stats-video">
+          One video here
+        </div>
+        <div flex="50" class="zoom-stats-video">
+          Another video here
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER SHOWN WHEN HEAT MAP IS SHOWN (in edit page)-->
+    <md-divider class="video-divider" ng-show="location[1] === 'edit'"></md-divider>
+
+    <!-- VIEW STATS AREA -->
     <div layout="row">
       <div flex="70" class="date-area">
         <md-datepicker ng-model="startDate" md-placeholder="Enter start date" ng-change="updateDate(startDate, endDate)"

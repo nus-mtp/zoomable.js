@@ -22,6 +22,10 @@ module.exports = {
 			required: true
 		},
 
+		videoTotalTime: {
+			type: 'float'
+		},
+
 		// Add a reference to ViewSession
 		sessionObj: {
 			model: 'ViewSession'
