@@ -46,7 +46,7 @@ _360p_crop_w=120
 _360p_crop_h=120
 # 360p FFMPEG conversion command
 _360p_cmd() {
-	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=480x360 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_360p_ext}${finalformat}
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -r 30 -vf scale=480x360 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_360p_ext}${finalformat}
 }
 
 # 480p video details
@@ -58,7 +58,7 @@ _480p_crop_w=160
 _480p_crop_h=160
 # 480p FFMPEG conversion command
 _480p_cmd() {
-	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=640x480 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_480p_ext}${finalformat}
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -r 30 -vf scale=640x480 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_480p_ext}${finalformat}
 }
 
 # 720p video details
@@ -70,7 +70,7 @@ _720p_crop_w=320
 _720p_crop_h=240
 # 720p FFMPEG conversion command
 _720p_cmd() {
-	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=1280x720 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_720p_ext}${finalformat}
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -r 30 -vf scale=1280x720 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_720p_ext}${finalformat}
 }
 
 # 1080p video details
@@ -82,7 +82,7 @@ _1080p_crop_w=480
 _1080p_crop_h=360
 # 1080p FFMPEG conversion command
 _1080p_cmd() {
-	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -crf 23 -vf scale=1920x1080 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_1080p_ext}${finalformat}
+	ffmpeg -i ${parentdir}${slash}${vidname_and_ext} -c:v libx264 -r 30 -vf scale=1920x1080 -x264opts keyint=48:min-keyint=48:no-scenecut -movflags +faststart -preset slow -profile:v high -an ${parentdir}${slash}${vidname}${_1080p_ext}${finalformat}
 }
 
 # Create an array of possible resolutions to convert to

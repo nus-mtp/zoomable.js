@@ -31,11 +31,21 @@ video, canvas,
 
 #miniMapControls {
 	background-color: rgba(0, 0, 0, 0.5);
+	border: 1px solid @color-white;
 	height: 20%;
 	width: 20%;
 	position: absolute;
 	top: 0px;
 	right: 0px;
+}
+
+#minimap {
+	z-index: 8;
+	position:absolute;
+}
+#minimap_rect {
+	z-index: 10;
+	position:absolute;
 }
 
 #miniMapIndicator {
