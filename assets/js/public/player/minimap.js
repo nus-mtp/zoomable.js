@@ -12,8 +12,8 @@ var Minimap = function(canvas, video, parent) {
         this.draw = function(x,y,width,height) {
             //draws the red border
             minimap.ctx.beginPath();
-            minimap.ctx.lineWidth="1";
-            minimap.ctx.strokeStyle="red";
+            minimap.ctx.lineWidth="1.5";
+            minimap.ctx.strokeStyle="white";
             minimap.ctx.rect(x,y,width,height);
             minimap.ctx.stroke();
         }

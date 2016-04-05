@@ -666,15 +666,21 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				slave.transforms.redraw();
 			}
 			player.util.forAllSlaves(slaveRedraw);
+			var canv_to_minimap = player.minimap.canvas.width / player.canvas.width;
 			var x = player.transforms.xform.e;
 			var y = player.transforms.xform.f;
 			if (x < 0) x *= (-1);
 			if (y < 0) y *= (-1);
 			x /= player.transforms.xform.a;
 			y /= player.transforms.xform.a;
+			x *= canv_to_minimap;
+			y *= canv_to_minimap;
+			var new_width = player.canvas.width/player.transforms.xform.a;
+			var new_height = player.canvas.height/player.transforms.xform.a;
+			new_width *= canv_to_minimap;
+			new_height *= canv_to_minimap;
 			player.minimap.ctx.clearRect(0,0,canvas.width,canvas.height);
-			player.minimap.outline.draw(x,y, player.dimensions.cw/player.transforms.xform.a,
-											 player.dimensions.ch/player.transforms.xform.a);
+			player.minimap.outline.draw(x,y,new_width,new_height);
 			//change dimensions and coords
 			// slave.redraw for slaves still in view
 		}
