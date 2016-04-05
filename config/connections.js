@@ -18,7 +18,7 @@
  * For more information on configuration, check out:
  * http://sailsjs.org/#/documentation/reference/sails.config/sails.config.connections.html
  */
-var config = require('../../config.json');
+var config = require('../config.json');
 
 module.exports.connections = {
 
