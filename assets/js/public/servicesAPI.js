@@ -18,6 +18,9 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
     getVideoStats : function() {
       return $http.get('/api/video/getStats');
     },
+    getHeatMapStats : function() {
+      return $http.get('/api/viewsession/getVideoId/' + id);
+    },
     getUploadProgress : function(id) {
       return $http.post('/api/video/isComplete', id);
     },

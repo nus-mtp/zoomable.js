@@ -68,10 +68,10 @@ module.exports = {
 
   /**
    * `ViewSessionController.getVideoStat()`
-   * Usage: GET /api/viewsession/getVideoStat/:id
+   * Usage: GET /api/viewsession/getVideoId/:id
    * Description: Get list of video data for specified video id
    */
-  getVideoStat: function (req, res) {
+  getVideoId: function (req, res) {
     ViewSession.find({
       videoId: req.param('id')
     }).populate('viewLogs').exec(function (err, sessions) {
