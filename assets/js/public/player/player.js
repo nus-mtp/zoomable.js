@@ -668,6 +668,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				slave.transforms.redraw();
 			}
 			player.util.forAllSlaves(slaveRedraw);
+
 			var canv_to_minimap = player.minimap.canvas.width / player.canvas.width;
 			var x = player.transforms.xform.e;
 			var y = player.transforms.xform.f;
@@ -683,6 +684,16 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			new_height *= canv_to_minimap;
 			player.minimap.ctx.clearRect(0,0,canvas.width,canvas.height);
 			player.minimap.outline.draw(x,y,new_width,new_height);
+
+			var statObj = {
+				coordinates : [x,y],
+				width : new_width,
+				videoTime : player.time,
+				videoId : player.vidId,
+				sessionId : player.uuid,
+				videoTotalTime :  player.duration
+			};
+			player.util.sendStats();
 			//change dimensions and coords
 			// slave.redraw for slaves still in view
 		}
@@ -758,16 +769,12 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			}
 		}
 
-		this.sendStats = function(currTime) {
-			var statObj = {
-				width: (player.transforms.xform.a) * (player.dimensions.cw),
-				videoTime: currTime,
-				videoId: player.vidId,
-				sessionId: player.uuid
-			};
+		this.sendStats = function(obj) {
+
 			// Make a HTTP POST message to send this JSON object to the server
 			var xhr = new XMLHttpRequest();
-			//xhttp.open("POST", )
+			xhttp.open("POST", "/api/viewsession", true);
+			xhttp.send(obj);
 		}
 	}
 
