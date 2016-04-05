@@ -64,6 +64,33 @@ module.exports = {
         }
       });
     });
+  },
+
+  /**
+   * `ViewSessionController.getVideoStat()`
+   * Usage: GET /api/viewsession/getVideoStat/:id
+   * Description: Get list of video data for specified video id
+   */
+  getVideoStat: function (req, res) {
+    ViewSession.find({
+      videoId: req.param('id')
+    }).populate('viewLogs').exec(function (err, sessions) {
+      if (err) return res.negotiate(err);
+
+      if (!sessions) {
+        // no session for matched video id, return empty array
+        return res.json([]);
+      }
+
+      // get viewdata objects
+      var viewDataList = [];
+      sessions.forEach(function (session) {
+        session.viewLogs.forEach(function (viewdata) {
+          viewDataList.push(viewdata);
+        })
+      });
+      return res.json(viewDataList);
+    })
   }
 };
 
