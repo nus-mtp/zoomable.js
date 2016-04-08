@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter, moment, servicesAPI){
+angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter, moment, servicesAPI, $q){
   // VARIABLES
   $scope.location = location.pathname.split('/');           // location array contains path name in array[1]
   $scope.criteria = 'DAY';                                  // default set to day for date criteria
@@ -11,6 +11,114 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
   // CHART VARIABLES
   $scope.series = ['Views'];                                // default series to show for graph
+
+  // HEATMAP VARIABLES
+  var sessions = {};
+  var compiledSessions = {};
+  var videoTotalTime = 0;
+  var totalCanvas = [];
+  var video = new Whammy.Video(1);
+
+  servicesAPI.getHeatMapStats(152).success(function (data) {
+    // mock view sessions data
+    var mockData = [
+      {coordinates: [0,0], videoTime: 0, videoTotalTime: 5},
+      {coordinates: [100,100], videoTime: 0, videoTotalTime: 5},
+      {coordinates: [200,200], videoTime: 1, videoTotalTime: 5},
+      {coordinates: [10,10], videoTime: 1, videoTotalTime: 5},
+      {coordinates: [10,50], videoTime: 1, videoTotalTime: 5},
+      {coordinates: [10,80], videoTime: 1, videoTotalTime: 5},
+      {coordinates: [250,100], videoTime: 2, videoTotalTime: 5},
+      {coordinates: [430,270], videoTime: 5, videoTotalTime: 5}
+    ];
+    sessions = mockData;
+
+    videoTotalTime = 8;
+
+    // group all coordinates belonging to a second into key value array
+    sessions.forEach(function(session){
+      compiledSessions[session.videoTime] = compiledSessions[session.videoTime] || [];
+      compiledSessions[session.videoTime].push({x: session.coordinates[0], y: session.coordinates[1], radius: 300});
+    });
+
+    generateHeatmapVideo();
+  });
+
+  var currentTime = 0
+  function generateHeatmapVideo() {
+    if (currentTime > videoTotalTime) {
+      compileHeatmapVideo();
+    } else {
+      // generate heatmap for a second if session exists
+      if (compiledSessions.hasOwnProperty(currentTime)){
+        coordinatesPerSecond( compiledSessions[currentTime]).then(function(context){
+          video.add(context);
+          currentTime++;
+          generateHeatmapVideo();
+        });;
+      }
+      // generate empty canvas for seconds without sessions
+      else {
+        document.getElementsByClassName("heatmap-canvas")[0].setAttribute("id","heatmap-image");
+        var context = document.getElementById("heatmap-image").getContext('2d');
+        context.clearRect(0,0,1920,1080);
+        context.fillStyle = "#FFFFFF";
+        context.fillRect(0,0,1920,1080);
+        video.add(context);
+        currentTime++;
+        generateHeatmapVideo();
+      }
+    }
+  }
+
+  var heatmapInstance = h337.create({
+    container: document.getElementById('heatmap-canvas'),
+    radius: 10,
+    maxOpacity: .7,
+    minOpacity: 0,
+    blur: .8,
+    backgroundColor: '#FFFFFF'
+  });
+
+  function coordinatesPerSecond(coordinates){
+    var deferred = $q.defer();
+    var aggregatedCoordinates = {
+      max: coordinates.length,
+      min: 0,
+      data: coordinates
+    };
+
+    generateCanvas(aggregatedCoordinates).then(function() {
+      document.getElementsByClassName("heatmap-canvas")[0].setAttribute("id","heatmap-image");
+      var canvas = document.getElementById("heatmap-image");
+      var context = document.getElementById("heatmap-image").getContext('2d');
+      // change canvas transparent background to white
+      var data = context.getImageData(0,0,1920,1080);
+  		var compositeOperation = context.globalCompositeOperation;
+  		context.globalCompositeOperation = "destination-over";
+  		context.fillStyle = '#FFFFFF';
+  		context.fillRect(0,0,1920,1080);
+      deferred.resolve(context);
+    });
+
+    return deferred.promise;
+  }
+
+  function generateCanvas(aggregatedCoordinates) {
+    var deferred = $q.defer();
+    deferred.resolve(heatmapInstance.setData(aggregatedCoordinates));
+    return deferred.promise;
+  }
+
+  function compileHeatmapVideo() {
+  	video.compile(false, function(output){
+  		var url = window.URL.createObjectURL(output);
+  		document.getElementById('video').src = url;
+  		document.getElementById('download').style.display = '';
+  		document.getElementById('download').href = url;
+  	});
+  }
+
 
   /* Get all user view data required for stats */
   var init = function() {

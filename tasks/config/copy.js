@@ -39,7 +39,8 @@ module.exports = function(grunt) {
         'clipboard/dist/clipboard.js', 'ngclipboard/dist/ngclipboard.js',
         'ng-file-upload/ng-file-upload-shim.min.js', 'ng-file-upload/ng-file-upload.min.js',
         'moment/moment.js', 'angular-moment/angular-moment.js',
-        'Chart.js/Chart.js', 'angular-chart.js/dist/angular-chart.js'],
+        'Chart.js/Chart.js', 'angular-chart.js/dist/angular-chart.js',
+        'heatmap.js-amd/build/heatmap.js','whammy/whammy.js'],
         flatten: true,
         dest: '.tmp/public/js/dependencies'
       }]
