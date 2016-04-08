@@ -27,4 +27,6 @@ libs/
 
 # User-defined
 .tmp
-config.json
+
+# local config
+config/local.js
