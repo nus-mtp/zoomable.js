@@ -47,7 +47,7 @@ module.exports = {
   find: function (req, res) {
     Video.find({
       ownedBy: req.session.me
-    }).exec(function (err, videos) {
+    }).populate('viewedSessions').exec(function (err, videos) {
       if (err) return res.negotiate(err);
       if (videos.length == 0) {
         // no videos uploaded, return empty array

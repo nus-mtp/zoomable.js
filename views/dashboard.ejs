@@ -67,7 +67,7 @@
             <div class="md-list-item-text">
               <h3 class="video-title">{{ video.title }}</h3>
               <h4>
-                <span ng-show"video.views">{{ video.views }} Views </span>
+                <span ng-show"video.views">{{ video.viewedSessions.length }} Views </span>
                 &middot;
                 {{ video.createdAt | date:'medium'}}
                 <span ng-if="!video.privacy">
@@ -76,8 +76,8 @@
               </h4>
               <p>
                 <span ng-if="video.tags.length">
-                  <md-icon md-svg-icon="images/ic_tag_black_24px.svg" class="small md-avatar-icon"></md-icon>
-                  {{ video.tags }}
+                  <md-icon md-svg-icon="images/ic_tag_black_24px.svg" class="small"></md-icon>
+                    <span class="tag-bg" ng-repeat="tag in video.tags">{{ tag }}</span>
                 </span>
               </p>
             </div>

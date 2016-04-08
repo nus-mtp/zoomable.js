@@ -8,7 +8,6 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
   $scope.errorMsg = '';
   $scope.searchQuery = '';
   $scope.location = location.pathname;
-  $scope.tagList = ['architecture', 'education', 'learning', 'inspiration'];  // sample tag list
 
   // FUNCTIONS FOR NAVBAR
 
@@ -40,18 +39,6 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
       // show statistic page
       window.location = '/statistics';
     }
-
-    // toggle the menu
-    $scope.toggleLeftMenu();
-  };
-
-  /* Function to show video list of selected tag */
-  $scope.setSelectedTag = function(event) {
-    // remove previous selected tag if any
-    $('.tag-item').removeClass('selected');
-    // add selected class
-    $(event.target).addClass('selected');
-    // show videos with selected tag - WIP
 
     // toggle the menu
     $scope.toggleLeftMenu();
