@@ -9,6 +9,10 @@ angular.module('zoomableApp').controller('editController', function($scope, $mdT
 		$scope.video = window.SAILS_LOCALS.video;
 		// prevent page header from changing when title is being edited
 		$scope.originalVideoTitle = $scope.video.title;
+		// update tags field if it is defined
+		if ($scope.video.tags !== undefined) {
+			$scope.tags = $scope.video.tags;
+		}
 	}
 
 	/* Save changes made to video fields */
@@ -18,7 +22,7 @@ angular.module('zoomableApp').controller('editController', function($scope, $mdT
 		var updatedData = {
 			title: $scope.video.title,
 			description: $scope.video.description,
-			//tags: $scope.video.tags,
+			tags: $scope.tags,
 			privacy: $scope.video.privacy
 		};
 
