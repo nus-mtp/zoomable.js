@@ -4,7 +4,7 @@ describe('ViewSessionController', function () {
 	var credentials = { username: 'test', password: 'testtesttest'};
 	var video = {title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
 	var incompleteSession = {sessionId: 'session_id'};
-	var session = {sessionId: 'session_id', videoId: 9999, coordinates: [0, 0], width: 99.99, videoTime: 2.55};
+	var session = {sessionId: 'session_id', videoId: 9999, coordinates: [0, 0], width: 99.99, videoTime: 2.55, videoTotalTime: 9.99};
 	var video_id = 0;
 
 	before(function(done) {
@@ -79,6 +79,7 @@ describe('ViewSessionController', function () {
 				postRes.body.should.have.property('coordinates').with.lengthOf(2);
 				postRes.body.should.have.property('width', 99.99);
 				postRes.body.should.have.property('videoTime', 2.55);
+				postRes.body.should.have.property('videoTotalTime', 9.99);
 
 				// retrieve the view session to see if it is successfully created
 				agent
