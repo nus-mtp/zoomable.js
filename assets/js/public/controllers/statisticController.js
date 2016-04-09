@@ -9,6 +9,11 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   $scope.viewsCount = [];                                   // scope to store processed viewSessions into date and count
   $scope.userVideoLength = 0;                               // scope to store user uploaded video length
 
+  // Get video id if is on edit page
+  if ($scope.location[1] === 'edit') {
+    $scope.videoId = $scope.location[2];
+  }
+
   // CHART VARIABLES
   $scope.series = ['Views'];                                // default series to show for graph
 
@@ -19,7 +24,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   var totalCanvas = [];
   var video = new Whammy.Video(1);
 
-  servicesAPI.getHeatMapStats(152).success(function (data) {
+  servicesAPI.getHeatMapStats($scope.videoId).success(function (data) {
     // mock view sessions data
     var mockData = [
       {coordinates: [0,0], videoTime: 0, videoTotalTime: 5},
@@ -144,9 +149,8 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       });
     }
     else if ($scope.location[1] === 'edit') {
-      // call stats api for selected video with id = $scope.location[2]
-      var uid = $scope.location[2];
-      servicesAPI.getVideoStat(uid).success(function(data) {
+      // call stats api for selected video
+      servicesAPI.getVideoStat($scope.videoId).success(function(data) {
         if (data.length === 0 || data.viewSessions.length === 0) {
           $scope.noStatisticsYet = true;
         }

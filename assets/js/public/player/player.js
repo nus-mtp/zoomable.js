@@ -4,10 +4,11 @@ var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
 	// Retrieve the list of MPDs and audio file through a HTTP GET request to the server
 	var url = document.URL;
-	var vidId = url.substring(url.lastIndexOf('/'));
+	var urlParts = url.split('/');
+	var vidId = urlParts[urlParts.length - 1];	// get video id without '/'
 	var mpdList;
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "/api/video" + vidId, true);
+	xhr.open("GET", "/api/video/" + vidId, true);
 	xhr.send();
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200) {
@@ -693,7 +694,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				sessionId : player.uuid,
 				videoTotalTime :  player.duration
 			};
-			player.util.sendStats();
+			player.util.sendStats(statObj);
 			//change dimensions and coords
 			// slave.redraw for slaves still in view
 		}
@@ -773,8 +774,9 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 			// Make a HTTP POST message to send this JSON object to the server
 			var xhr = new XMLHttpRequest();
-			xhttp.open("POST", "/api/viewsession", true);
-			xhttp.send(obj);
+			xhr.open("POST", "/api/viewsession", true);
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.send(JSON.stringify(obj));
 		}
 	}
 
