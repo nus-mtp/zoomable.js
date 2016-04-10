@@ -123,6 +123,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   	});
   }
 
+  // restyle video iframe in statistics page
   $('iframe#heatmap-iframe').load( function() {
     $('iframe#heatmap-iframe').contents().find("head")
       .append($("<style type='text/css'>#miniMapControls,#zoomBarControls,#seekBarControls,#bottomBarControls{display:none;}</style>"));
@@ -133,26 +134,15 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       .append($("<style type='text/css'>  #seekBarControls,#bottomBarControls{display:none;}</style>"));
   });
 
-  $(document).on('click', 'video#video', function (e) {
-      var video = $(this).get(0);
-      if (video.paused === false) {
-          video.pause();
-          $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
-          $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
-
-      } else {
-          video.play();
-          $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
-          $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
-      }
-      return false;
-  });
-
+  // catch play events
   document.getElementById("video").onplay = function() {
     $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
+    $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
+
   };
   document.getElementById("video").onpause = function() {
     $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
+    $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
   };
 
   /* Get all user view data required for stats */
