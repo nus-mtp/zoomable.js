@@ -5,13 +5,9 @@
   </div>
 
   <!-- TODO: MOVE INTO STATS VIEW -->
-  <div style="border:1px solid">
-    <div id="heatmap-canvas" style="width:1920px;height:1080px;display:none"></div>
-    <video id="video" width="480" height="270" controls autoplay loop></video>
-    <a style="display:none" id="download" download="heatmap.webm">Download Heatmap</a>
-  </div>
 
-  <div ng-if="!noStatisticsYet">
+
+  <div ng-show="!noStatisticsYet">
     <!-- HEATMAP AREA -->
     <div class="zoom-analysis-area" ng-show="location[1] === 'edit'">
       <div layout="row">
@@ -21,16 +17,18 @@
           </div>
         </div>
       </div>
-      <div layout="row">
+      <div layout="row" ng-show="!noHeatmapYet">
         <div flex="50" class="zoom-stats-video">
           real video here
         </div>
         <div flex="50" class="zoom-stats-video">
-          <div style="border:1px solid">
-            <div id="heatmap-canvas" style="width:1920px;height:1080px;display:none;"></div>
-            <video id="video" width="480" height="270" controls autoplay loop></video>
-            <a style="display:none" id="download" download="heatmap.webm">Download Heatmap</a>
-          </div>
+          <div id="heatmap-canvas" style="width:128px;height:72px;display:none"></div>
+          <video id="video" width="480" height="270" controls></video>
+        </div>
+      </div>
+      <div layout="row" ng-show="noHeatmapYet">
+        <div flex="100" class="zoom-stats-area">
+          Heatmap video is still processing
         </div>
       </div>
     </div>

@@ -23,30 +23,28 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   var videoTotalTime = 0;
   var totalCanvas = [];
   var video = new Whammy.Video(1);
+  $scope.noHeatmapYet = true;
 
   servicesAPI.getHeatMapStats($scope.videoId).success(function (data) {
-    // mock view sessions data
-    var mockData = [
-      {coordinates: [0,0], videoTime: 0, videoTotalTime: 5},
-      {coordinates: [100,100], videoTime: 0, videoTotalTime: 5},
-      {coordinates: [200,200], videoTime: 1, videoTotalTime: 5},
-      {coordinates: [10,10], videoTime: 1, videoTotalTime: 5},
-      {coordinates: [10,50], videoTime: 1, videoTotalTime: 5},
-      {coordinates: [10,80], videoTime: 1, videoTotalTime: 5},
-      {coordinates: [250,100], videoTime: 2, videoTotalTime: 5},
-      {coordinates: [430,270], videoTime: 5, videoTotalTime: 5}
-    ];
-    sessions = mockData;
+    if (data.length > 0) {
+      sessions = data;
+      videoTotalTime = Math.ceil(data[0].videoTotalTime);
 
-    videoTotalTime = 8;
+      // group all coordinates belonging to a second into key value array
+      sessions.forEach(function(session){
 
-    // group all coordinates belonging to a second into key value array
-    sessions.forEach(function(session){
-      compiledSessions[session.videoTime] = compiledSessions[session.videoTime] || [];
-      compiledSessions[session.videoTime].push({x: session.coordinates[0], y: session.coordinates[1], radius: 300});
-    });
+        // recalculate coordinates according to given canvas width
+        var canvasWidth = 128;
+        var zoomedCanvasWidth = Math.ceil(session.width);
+        var canvasRatio = Math.round(zoomedCanvasWidth / 3);
+        var x = Math.ceil(session.coordinates[0]) + canvasRatio;
+        var y = Math.ceil(session.coordinates[1]) + canvasRatio;
+        compiledSessions[Math.ceil(session.videoTime)] = compiledSessions[Math.ceil(session.videoTime)] || [];
+        compiledSessions[Math.ceil(session.videoTime)].push({x: x, y: y, radius: canvasRatio});
+      });
 
-    generateHeatmapVideo();
+      generateHeatmapVideo();
+    }
   });
 
   var currentTime = 0
@@ -117,10 +115,9 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
   function compileHeatmapVideo() {
   	video.compile(false, function(output){
+      $scope.noHeatmapYet = false;
   		var url = window.URL.createObjectURL(output);
   		document.getElementById('video').src = url;
-  		document.getElementById('download').style.display = '';
-  		document.getElementById('download').href = url;
   	});
   }
 
