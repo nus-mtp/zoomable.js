@@ -8,10 +8,12 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   $scope.viewSessions = [];                                 // scope to store viewSessions to empty array
   $scope.viewsCount = [];                                   // scope to store processed viewSessions into date and count
   $scope.userVideoLength = 0;                               // scope to store user uploaded video length
+  $scope.videoURL = '';                                        // scope to store embed video URL
 
   // Get video id if is on edit page
   if ($scope.location[1] === 'edit') {
     $scope.videoId = $scope.location[2];
+    $scope.videoURL = location.origin + '/embed/' + $scope.videoId;
   }
 
   // CHART VARIABLES
@@ -121,6 +123,37 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   	});
   }
 
+  $('iframe#heatmap-iframe').load( function() {
+    $('iframe#heatmap-iframe').contents().find("head")
+      .append($("<style type='text/css'>#miniMapControls,#zoomBarControls,#seekBarControls,#bottomBarControls{display:none;}</style>"));
+  });
+
+  $('iframe#heatmap-iframe2').load( function() {
+    $('iframe#heatmap-iframe2').contents().find("head")
+      .append($("<style type='text/css'>  #seekBarControls,#bottomBarControls{display:none;}</style>"));
+  });
+
+  $(document).on('click', 'video#video', function (e) {
+      var video = $(this).get(0);
+      if (video.paused === false) {
+          video.pause();
+          $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
+          $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
+
+      } else {
+          video.play();
+          $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
+          $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
+      }
+      return false;
+  });
+
+  document.getElementById("video").onplay = function() {
+    $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
+  };
+  document.getElementById("video").onpause = function() {
+    $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
+  };
 
   /* Get all user view data required for stats */
   var init = function() {

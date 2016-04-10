@@ -4,9 +4,6 @@
     <md-list-item>Video statistics are not available yet.</md-list-item>
   </div>
 
-  <!-- TODO: MOVE INTO STATS VIEW -->
-
-
   <div ng-show="!noStatisticsYet">
     <!-- HEATMAP AREA -->
     <div class="zoom-analysis-area" ng-show="location[1] === 'edit'">
@@ -19,11 +16,14 @@
       </div>
       <div layout="row" ng-show="!noHeatmapYet">
         <div flex="50" class="zoom-stats-video">
-          real video here
+          <h3>Actual Video</h3>
+          <iframe id="heatmap-iframe2" width="480" height="270" src="{{ videoURL }}" allowfullscreen style=""></iframe>
         </div>
         <div flex="50" class="zoom-stats-video">
+          <h3>Heatmap Video</h3>
           <div id="heatmap-canvas" style="width:128px;height:72px;display:none"></div>
-          <video id="video" width="480" height="270" controls></video>
+          <video id="video" controls style="width:482px;height:272px;opacity:0.6;position:absolute"></video>
+          <iframe id="heatmap-iframe" width="480" height="270" src="{{ videoURL }}" allowfullscreen style=""></iframe>
         </div>
       </div>
       <div layout="row" ng-show="noHeatmapYet">
