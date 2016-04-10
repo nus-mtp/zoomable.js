@@ -24,7 +24,6 @@ module.exports = {
    * Description: Create a video view session for the specified video
    */
   create: function (req, res) {
-    console.log(req.body);
     if (!req.body.sessionId || !req.body.videoId || !req.body.coordinates || !req.body.width || !req.body.videoTime || !req.body.videoTotalTime) {
       return res.json({
         error: 'Required fields are not entered.'
