@@ -16,32 +16,32 @@ module.exports = {
 			required: true
 		},
 
-	    description: {
-	    	type: 'string'
-	    },
-
-	    // each video owns multiple tags
-	    // tags: {
-	    // 	collection: 'tag',
-	    // 	via: 'videoWithTags'
-	    // },
-
-
-	    // naive method
-	    // can be improve by doing many-to-many association
-	    tags: {
-	    	type: 'array'
-	    },
-
-	    ownedBy: {
-	    	model: 'user',
-	    },
-
-	    // 0 for self only, 1 for public
-	    privacy: {
-	    	type: 'integer',
-	    	defaultsTo: 1
-	    },
+		description: {
+			type: 'string'
+		},
+	
+		// each video owns multiple tags
+		// tags: {
+		// 	collection: 'tag',
+		// 	via: 'videoWithTags'
+		// },
+	
+	
+		// naive method
+		// can be improve by doing many-to-many association
+		tags: {
+			type: 'array'
+		},
+	
+		ownedBy: {
+			model: 'user',
+		},
+	
+		// 0 for self only, 1 for public
+		privacy: {
+			type: 'integer',
+			defaultsTo: 1
+		},
 
 		embedURL: {
 			type: 'string'
