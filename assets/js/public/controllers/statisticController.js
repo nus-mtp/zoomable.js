@@ -1,4 +1,4 @@
-angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter, moment, servicesAPI){
+angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter, moment, servicesAPI, $q){
   // VARIABLES
   $scope.location = location.pathname.split('/');           // location array contains path name in array[1]
   $scope.criteria = 'DAY';                                  // default set to day for date criteria
@@ -8,9 +8,142 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   $scope.viewSessions = [];                                 // scope to store viewSessions to empty array
   $scope.viewsCount = [];                                   // scope to store processed viewSessions into date and count
   $scope.userVideoLength = 0;                               // scope to store user uploaded video length
+  $scope.videoURL = '';                                        // scope to store embed video URL
+
+  // Get video id if is on edit page
+  if ($scope.location[1] === 'edit') {
+    $scope.videoId = $scope.location[2];
+    $scope.videoURL = location.origin + '/embed/' + $scope.videoId;
+  }
 
   // CHART VARIABLES
   $scope.series = ['Views'];                                // default series to show for graph
+
+  // HEATMAP VARIABLES
+  var sessions = {};
+  var compiledSessions = {};
+  var videoTotalTime = 0;
+  var totalCanvas = [];
+  var video = new Whammy.Video(1);
+  $scope.noHeatmapYet = true;
+
+  servicesAPI.getHeatMapStats($scope.videoId).success(function (data) {
+    if (data.length > 0) {
+      sessions = data;
+      videoTotalTime = Math.ceil(data[0].videoTotalTime);
+
+      // group all coordinates belonging to a second into key value array
+      sessions.forEach(function(session){
+
+        // recalculate coordinates according to given canvas width
+        var canvasWidth = 128;
+        var zoomedCanvasWidth = Math.ceil(session.width);
+        var canvasRatio = Math.round(zoomedCanvasWidth / 3);
+        var x = Math.ceil(session.coordinates[0]) + canvasRatio;
+        var y = Math.ceil(session.coordinates[1]) + canvasRatio;
+        compiledSessions[Math.ceil(session.videoTime)] = compiledSessions[Math.ceil(session.videoTime)] || [];
+        compiledSessions[Math.ceil(session.videoTime)].push({x: x, y: y, radius: canvasRatio});
+      });
+
+      generateHeatmapVideo();
+    }
+  });
+
+  var currentTime = 0
+  function generateHeatmapVideo() {
+    if (currentTime > videoTotalTime) {
+      compileHeatmapVideo();
+    } else {
+      // generate heatmap for a second if session exists
+      if (compiledSessions.hasOwnProperty(currentTime)){
+        coordinatesPerSecond( compiledSessions[currentTime]).then(function(context){
+          video.add(context);
+          currentTime++;
+          generateHeatmapVideo();
+        });;
+      }
+      // generate empty canvas for seconds without sessions
+      else {
+        document.getElementsByClassName("heatmap-canvas")[0].setAttribute("id","heatmap-image");
+        var context = document.getElementById("heatmap-image").getContext('2d');
+        context.clearRect(0,0,1920,1080);
+        context.fillStyle = "#FFFFFF";
+        context.fillRect(0,0,1920,1080);
+        video.add(context);
+        currentTime++;
+        generateHeatmapVideo();
+      }
+    }
+  }
+
+  var heatmapInstance = h337.create({
+    container: document.getElementById('heatmap-canvas'),
+    radius: 10,
+    maxOpacity: .7,
+    minOpacity: 0,
+    blur: .8,
+    backgroundColor: '#FFFFFF'
+  });
+
+  function coordinatesPerSecond(coordinates){
+    var deferred = $q.defer();
+    var aggregatedCoordinates = {
+      max: coordinates.length,
+      min: 0,
+      data: coordinates
+    };
+
+    generateCanvas(aggregatedCoordinates).then(function() {
+      document.getElementsByClassName("heatmap-canvas")[0].setAttribute("id","heatmap-image");
+      var canvas = document.getElementById("heatmap-image");
+      var context = document.getElementById("heatmap-image").getContext('2d');
+      // change canvas transparent background to white
+      var data = context.getImageData(0,0,1920,1080);
+  		var compositeOperation = context.globalCompositeOperation;
+  		context.globalCompositeOperation = "destination-over";
+  		context.fillStyle = '#FFFFFF';
+  		context.fillRect(0,0,1920,1080);
+      deferred.resolve(context);
+    });
+
+    return deferred.promise;
+  }
+
+  function generateCanvas(aggregatedCoordinates) {
+    var deferred = $q.defer();
+    deferred.resolve(heatmapInstance.setData(aggregatedCoordinates));
+    return deferred.promise;
+  }
+
+  function compileHeatmapVideo() {
+  	video.compile(false, function(output){
+      $scope.noHeatmapYet = false;
+  		var url = window.URL.createObjectURL(output);
+  		document.getElementById('video').src = url;
+  	});
+  }
+
+  // restyle video iframe in statistics page
+  $('iframe#heatmap-iframe').load( function() {
+    $('iframe#heatmap-iframe').contents().find("head")
+      .append($("<style type='text/css'>#miniMapControls,#zoomBarControls,#seekBarControls,#bottomBarControls{display:none;}</style>"));
+  });
+
+  $('iframe#heatmap-iframe2').load( function() {
+    $('iframe#heatmap-iframe2').contents().find("head")
+      .append($("<style type='text/css'>  #seekBarControls,#bottomBarControls{display:none;}</style>"));
+  });
+
+  // catch play events
+  document.getElementById("video").onplay = function() {
+    $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
+    $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
+
+  };
+  document.getElementById("video").onpause = function() {
+    $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
+    $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
+  };
 
   /* Get all user view data required for stats */
   var init = function() {
@@ -36,9 +169,8 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       });
     }
     else if ($scope.location[1] === 'edit') {
-      // call stats api for selected video with id = $scope.location[2]
-      var uid = $scope.location[2];
-      servicesAPI.getVideoStat(uid).success(function(data) {
+      // call stats api for selected video
+      servicesAPI.getVideoStat($scope.videoId).success(function(data) {
         if (data.length === 0 || data.viewSessions.length === 0) {
           $scope.noStatisticsYet = true;
         }
