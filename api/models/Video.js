@@ -37,11 +37,6 @@ module.exports = {
 	    	model: 'user',
 	    },
 
-	    views: {
-	    	type: 'integer',
-	    	defaultsTo: 0
-	    },
-
 	    // 0 for self only, 1 for public
 	    privacy: {
 	    	type: 'integer',
