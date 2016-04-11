@@ -121,7 +121,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     if ($scope.userSortState === 'Latest') {
       $scope.sortType = '-createdAt';
     } else if ($scope.userSortState === 'Most Viewed') {
-      $scope.sortType = '-views';
+      $scope.sortType = '-viewedSessions.length';
     }
   };
 
