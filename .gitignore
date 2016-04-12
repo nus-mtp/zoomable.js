@@ -30,3 +30,4 @@ libs/
 
 # local config
 config/local.js
+config/ssl
