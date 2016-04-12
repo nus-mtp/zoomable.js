@@ -170,7 +170,7 @@ module.exports = {
       }
 
       // generate a list of mpd dir
-      var fdWithExtension = sails.getBaseUrl() + uploadedFiles[0].fd.split('/public')[1];
+      var fdWithExtension = sails.config.appUrl + uploadedFiles[0].fd.split('/public')[1];
       var fd = fdWithExtension.substr(0, fdWithExtension.lastIndexOf('.')) || fdWithExtension;
 
       var mpdArray = [];
@@ -184,7 +184,7 @@ module.exports = {
       Video.update({
         id: req.param('id')
       },  {
-        embedURL: sails.getBaseUrl() + '/embed/' + req.param('id'),
+        embedURL: sails.config.appUrl + '/embed/' + req.param('id'),
         mpdDir: mpdArray,
         thumbnailDir: fd + ".png",
         mp3Dir: fd + ".mp3"
