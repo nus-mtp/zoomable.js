@@ -34,4 +34,5 @@ module.exports = {
   // log: {
   //   level: "silent"
   // }
+  appUrl: 'https://zoomable.pw'
 };

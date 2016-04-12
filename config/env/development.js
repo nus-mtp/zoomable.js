@@ -21,4 +21,5 @@ module.exports = {
     connection: 'localDiskDb'
   }
 
+  appUrl: 'https//localhost:1337'
 };
