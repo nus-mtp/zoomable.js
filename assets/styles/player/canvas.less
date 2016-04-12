@@ -18,10 +18,16 @@ video, canvas,
 #canvasPlayerArea {
 	background-color: @color-black;
 	overflow: hidden;
+	cursor: -webkit-grab;
+
+	&:active {
+		cursor: -webkit-grabbing;
+	}
 }
 
 #uiControls {
 	width: 100%;
+	cursor: default;
 
 	&.hideOnHover {
 		opacity: 0;
@@ -278,12 +284,6 @@ video, canvas,
 }
 #snapshotBtn {
 	background: url(../images/ic_snapshot.svg) no-repeat;
-}
-#settingBtn {
-	background: url(../images/ic_setting.svg) no-repeat;
-}
-#captionBtn {
-	background: url(../images/ic_caption.svg) no-repeat;
 }
 #fullscreenBtn {
 	background: url(../images/ic_fullscreen.svg) no-repeat;
