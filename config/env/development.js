@@ -19,7 +19,7 @@ module.exports = {
 
   models: {
     connection: 'localDiskDb'
-  }
+  },
 
   appUrl: 'https//localhost:1337'
 };
