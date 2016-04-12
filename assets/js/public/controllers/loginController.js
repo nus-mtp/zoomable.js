@@ -101,11 +101,16 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
 	    })
 	    .error(function(error, status) {
         if (status === 409) {
-          // email address already in use, reset password field
-          $scope.password = '';
+          // email address already in use, update error message
+          $scope.errorMsg = error;
         }
-        // update error message
-        $scope.errorMsg = error;
+        else if (status === 400) {
+          // username already in use, update error message
+          $scope.errorMsg = 'Username is already taken by another user.';
+        }
+
+        //reset password field
+        $scope.password = '';
 	    });
     }
     else {
