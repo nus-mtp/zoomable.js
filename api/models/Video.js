@@ -19,24 +19,17 @@ module.exports = {
 		description: {
 			type: 'string'
 		},
-	
-		// each video owns multiple tags
-		// tags: {
-		// 	collection: 'tag',
-		// 	via: 'videoWithTags'
-		// },
-	
-	
+
 		// naive method
 		// can be improve by doing many-to-many association
 		tags: {
 			type: 'array'
 		},
-	
+
 		ownedBy: {
 			model: 'user',
 		},
-	
+
 		// 0 for self only, 1 for public
 		privacy: {
 			type: 'integer',
@@ -45,15 +38,6 @@ module.exports = {
 
 		embedURL: {
 			type: 'string'
-		},
-
-		duration: {
-			type: 'string'
-		},
-
-		shares: {
-			type: 'integer',
-			defaultsTo: 0
 		},
 
 		mpdDir: {

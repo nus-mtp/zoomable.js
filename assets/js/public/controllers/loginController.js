@@ -3,7 +3,6 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
   $scope.username = '';
   $scope.password = '';
   $scope.emailAddress = '';
-  $scope.forgetEmail = '';
   $scope.isCreate = false;
   $scope.errorMsg = '';
   $scope.searchQuery = '';
@@ -148,15 +147,5 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
     }
     return true;
   };
-
-  $scope.resetPassword = function() {
-    if ($scope.forgetEmail) {
-      // check database for user email
-
-      // prompt invalid email if email is not found in system
-
-      // else send verification message if email is verified
-    }
-  }
 
 });
