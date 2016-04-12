@@ -243,14 +243,12 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 		// Triggers the snapshot to be downloaded
 		this.snapshotBtn.addEventListener('click',function(){
-			console.log('clicked');
 			player.controls.takeSnapshot();
 		},false);
 
 		// This is to check and update the FULLSCREEN button on the UI controls
 		// and toggle full screen when clicked
 		this.fullscreenBtn.addEventListener('click',function(){
-			console.log('clicked fullscreen');
 			player.controls.toggleFullscreen();
 		},false);
 
