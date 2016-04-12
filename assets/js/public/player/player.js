@@ -151,7 +151,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		};
 		this.mouseUp = function(evt){
 			player.dragStart = null;
-		}
+		};
 	};
 
 	var Scroll = function(player) {
@@ -166,7 +166,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.controls.updateZoomUI();
 			}
 			return evt.preventDefault() && false;
-		}
+		};
 	};
 
 	var Controls = function(player) {
@@ -243,13 +243,16 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 		// Triggers the snapshot to be downloaded
 		this.snapshotBtn.addEventListener('click',function(){
+			console.log('clicked');
 			player.controls.takeSnapshot();
+		},false);
+
 		// This is to check and update the FULLSCREEN button on the UI controls
 		// and toggle full screen when clicked
 		this.fullscreenBtn.addEventListener('click',function(){
+			console.log('clicked fullscreen');
 			player.controls.toggleFullscreen();
 		},false);
-	});
 
 		/* Play or pause the video */
 		this.playPauseVideo = function() {
@@ -296,38 +299,38 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				// Pause the audio file
 				player.audio.pause();
 			}
-		}
+		};
 
 		this.playVideo = function(slaveObj) {
 			slaveObj.video.play();
-		}
+		};
 
 		this.pauseVideo = function(slaveObj) {
 			slaveObj.video.pause();
-		}
+		};
 
 		this.restartVideo = function(slaveObj) {
 			slaveObj.video.currentTime = 0;
 			slaveObj.video.play();
-		}
+		};
 
 		/* Updates icon to "play" button during pause state, show UI controls bar */
 		this.changeToPauseState = function() {
 			this.playPauseBtn.className = 'play';
 			this.uiControls.className = '';
-		}
+		};
 
 		/* Updates icon to "pause" button during play state, hide UI controls bar */
 		this.changeToPlayState = function() {
 			this.playPauseBtn.className = 'pause';
 			this.uiControls.className = 'hideOnHover';
-		}
+		};
 
 		/* Updates icon to "replay" button after video has ended, show UI controls bar */
 		this.changeToReplayState = function() {
 			this.playPauseBtn.className = 'replay';
 			this.uiControls.className = '';
-		}
+		};
 
 		/* Retrieve total duration of video and update total time text */
 		this.getVideoLength = function() {
@@ -360,9 +363,10 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			var snapContext = player.snapshotCanvas.getContext('2d');
 			snapContext.drawImage(player.canvas,0,0);
 			player.snapshotCanvas.toBlob(function(blob) {
-    			saveAs(blob, "snapshot.jpg");
+	  			saveAs(blob, "snapshot.jpg");
 			}, "image/jpeg");
-		}
+		};
+
 		/* Toggle fullscreen video */
 		this.toggleFullscreen = function() {
 			if (this.fullscreenBtn.className === '') {
@@ -404,7 +408,8 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				$('#fullscreenBtn').removeClass('exit');
 			}
 		});
-	}
+
+	};
 
 	var Volume = function(player){
 		this.previousVolume = {
@@ -527,7 +532,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 		var setVideoTime = function(slaveObj, theTime) {
 			slaveObj.video.currentTime = theTime;
-		}
+		};
 	};
 
 	var Zoom = function(player) {
@@ -549,7 +554,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.transforms.refit();
 			}
 			player.transforms.redraw();
-		}
+		};
 
 		/* Private function to call zoom(clicks,x,y) from the UI Controls. */
 		function zoomHelper(value) {
@@ -560,7 +565,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			var y = player.dimensions.ch/2;
 			player.zoom.zoom(value, x, y);
 			player.controls.updateZoomUI();
-		}
+		};
 		/* Adjust zoom by adjusting the slider */
 		this.adjust = function() {
 			var zoomPercent = player.controls.zoomCtrl.value;
@@ -568,15 +573,15 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			var old_s = player.transforms.xform.a;
 			var delta_clicks = Math.log(new_s/old_s) / Math.log(player.scaleFactor);
 			zoomHelper(delta_clicks);
-		}
+		};
 
 		/* Adjust zoom by clicking zoom in and out buttons */
 		this.in = function() {
 			zoomHelper(1);
-		}
+		};
 		this.out = function() {
 			zoomHelper(-1);
-		}
+		};
 	};
 
 	var Transforms = function(player) {
@@ -638,7 +643,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		player.ctx.transformedPoint = function(x,y){
 			pt.x=x; pt.y=y;
 			return pt.matrixTransform(player.transforms.xform.inverse());
-		}
+		};
 
 		/* Checks if the viewport borders intersect with the canvas borders
 		** If it intersects, then scale/translate back the canvas accordingly to fit the viewport.*/
@@ -663,7 +668,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				var dy = (player.dimensions.ch - ty-player.dimensions.ch*s)/s;
 				this.translate(0, dy);
 			}
-		}
+		};
 		this.redraw = function() {
 			function slaveRedraw(slave) {
 				slave.transforms.redraw();
@@ -697,7 +702,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			player.util.sendStats(statObj);
 			//change dimensions and coords
 			// slave.redraw for slaves still in view
-		}
+		};
 		this.outerTranslate = function() {
 			var pt = player.ctx.transformedPoint(player.last.x,player.last.y);
 			var dx = pt.x-player.dragStart.x;
@@ -719,8 +724,9 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
 			}*/
 			this.redraw();
-		}
-	}
+		};
+
+	};
 
 	var Util = function(player) {
 		/* Helper methods to convert between the slider values and transformation matrix values */
@@ -728,11 +734,11 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		this.convertPercentToScale = function(percent) {
 			var range = player.zoom.maxZoom - 1;
 			return percent*range + 1;
-		}
+		};
 		this.convertScaleToPercent = function(scale) {
 			var range = player.zoom.maxZoom - 1;
 			return (scale-1)/range;
-		}
+		};
 		/* Function to converts seconds to HH:MM:SS format */
 		this.convertSecondsToHMS = function(timeInSeconds) {
 			var formattedTime = '';
@@ -748,7 +754,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			formattedTime = hours+':'+mins+':'+secs;
 
 			return formattedTime;
-		}
+		};
 
 		this.forAllSlaves = function(someFunction, extraParam) {
 			if (extraParam === undefined) {
@@ -762,13 +768,13 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 					someFunction(player.slaves[i], extraParam);
 				}
 			}
-		}
+		};
 
 		this.setPauseArr = function(isPaused) {
 			for (var i = 0; i < player.slavePauseArr.length; i++) {
 				player.slavePauseArr[i] = isPaused;
 			}
-		}
+		};
 
 		this.sendStats = function(obj) {
 
@@ -777,8 +783,9 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			xhr.open("POST", "/api/viewsession", true);
 			xhr.setRequestHeader('Content-Type', 'application/json');
 			xhr.send(JSON.stringify(obj));
-		}
-	}
+		};
+
+	};
 
 	var Sync = function(player) {
 
@@ -850,9 +857,9 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				// Reset the players
 				player.controls.changeToReplayState();
 			}
-		}
+		};
 
-	}
+	};
 
 	var init_players = function(player, canvas, mpd_list) {
 		var vidCount = 1;
@@ -911,7 +918,8 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		// Set the audio object of the Player
 		player.audio = document.getElementById('aud_file');
 
-	}
+	};
+
 	var getVideoDuration = function(player) {
 		player.slaves[0].video.onloadedmetadata = function() {
 			player.duration = player.slaves[0].video.duration;
@@ -919,5 +927,4 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			return player.duration;
 		};
 	};
-
 }
