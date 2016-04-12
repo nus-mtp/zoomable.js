@@ -22,10 +22,10 @@ module.exports = {
   },
 
   /***************************************************************************
-   * Set the port in the production environment to 80                        *
+   * Set the port in the production environment to 443                        *
    ***************************************************************************/
 
-  port: 80,
+  port: 443,
 
   /***************************************************************************
    * Set the log level in production environment to "silent"                 *
@@ -34,4 +34,5 @@ module.exports = {
   // log: {
   //   level: "silent"
   // }
+  appUrl: 'https://zoomable.pw'
 };
