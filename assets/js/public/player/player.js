@@ -63,6 +63,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 	// To determine if the overall state of the players have ended
 	this.ended = false;
+	this.endHotFix = false;	// Turned to true if video cannot end and needs a hot fix
 	// To store the truthy value of whether the players' videos have ended
 	this.slaveEndArr = [];
 
@@ -798,7 +799,12 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 					}
 				}
 			}
-			player.time = player.timeArr[0];
+			//player.time = player.timeArr[0];
+			player.time = earliestTime;
+			if (player.duration - player.time < 0.000001) {
+				player.endHotFix = true;
+				player.sync.endState();	// To check if video should end
+			}
 		};
 
 		this.pauseState = function() {
@@ -836,7 +842,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		this.endState = function() {
 			// Check if there are NUM_SLAVES number of elements in the array, else
 			// don't even bother doing comparisons
-			if (player.slaveEndArr.length < NUM_SLAVES) {
+			if ( (player.slaveEndArr.length < NUM_SLAVES) && (player.endHotFix == false) ) {
 				return;
 			}
 			var newEndState = true;
@@ -848,10 +854,11 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 			// If the overall end state is true for all videos, reset the UI play
 			// button to be the 'replay' button
-			if (newEndState == true) {
+			if ( ((newEndState == true) || (player.endHotFix == true)) && (player.controls.playPauseBtn.className != 'replay') ) {
 				// Set the overall player end state to be true
 				player.ended = true;
 				// Reset the players
+				player.endHotFix = false;
 				player.controls.changeToReplayState();
 			}
 		};
