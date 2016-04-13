@@ -87,6 +87,12 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
   /* Function to sign in or create new account */
   $scope.submitForm = function() {
     if ($scope.isCreate) {
+      if ($scope.username.length < 6 || $scope.password.length < 6) {
+        // prompt username or password too short
+        $scope.errorMsg = 'Username and password must be at least 6 characters long.';
+        return;
+      }
+
       var accountData = {
         username: $scope.username,
         password: $scope.password,
@@ -105,8 +111,14 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
           $scope.errorMsg = error;
         }
         else if (status === 400) {
-          // username already in use, update error message
-          $scope.errorMsg = 'Username is already taken by another user.';
+          if (error === 'LengthNotSatisfied') {
+            // username or password too short
+            $scope.errorMsg = 'Username and password must be at least 6 characters long.';
+          }
+          else {
+            // username already in use, update error message
+            $scope.errorMsg = 'Username is already taken by another user.';
+          }
         }
 
         //reset password field

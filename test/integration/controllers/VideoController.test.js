@@ -1,7 +1,7 @@
 var request = require('supertest');
 
 describe('VideoController', function () {
-	var credentials = { username: 'test', password: 'testtesttest'};
+	var credentials = { username: 'testuser', password: 'testtesttest'};
 	var vid1 = {title: 'Mission Impossible', thumbnailDir: '/video/1/a.jpg'};
 	var vid2 = {title: 'Mission Possible', thumbnailDir: '/video/1/a.jpg'};
 
