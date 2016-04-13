@@ -142,6 +142,11 @@ module.exports = {
    * Usage: GET /api/user/getAccountDate
    */
   getAccountDate: function (req, res) {
+    // Handle the case when no user is signed in
+    if (!req.session.me) {
+      return res.status(401).forbidden('NoPermission');
+    }
+
     // Look up the user record from the database which is
     // referenced by the id in the user session (req.session.me)
     User.findOne(req.session.me).exec(function foundUser(err, user) {
