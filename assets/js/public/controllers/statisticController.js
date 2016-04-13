@@ -154,9 +154,9 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
         // call stats api to get all of user's videos with stats
         servicesAPI.getVideoStats().success(function(data) {
-          if (data.length === 0) {
+          if (data.length === 0 || data.viewSessions.length === 0) {
             $scope.noStatisticsYet = true;
-            $scope.userVideoLength = 0;
+            $scope.userVideoLength = data.length === 0 ? 0 : data.videoLength;
           }
           else {
             $scope.viewSessions = data.viewSessions;
