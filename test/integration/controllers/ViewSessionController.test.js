@@ -1,7 +1,7 @@
 var request = require('supertest');
 
 describe('ViewSessionController', function () {
-	var credentials = { username: 'test', password: 'testtesttest'};
+	var credentials = { username: 'testuser', password: 'testtesttest'};
 	var video = {title: 'Mission Impossible', videoDir: '/video/1', thumbnailDir: '/video/1/a.jpg'};
 	var incompleteSession = {sessionId: 'session_id'};
 	var session = {sessionId: 'session_id', videoId: 9999, coordinates: [0, 0], width: 99.99, videoTime: 2.55, videoTotalTime: 9.99};
