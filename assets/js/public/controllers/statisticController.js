@@ -23,7 +23,6 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   var sessions = {};
   var compiledSessions = {};
   var videoTotalTime = 0;
-  var totalCanvas = [];
   var video = new Whammy.Video(1);
   $scope.noHeatmapYet = true;
 
@@ -36,7 +35,6 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       sessions.forEach(function(session){
 
         // recalculate coordinates according to given canvas width
-        var canvasWidth = 128;
         var zoomedCanvasWidth = Math.ceil(session.width);
         var canvasRatio = Math.round(zoomedCanvasWidth / 3);
         var x = Math.ceil(session.coordinates[0]) + canvasRatio;
@@ -60,14 +58,14 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
           video.add(context);
           currentTime++;
           generateHeatmapVideo();
-        });;
+        });
       }
       // generate empty canvas for seconds without sessions
       else {
-        document.getElementsByClassName("heatmap-canvas")[0].setAttribute("id","heatmap-image");
-        var context = document.getElementById("heatmap-image").getContext('2d');
+        document.getElementsByClassName('heatmap-canvas')[0].setAttribute('id', 'heatmap-image');
+        var context = document.getElementById('heatmap-image').getContext('2d');
         context.clearRect(0,0,1920,1080);
-        context.fillStyle = "#FFFFFF";
+        context.fillStyle = '#FFFFFF';
         context.fillRect(0,0,1920,1080);
         video.add(context);
         currentTime++;
@@ -94,15 +92,12 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     };
 
     generateCanvas(aggregatedCoordinates).then(function() {
-      document.getElementsByClassName("heatmap-canvas")[0].setAttribute("id","heatmap-image");
-      var canvas = document.getElementById("heatmap-image");
-      var context = document.getElementById("heatmap-image").getContext('2d');
+      document.getElementsByClassName('heatmap-canvas')[0].setAttribute('id', 'heatmap-image');
+      var context = document.getElementById('heatmap-image').getContext('2d');
       // change canvas transparent background to white
-      var data = context.getImageData(0,0,1920,1080);
-  		var compositeOperation = context.globalCompositeOperation;
-  		context.globalCompositeOperation = "destination-over";
-  		context.fillStyle = '#FFFFFF';
-  		context.fillRect(0,0,1920,1080);
+      context.globalCompositeOperation = 'destination-over';
+      context.fillStyle = '#FFFFFF';
+      context.fillRect(0,0,1920,1080);
       deferred.resolve(context);
     });
 
@@ -116,33 +111,33 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   }
 
   function compileHeatmapVideo() {
-  	video.compile(false, function(output){
+    video.compile(false, function(output){
       $scope.noHeatmapYet = false;
-  		var url = window.URL.createObjectURL(output);
-  		document.getElementById('video').src = url;
-  	});
+      var url = window.URL.createObjectURL(output);
+      document.getElementById('video').src = url;
+    });
   }
 
   // restyle video iframe in statistics page
   $('iframe#heatmap-iframe').load( function() {
-    $('iframe#heatmap-iframe').contents().find("head")
-      .append($("<style type='text/css'>#miniMapControls,#zoomBarControls,#seekBarControls,#bottomBarControls{display:none;}</style>"));
+    $('iframe#heatmap-iframe').contents().find('head')
+      .append($('<style type="text/css">#miniMapControls,#zoomBarControls,#seekBarControls,#bottomBarControls{display:none;}</style>'));
   });
 
   $('iframe#heatmap-iframe2').load( function() {
-    $('iframe#heatmap-iframe2').contents().find("head")
-      .append($("<style type='text/css'>  #seekBarControls,#bottomBarControls{display:none;}</style>"));
+    $('iframe#heatmap-iframe2').contents().find('head')
+      .append($('<style type="text/css">  #seekBarControls,#bottomBarControls{display:none;}</style>'));
   });
 
   // catch play events
-  document.getElementById("video").onplay = function() {
-    $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
-    $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
+  document.getElementById('video').onplay = function() {
+    $('iframe#heatmap-iframe').contents().find('#playPauseBtn').click();
+    $('iframe#heatmap-iframe2').contents().find('#playPauseBtn').click();
 
   };
-  document.getElementById("video").onpause = function() {
-    $('iframe#heatmap-iframe').contents().find("#playPauseBtn").click();
-    $('iframe#heatmap-iframe2').contents().find("#playPauseBtn").click();
+  document.getElementById('video').onpause = function() {
+    $('iframe#heatmap-iframe').contents().find('#playPauseBtn').click();
+    $('iframe#heatmap-iframe2').contents().find('#playPauseBtn').click();
   };
 
   /* Get all user view data required for stats */
@@ -199,7 +194,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     }
     // default min date is creation date
     $scope.minDate = moment(createdDate).toDate();
-  };
+  }
 
   /* Function to order view sessions and count by date */
   function processViewSessions() {
@@ -233,7 +228,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
         vc_index++;
       }
     }
-  };
+  }
 
   /* Function to set date criteria */
   $scope.updateCriteria = function(event) {
@@ -250,7 +245,6 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
   /* Function to update chart data and labels */
   function updateLabelsAndData() {
-    var prevDate = 0;
 
     // initialse scope label, data and other variables
     $scope.labels = [];
@@ -258,6 +252,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     $scope.totalViewsForPeriod = 0;
     var vc_index = 0;
     var count = 0;
+    var idx, sum, formatedVCDate;
 
     // convert Javascript Date object to Moment object
     var startMoment = moment($scope.startDate).startOf('day');
@@ -271,12 +266,12 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       }
 
       // update the data to show
-      for (var idx = 0; idx < $scope.labels.length; idx++) {
+      for (idx = 0; idx < $scope.labels.length; idx++) {
 
         // add all view counts from the array
         if (vc_index < $scope.viewsCount.length) {
           // format view count date to same format as labels
-          var formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
+          formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
 
           if ($scope.labels[idx] === formatedVCDate) {
             // assign count to data[0] scope if date is the same
@@ -311,14 +306,14 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       }
 
       // update the data to show
-      for (var idx = 0; idx < count; idx++) {
+      for (idx = 0; idx < count; idx++) {
         // for each count add up the sum of the next 7 days for subsequent week
-        var sum = 0;
+        sum = 0;
         for (var day = 0; day < 7; day++) {
           // add all view counts from the array
           if (vc_index < $scope.viewsCount.length) {
             // format view count date to same format as labels
-            var formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
+            formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
 
             if (startMoment.format('D/M') === formatedVCDate) {
               // add to sum if date is the same
@@ -349,8 +344,8 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       var vcArr = $scope.viewsCount.slice(0);
 
       // update the data to show
-      for (var idx = 0; idx < count; idx++) {
-        var sum = 0;
+      for (idx = 0; idx < count; idx++) {
+        sum = 0;
 
         // add all view counts from the array
         for (var i = 0; i < vcArr.length; i++) {
@@ -372,6 +367,6 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
         currentMonth++;
       }
     }
-  };
+  }
 
 });

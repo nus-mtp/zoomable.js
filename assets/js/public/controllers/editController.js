@@ -28,7 +28,7 @@ angular.module('zoomableApp').controller('editController', function($scope, $mdT
 
 		// update changes into database
 		servicesAPI.update($scope.video.id, updatedData)
-		.success(function(data) {
+		.success(function() {
 			// update page header title with new title
 			$scope.originalVideoTitle = $scope.video.title;
 
