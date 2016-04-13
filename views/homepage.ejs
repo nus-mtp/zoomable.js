@@ -12,8 +12,8 @@
           <div class="field-area">
             <p class="error-message" ng-model="errorMsg">{{errorMsg}}</p>
             <input placeholder="Email" name="userEmail" ng-model="emailAddress" ng-show="isCreate" type="email"/>
-            <input placeholder="Username" name="userName" ng-model="username" type="text"/>
-            <input placeholder="Password" name="userPassword" ng-model="password" type="password" autocomplete="off"/>
+            <input placeholder="{{isCreate ? 'Username (at least 6 characters)' : 'Username'}}" name="userName" ng-model="username" type="text"/>
+            <input placeholder="{{isCreate ? 'Password (at least 6 characters)' : 'Password'}}" name="userPassword" ng-model="password" type="password" autocomplete="off"/>
             <button type="submit" name="submitBtn" ng-click="submitForm()" ng-disabled="loginForm.$pristine || hasEmptyFields()">
               {{isCreate ? 'Create Account' : 'Login'}}
             </button>
