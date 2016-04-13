@@ -1,9 +1,11 @@
 var request = require('supertest');
 
 describe('UserController', function () {
-	var credentials = { username: 'user', password: 'testtesttest', email: 'user@test.com'};
-	var existingEmailCredentials = { username: 'test1', password: 'gg', email: 'test@test.com'};
-	var existingUsernameCredentials = { username: 'test', password: 'testtesttest', email: 'haha@test.com'};
+	var credentials = { username: 'user123', password: 'testtesttest', email: 'user123@test.com'};
+	var existingEmailCredentials = { username: 'user999', password: 'password', email: 'test@test.com'};
+	var existingUsernameCredentials = { username: 'testuser', password: 'password', email: 'haha@test.com'};
+	var shortUsernameCredentials = { username: 'user', password: 'password', email: 'haha@test.com'};
+	var shortPasswordCredentials = { username: 'user999', password: 'pw', email: 'haha@test.com'};
 	var vid1 = {title: 'Mission Impossible', thumbnailDir: '/video/1/a.jpg'};
 	var vid2 = {title: 'Mission Possible', thumbnailDir: '/video/1/a.jpg'};
 
@@ -28,6 +30,20 @@ describe('UserController', function () {
 			request(sails.hooks.http.app)
 			.post('/api/user/signup')
 			.send(existingUsernameCredentials)
+			.expect(400, done);
+		});
+
+		it('should not able to signup for a new account if username is less than 6 characters', function (done) {
+			request(sails.hooks.http.app)
+			.post('/api/user/signup')
+			.send(shortUsernameCredentials)
+			.expect(400, done);
+		});
+
+		it('should not able to signup for a new account if password is less than 6 characters', function (done) {
+			request(sails.hooks.http.app)
+			.post('/api/user/signup')
+			.send(shortUsernameCredentials)
 			.expect(400, done);
 		});
 	});
