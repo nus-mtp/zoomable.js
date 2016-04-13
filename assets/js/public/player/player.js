@@ -113,7 +113,6 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		this.snapshotCanvas = document.getElementById('snapshot_canvas');
 		this.minimap = new Minimap(minimap_canvas[0], minimap_canvas[1], "", this);
 		this.minimap.init();
-		console.log(canvas.width);
 
 	};
 
