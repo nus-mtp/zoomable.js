@@ -12,11 +12,11 @@
     <!-- EDIT PAGE CONTENT -->
     <md-card>
       <md-tabs md-dynamic-height md-border-bottom>
-        <!-- TAB 1 : SETTINGS & INFO-->
+        <!-- TAB 1 : SETTINGS & INFO -->
         <md-tab>
           <md-tab-label>
             <md-icon class="tab-icon" md-svg-icon="images/ic_edit_black_24px.svg"></md-icon>
-            <span class="tab-header">INFO & SETTINGS</span>
+            <span class="tab-header">INFO &amp; SETTINGS</span>
           </md-tab-label>
           <md-tab-body>
             <md-content class="md-padding">
@@ -90,14 +90,14 @@
           </md-tab-body>
         </md-tab>
 
-        <!-- TAB 2 : STATISTICS (NOT DONE)-->
+        <!-- TAB 2 : STATISTICS -->
         <md-tab>
           <md-tab-label>
             <md-icon class="tab-icon" md-svg-icon="images/ic_trending_up_black_24px.svg"></md-icon>
             <span class="tab-header">STATISTICS</span>
           </md-tab-label>
           <md-tab-body>
-            <md-content class="md-padding" ng-controller="statisticController">
+            <md-content class="md-padding">
               <div class="video-date">Video uploaded on: {{ video.createdAt | date:'d MMM yyyy' }}</div>
               <%- partial('statsdata.ejs') %>
             </md-content>
