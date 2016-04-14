@@ -9,8 +9,8 @@ var Minimap = function(canvas, rect_canv, video, parent) {
     this.outline;
 
 	// For stats
-	this.x = 0;
-	this.y = 0;
+	this.x_coord = 0;
+	this.y_coord = 0;
 	this.new_width = this.canvas.width;
 
     this.init = function() {
@@ -20,11 +20,11 @@ var Minimap = function(canvas, rect_canv, video, parent) {
     var Outline = function(minimap) {
         this.draw = function(x,y,width,height) {
 			// Update with new values of x, y and new_width first
-			player.minimap.x = 0;
-			player.minimap.y = 0;
-			player.minimap.new_width = width;
+			minimap.x_coord = x;
+			minimap.y_coord = y;
+			minimap.new_width = width;
 			// Clear the minimap rectangle first
-			player.minimap.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+			minimap.ctx.clearRect(0,0,minimap.canvas.width,minimap.canvas.height);
             //draws the red border
             minimap.ctx.beginPath();
             minimap.ctx.lineWidth="1.5";
