@@ -9,11 +9,14 @@ var Minimap = function(canvas, rect_canv, video, parent) {
     this.outline;
 
 	// For stats
-	this.x_coord = 0;
-	this.y_coord = 0;
-	this.new_width = this.canvas.width;
+	this.x_coord;
+	this.y_coord;
+	this.new_width;
 
     this.init = function() {
+		this.x_coord = 0;
+		this.y_coord = 0;
+		this.new_width = canvas.width;
         this.outline = new Outline(this);
     }
 

@@ -734,7 +734,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		// Creates an object that contains statistics for the heatmap
 		this.createStats = function() {
 			var statObj = {
-				coordinates : [player.minimap.x, player.minimap.y],
+				coordinates : [player.minimap.x_coord, player.minimap.y_coord],
 				width : player.minimap.new_width,
 				videoTime : player.time,
 				videoId : player.vidId,
@@ -757,6 +757,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		// Function to create a stats object and send it
 		this.statTrack = function() {
 			var statObj = player.stats.createStats();
+			console.log(statObj.coordinates[0] + " " + statObj.coordinates[1]);
 			player.stats.sendStats(statObj);
 		}
 
