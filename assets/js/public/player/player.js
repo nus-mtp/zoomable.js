@@ -684,10 +684,21 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			}
 			player.util.forAllSlaves(slaveRedraw);
 
-			player.minimap.ctx.clearRect(0,0,canvas.width,canvas.height);	// Clear the minimap rectangle
-			var statObj = player.stats.createStats();	// Creates a stats object
-			var new_height = player.canvas.height/player.transforms.xform.a;	// Calculates the new height
-			player.minimap.outline.draw(statObj.coordinates[0], statObj.coordinates[1], statObj.width, new_height);	// Redraws the minimap
+			var canv_to_minimap = player.minimap.canvas.width / player.canvas.width;
+			var x = player.transforms.xform.e;
+			var y = player.transforms.xform.f;
+			if (x < 0) x *= (-1);
+			if (y < 0) y *= (-1);
+			x /= player.transforms.xform.a;
+			y /= player.transforms.xform.a;
+			x *= canv_to_minimap;
+			y *= canv_to_minimap;
+			var new_width = player.canvas.width/player.transforms.xform.a;
+			var new_height = player.canvas.height/player.transforms.xform.a;
+			new_width *= canv_to_minimap;
+			new_height *= canv_to_minimap;
+
+			player.minimap.outline.draw(x, y, new_width, new_height);	// Redraws the minimap
 
 			//change dimensions and coords
 			// slave.redraw for slaves still in view
@@ -722,22 +733,9 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 		// Creates an object that contains statistics for the heatmap
 		this.createStats = function() {
-			var canv_to_minimap = player.minimap.canvas.width / player.canvas.width;
-			var x = player.transforms.xform.e;
-			var y = player.transforms.xform.f;
-			if (x < 0) x *= (-1);
-			if (y < 0) y *= (-1);
-			x /= player.transforms.xform.a;
-			y /= player.transforms.xform.a;
-			x *= canv_to_minimap;
-			y *= canv_to_minimap;
-			var new_width = player.canvas.width/player.transforms.xform.a;
-			var new_height = player.canvas.height/player.transforms.xform.a;
-			new_width *= canv_to_minimap;
-
 			var statObj = {
-				coordinates : [x,y],
-				width : new_width,
+				coordinates : [player.minimap.x, player.minimap.y],
+				width : player.minimap.new_width,
 				videoTime : player.time,
 				videoId : player.vidId,
 				sessionId : player.uuid,
