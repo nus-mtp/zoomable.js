@@ -101,11 +101,11 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
 
       // create a new account for new user
 			servicesAPI.createAccount(accountData)
-	    .success(function(data) {
+      .success(function() {
         // redirect to dashboard page
         window.location = '/';
-	    })
-	    .error(function(error, status) {
+      })
+      .error(function(error, status) {
         if (status === 409) {
           // email address already in use, update error message
           $scope.errorMsg = error;
@@ -123,28 +123,28 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
 
         //reset password field
         $scope.password = '';
-	    });
+      });
     }
     else {
-      var accountData = {
+      var loginData = {
           username: $scope.username,
           password: $scope.password
       }
 
       // check if user entered correct username and password
-      servicesAPI.login(accountData)
-	    .success(function(data) {
+      servicesAPI.login(loginData)
+      .success(function() {
         // redirect to dashboard page
         window.location = '/';
-	    })
-	    .error(function(error, status) {
+      })
+      .error(function(error, status) {
         if (status === 401) {
           // unsuccessful login, initialise password field
           $scope.password = '';
         }
         // update error message
         $scope.errorMsg = error;
-	    });
+      });
     }
   };
 

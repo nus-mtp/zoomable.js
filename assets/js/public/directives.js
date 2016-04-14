@@ -4,7 +4,7 @@ angular.module('zoomableApp')
     return {
       restrict: 'A', //This means that it will be used as an attribute and NOT as an element.
       replace: true,
-      templateUrl: "../../../views/navbar.html"
+      templateUrl: '../../../views/navbar.html'
     }
   })
   .directive('dbinfOnFilesSelected', [function() {
@@ -19,8 +19,8 @@ angular.module('zoomableApp')
             //(calling scope.$apply() here in the directive had no visible effect for me).
           dbinfOnFilesSelected: '&'
       },
-      link: function(scope, element, attr, ctrl) {
-          element.bind("change", function()
+      link: function(scope, element) {
+          element.bind('change', function()
           {  //match the selected files to the name 'selectedFileList', and
              //execute the code in the data-dbinf-on-files-selected attribute
            scope.dbinfOnFilesSelected({selectedFileList : element[0].files});
