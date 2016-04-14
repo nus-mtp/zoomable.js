@@ -1,8 +1,8 @@
 angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog,
    $mdMedia, Upload, $timeout, $interval, $location, $q){
   // ERROR MESSAGE
-  var ServiceUnavailableError = 'Service is unavailable at the moment. Please refresh your browser.';
-  var NoVideosUploaded = 'No Videos Yet';
+  var ServiceUnavailableError = 'Service is unavailable at the moment. :(';
+  var NoVideoError = 'No Video Yet';
 
   // VARIABLES
   $scope.filterStates = ['Public','Private'];
@@ -24,7 +24,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     servicesAPI.get()
       .success(function(data) {
         if (data.length === 0) {
-          $scope.error = NoVideosUploaded;
+          $scope.error = NoVideoError;
         }
         $scope.videoList = data;
         getProcessStatusAll();
@@ -217,9 +217,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
             var file = files[j];
 
             if (!file.$error) {
-              createAndUploadVideo(file).then(function(){
-                //
-              });
+              createAndUploadVideo(file);
             }
           }
         }
@@ -272,6 +270,8 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   /* Check process status for all video entries */
   function getProcessStatusAll() {
     if ($scope.videoList){
+      $scope.error = '';
+
       for (var i = 0; i < $scope.videoList.length; i++) {
         if ($scope.videoList[i].hasProcessed === 'false') {
           var videoId = {
