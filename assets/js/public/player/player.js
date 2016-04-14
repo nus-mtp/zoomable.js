@@ -757,7 +757,6 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		// Function to create a stats object and send it
 		this.statTrack = function() {
 			var statObj = player.stats.createStats();
-			console.log(statObj.coordinates[0] + " " + statObj.coordinates[1]);
 			player.stats.sendStats(statObj);
 		}
 
