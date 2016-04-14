@@ -1,6 +1,5 @@
 angular.module('zoomableApp').controller('editController', function($scope, $mdToast, $mdDialog, $state, servicesAPI){
 	// VARIABLES
-	$scope.defaultImagePath = 'images/bunny.png';
 	$scope.originalVideoTitle = '';
 	$scope.video = {};
 	$scope.tags = [];
