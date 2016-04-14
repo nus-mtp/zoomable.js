@@ -291,9 +291,9 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
-				if (player.timerActive == true) {
-					clearInterval(player.timer);
-					player.timerActive = false;
+				if (player.timerActive == false) {
+					player.timer = setInterval(player.stats.statTrack, 1000);
+					player.timerActive = true;
 				}
 
 			}
@@ -889,6 +889,10 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.ended = true;
 				// Reset the players
 				player.endHotFix = false;
+				if (player.timerActive == true) {
+					clearInterval(player.timer);
+					player.timerActive = false;
+				}
 				player.controls.changeToReplayState();
 			}
 		};
