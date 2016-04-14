@@ -1,4 +1,5 @@
-angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter, moment, servicesAPI, $q){
+angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter,
+   moment, servicesAPI, $q, $window, $timeout){
   // VARIABLES
   $scope.location = location.pathname.split('/');           // location array contains path name in array[1]
   $scope.criteria = 'DAY';                                  // default set to day for date criteria
@@ -8,9 +9,9 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   $scope.viewSessions = [];                                 // scope to store viewSessions to empty array
   $scope.viewsCount = [];                                   // scope to store processed viewSessions into date and count
   $scope.userVideoLength = 0;                               // scope to store user uploaded video length
-  $scope.videoURL = '';                                        // scope to store embed video URL
+  $scope.videoURL = '';                                     // scope to store embed video URL
 
-  // Get video id if is on edit page
+  // Get video id if location is on edit page
   if ($scope.location[1] === 'edit') {
     $scope.videoId = $scope.location[2];
     $scope.videoURL = location.origin + '/embed/' + $scope.videoId;
@@ -26,30 +27,63 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   var video = new Whammy.Video(1);
   $scope.noHeatmapYet = true;
 
-  servicesAPI.getHeatMapStats($scope.videoId).success(function (data) {
-    if (data.length > 0) {
-      sessions = data;
-      videoTotalTime = Math.ceil(data[0].videoTotalTime);
+  /* Set delay in heatmap visualisation to prevent iframe from lagging */
+  $timeout(getVideoViewData, 5000);
 
-      // group all coordinates belonging to a second into key value array
-      sessions.forEach(function(session){
+  /* Get view data of a video for heatmap visualisation */
+  function getVideoViewData() {
+    servicesAPI.getHeatMapStats($scope.videoId).success(function (data) {
+      if (data.length > 0) {
+        sessions = data;
+        videoTotalTime = Math.floor(data[0].videoTotalTime);
 
-        // recalculate coordinates according to given canvas width
-        var zoomedCanvasWidth = Math.ceil(session.width);
-        var canvasRatio = Math.round(zoomedCanvasWidth / 3);
-        var x = Math.ceil(session.coordinates[0]) + canvasRatio;
-        var y = Math.ceil(session.coordinates[1]) + canvasRatio;
-        compiledSessions[Math.ceil(session.videoTime)] = compiledSessions[Math.ceil(session.videoTime)] || [];
-        compiledSessions[Math.ceil(session.videoTime)].push({x: x, y: y, radius: canvasRatio});
-      });
+        // group all coordinates by second
+        sessions.forEach(function(session){
 
-      generateHeatmapVideo();
-    }
-  });
+          // maximum canvas width is set at 128px x 72px
+          // skip session if canvas width is at 128px which means canvas is not zoomed
+          if (Math.floor(session.width) == 128) {
+            return;
+          }
+          // Heatmap.js draw a point in circle by default
+          // draw 4 points in order to draw a rectangular shape heatmap according to given coordinates and zoomed area width
+          var zoomedCanvasWidth = Math.floor(session.width);
+          var radius = zoomedCanvasWidth / 2;
+          var horizontalDistance = Math.floor(zoomedCanvasWidth / 4);
+          var verticalDistance = Math.floor( ((zoomedCanvasWidth / 128) * 72) / 4);
 
+          // point 1
+          var x1 = Math.floor(session.coordinates[0]) + horizontalDistance;
+          var y1 = Math.floor(session.coordinates[1]) + verticalDistance;
+
+          // point 2
+          var x2 = Math.floor(session.coordinates[0]) + horizontalDistance * 3;
+          var y2 = Math.floor(session.coordinates[1]) + verticalDistance;
+
+          // point 3
+          var x3 = Math.floor(session.coordinates[0]) + horizontalDistance;
+          var y3 = Math.floor(session.coordinates[1]) + verticalDistance * 3;
+
+          // point 4
+          var x4 = Math.floor(session.coordinates[0]) + horizontalDistance * 3;
+          var y4 = Math.floor(session.coordinates[1]) + verticalDistance * 3;
+
+          compiledSessions[Math.floor(session.videoTime)] = compiledSessions[Math.floor(session.videoTime)] || [];
+          compiledSessions[Math.floor(session.videoTime)].push({x: x1, y: y1, radius: radius});
+          compiledSessions[Math.floor(session.videoTime)].push({x: x2, y: y2, radius: radius});
+          compiledSessions[Math.floor(session.videoTime)].push({x: x3, y: y3, radius: radius});
+          compiledSessions[Math.floor(session.videoTime)].push({x: x4, y: y4, radius: radius});
+        });
+
+        generateHeatmapVideo();
+      }
+    });
+  };
+
+  /* Generate a heatmap video by compiling heatmap canvas into a video  */
   var currentTime = 0
   function generateHeatmapVideo() {
-    if (currentTime > videoTotalTime) {
+    if (currentTime >= videoTotalTime) {
       compileHeatmapVideo();
     } else {
       // generate heatmap for a second if session exists
@@ -90,7 +124,6 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       min: 0,
       data: coordinates
     };
-
     generateCanvas(aggregatedCoordinates).then(function() {
       document.getElementsByClassName('heatmap-canvas')[0].setAttribute('id', 'heatmap-image');
       var context = document.getElementById('heatmap-image').getContext('2d');
@@ -100,7 +133,6 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       context.fillRect(0,0,1920,1080);
       deferred.resolve(context);
     });
-
     return deferred.promise;
   }
 
@@ -118,22 +150,20 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     });
   }
 
-  // restyle video iframe in statistics page
+  /* Restyle video iframes to exclude controls in statistics page */
   $('iframe#heatmap-iframe').load( function() {
     $('iframe#heatmap-iframe').contents().find('head')
       .append($('<style type="text/css">#miniMapControls,#zoomBarControls,#seekBarControls,#bottomBarControls{display:none;}</style>'));
   });
-
   $('iframe#heatmap-iframe2').load( function() {
     $('iframe#heatmap-iframe2').contents().find('head')
       .append($('<style type="text/css">  #seekBarControls,#bottomBarControls{display:none;}</style>'));
   });
 
-  // catch play events
+  /* Sync play events of iframes from heatmap video */
   document.getElementById('video').onplay = function() {
     $('iframe#heatmap-iframe').contents().find('#playPauseBtn').click();
     $('iframe#heatmap-iframe2').contents().find('#playPauseBtn').click();
-
   };
   document.getElementById('video').onpause = function() {
     $('iframe#heatmap-iframe').contents().find('#playPauseBtn').click();
