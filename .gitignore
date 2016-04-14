@@ -31,3 +31,6 @@ libs/
 # local config
 config/local.js
 config/ssl
+
+# Coverage results
+coverage
