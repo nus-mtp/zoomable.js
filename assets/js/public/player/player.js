@@ -841,7 +841,8 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 		this.endState = function() {
 			// Check if there are NUM_SLAVES number of elements in the array, else
-			// don't even bother doing comparisons
+			// don't even bother doing comparisons. Also checks that the endHotFix is
+			// NOT invoked.
 			if ( (player.slaveEndArr.length < NUM_SLAVES) && (player.endHotFix == false) ) {
 				return;
 			}
