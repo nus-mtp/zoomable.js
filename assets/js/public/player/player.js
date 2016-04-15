@@ -62,6 +62,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 	this.paused = true;
 	this.timerActive = false;
 	this.timer = null;
+	this.statInit = false;
 
 	// To determine if the overall state of the players have ended
 	this.ended = false;
@@ -117,7 +118,6 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		this.minimap = new Minimap(minimap_canvas[0], minimap_canvas[1], "", this);
 		this.minimap.init();
 		this.stats = new Stats(this);
-		this.stats.init();
 
 	};
 
@@ -269,6 +269,12 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
+				// Check if the video's stat tracking has been initialized
+				// If not, initialise it
+				if (player.statInit == false) {
+					player.statInit = true;
+					player.stats.statTrack();
+				}
 			}
 			// Else if the video has ended, i.e. player.ended == true,
 			// Set the seek time back to 0, play all the videos
@@ -732,11 +738,6 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 	};
 
 	var Stats = function(player) {
-		// Send an initial session to kickstart the statistics tracking for the heatmap
-		this.init = function() {
-			player.stats.statTrack();
-		}
-
 		// Function to handle stats calculation and stats sending
 		// Creates an object that contains statistics for the heatmap
 		this.createStats = function() {
