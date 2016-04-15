@@ -4,7 +4,6 @@ module.exports = function (grunt) {
 		'concat',
 		'uglify',
 		'cssmin',
-		'jasmine',
 		'linkAssetsBuildProd',
 		'clean:build',
 		'copy:build'
