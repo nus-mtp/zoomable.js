@@ -14,8 +14,8 @@ var Slave = function(vid, canv, coords, dims, parent) {
 		this.id = id;
 		this.controls = new Controls(this);
 		this.transforms = new Transforms(this);
-		console.log(dims);
-
+		//console.log(dims);
+		/*
 		this.vf = VideoFrame({
 			    id : 'video_' + id,
 			    frameRate: FrameRates.web,
@@ -23,6 +23,7 @@ var Slave = function(vid, canv, coords, dims, parent) {
 				}
 			});
 		console.log(this.vf);
+		*/
 	}
 	var Controls = function(slave) {
 		// Attach the event handlers to the video element first
