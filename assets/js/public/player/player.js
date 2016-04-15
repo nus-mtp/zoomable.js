@@ -689,8 +689,8 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			new_width *= canv_to_minimap;
 			new_height *= canv_to_minimap;
 
-			// If a timer has not been initiated, start one
-			if ( (player.timerActive == false) && (Math.round(x) != 0) && (Math.round(y) != 0) ) {
+			// If a timer has not been initiated, and video is zoomed in, and video has not ended, start one
+			if ( (player.timerActive == false) && (player.ended == false) && (Math.round(x) != 0) && (Math.round(y) != 0) ) {
 				player.timer = setInterval(player.stats.statTrack, 1000);
 				player.timerActive = true;
 			}
@@ -889,7 +889,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.ended = true;
 				// Reset the players
 				player.endHotFix = false;
-				if (player.timeActive == true) {
+				if (player.timerActive == true) {
 					clearInterval(player.timer);
 					player.timerActive = false;
 				}
