@@ -48,7 +48,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 	this.vidId = vidId;	// The unique video ID assigned by the server side
 	this.uuid = uuid;	// The uuid to denote each viewing session's stats
 
-	this.time = null;
+	this.time = 0;
 	this.frame = 0;
 	this.timeArr = [];  // Array of current time for each video object
 	this.frameArr = [];  // Array of current frame for each video object
@@ -749,7 +749,6 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				sessionId : player.uuid,
 				videoTotalTime :  player.duration
 			};
-
 			return statObj;
 		};
 
