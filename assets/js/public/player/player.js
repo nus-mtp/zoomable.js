@@ -268,11 +268,6 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
-				// If a timer has not been initiated, start once
-				if (player.timerActive == false) {
-					player.timer = setInterval(player.stats.statTrack, 1000);
-					player.timerActive = true;
-				}
 			}
 			// Else if the video has ended, i.e. player.ended == true,
 			// Set the seek time back to 0, play all the videos
@@ -291,10 +286,6 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
-				if (player.timerActive == false) {
-					player.timer = setInterval(player.stats.statTrack, 1000);
-					player.timerActive = true;
-				}
 
 			}
 			// Else if the player is playing, i.e. player.paused == false, pause all the videos
@@ -698,6 +689,17 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			new_width *= canv_to_minimap;
 			new_height *= canv_to_minimap;
 
+			// If a timer has not been initiated, start one
+			if ( (player.timerActive == false) && (Math.round(x) != 0) && (Math.round(y) != 0) ) {
+				player.timer = setInterval(player.stats.statTrack, 1000);
+				player.timerActive = true;
+			}
+			// Else check if the player has been zoomed out to original magnification
+			else if ( (player.timerActive == true) && (Math.round(x) == 0) && (Math.round(y) == 0) ) {
+				clearInterval(player.timer);
+				player.timerActive = false;
+			}
+
 			player.minimap.outline.draw(x, y, new_width, new_height);	// Redraws the minimap
 
 			//change dimensions and coords
@@ -887,6 +889,10 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				player.ended = true;
 				// Reset the players
 				player.endHotFix = false;
+				if (player.timeActive == true) {
+					clearInterval(player.timer);
+					player.timerActive = false;
+				}
 				player.controls.changeToReplayState();
 			}
 		};
