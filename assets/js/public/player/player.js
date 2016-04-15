@@ -117,6 +117,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		this.minimap = new Minimap(minimap_canvas[0], minimap_canvas[1], "", this);
 		this.minimap.init();
 		this.stats = new Stats(this);
+		this.stats.init();
 
 	};
 
@@ -731,8 +732,12 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 	};
 
 	var Stats = function(player) {
-		// Function to handle stats calculation and stats sending
+		// Send an initial session to kickstart the statistics tracking for the heatmap
+		this.init = function() {
+			player.stats.statTrack();
+		}
 
+		// Function to handle stats calculation and stats sending
 		// Creates an object that contains statistics for the heatmap
 		this.createStats = function() {
 			var statObj = {
