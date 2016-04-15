@@ -21,7 +21,11 @@
           <md-tab-body>
             <md-content class="md-padding">
               <div layout="row" class="video-and-info"> <!-- start top row -->
-                <iframe width="640" height="360" src="{{ video.embedURL }}" allowfullscreen></iframe>
+                <div ng-if="video.hasProcessed === 'false'" style="width:640px;height:360px;opacity:0.7;display:flex;
+                align-items:center;justify-content: center;">
+                  Video is still processing...
+                </div>
+                <iframe ng-if="video.hasProcessed === 'true'" width="640" height="360" src="{{ video.embedURL }}" allowfullscreen></iframe>
                 <div layout="column" class="video-info-column">
                   <div layout="row" layout-align="end start">
                     <md-button class="md-raised cancel-btn" ng-click="showConfirm($event)">Cancel</md-button>
@@ -34,7 +38,7 @@
                       <span class="field">Time Uploaded:</span>
                       <span class="value">{{ video.createdAt | date:'MMMM d, y h:mma' }}</span>
                     </p>
-                    <p class="embed-link-area">
+                    <p class="embed-link-area" ng-if="video.hasProcessed === 'true'">
                       <span class="field">Embed Link:</span>
                       <span class="value">
                         <input id="embedURL" value="{{ video.embedURL }}" readonly="readonly"/>
