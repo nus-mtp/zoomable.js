@@ -7,17 +7,14 @@ describe('editController', function(){
     privacy: 0,
     id: 1
   };
-  var $httpBackend;
 
   // mock Application to allow us to inject our own dependencies
   beforeEach(angular.mock.module('zoomableApp'));
 
   // mock the controller for the same reason and include $rootScope and $controller
-  beforeEach(angular.mock.inject(function($rootScope, $controller, $injector){
+  beforeEach(angular.mock.inject(function($rootScope, $controller){
     // create an empty scope
     scope = $rootScope.$new();
-    // create httpBackend service
-    $httpBackend = $injector.get('$httpBackend');
     // declare the controller and inject our empty scope
     $controller('editController', {$scope: scope});
   }));
