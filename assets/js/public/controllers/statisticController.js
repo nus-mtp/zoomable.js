@@ -75,7 +75,9 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
           compiledSessions[Math.floor(session.videoTime)].push({x: x4, y: y4, radius: radius});
         });
 
-        generateHeatmapVideo();
+        if (compiledSessions.length > 0) {
+          generateHeatmapVideo();
+        }
       }
     });
   };
