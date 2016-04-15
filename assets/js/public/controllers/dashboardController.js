@@ -5,7 +5,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   var NoVideoError = 'No Video Yet';
 
   // VARIABLES
-  $scope.filterStates = ['Public','Private'];
+  $scope.filterStates = ['Public','Private','All'];
   $scope.sortStates = ['Latest','Most Viewed'];
   $scope.userFilterState = '';
   $scope.userSortState = '';
@@ -132,6 +132,8 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
       $scope.filterType = { privacy: 1 };
     } else if ($scope.userFilterState === 'Private') {
       $scope.filterType = { privacy: 0 };
+    } else if ($scope.userFilterState === 'All') {
+      $scope.filterType = {};
     }
   };
 
