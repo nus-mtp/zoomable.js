@@ -30,7 +30,10 @@ libs/
 
 # local config
 config/local.js
-config/ssl
+config/env/ssl
 
 # Coverage results
 coverage
+
+# Automatically generated views
+views/layout.ejs

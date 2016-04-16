@@ -1,5 +1,4 @@
-# UPDATE THIS PATH IN YOUR SERVER
-#!/usr/local/bin/bash
+#!/bin/bash
 
 # Credits to:
 # http://www.unix.com/shell-programming-and-scripting/136694-automated-ffmpeg-convert-bash-script.html
