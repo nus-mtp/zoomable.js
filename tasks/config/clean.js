@@ -13,8 +13,8 @@ module.exports = function(grunt) {
 
 	grunt.config.set('clean', {
 		dev: [
-		'.tmp/public/**',
-		'!.tmp/public/upload/vid'
+		'.tmp/public/*',
+		'!.tmp/public/upload/**'
 		],
 		build: ['www']
 	});
