@@ -944,7 +944,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 				// Locate the video element
 				var vid = document.getElementById('video_' + vidCount);
-
+				var canv = document.getElementById('canvas_' + vidCount)
 				// Set the src mpd for that video element
 				vid.src = mpd_list[vidCount - 1];
 
@@ -952,7 +952,7 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
 				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
 
-				var slaveObj = new Slave(vid, canvas, coords, dimensions, player); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
+				var slaveObj = new Slave(vid, canv, coords, dimensions, player); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
 				player.slaves.push(slaveObj);
 				slaveObj.init(vidCount);
 

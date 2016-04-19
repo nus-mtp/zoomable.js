@@ -62,7 +62,7 @@ var Slave = function(vid, canv, coords, dims, parent) {
 		this.draw = function() {
 			var canv_to_minimap = slave.master.minimap.canvas.width / slave.master.canvas.width;
 			//if (!slave.video.paused) { 	//if(v.paused || v.ended) return false;
-				slave.ctx.drawImage(slave.video,coords.x,coords.y,dims.width,dims.height);
+				slave.ctx.drawImage(slave.video,0,0,dims.width,dims.height);
 				var x = coords.x * canv_to_minimap;
 				var y = coords.y * canv_to_minimap;
 				var new_width = dims.width*canv_to_minimap;
