@@ -45,6 +45,8 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 	var NUM_ROWS = 3;
 	var NUM_COLS = 4;
 
+	this.estimator = new shaka.util.EWMABandwidthEstimator();
+
 	this.vidId = vidId;	// The unique video ID assigned by the server side
 	this.uuid = uuid;	// The uuid to denote each viewing session's stats
 
@@ -918,11 +920,13 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		shaka.polyfill.installAll();
 
 		// Inject the video elements into the HTML
-		var vidHtmlEle;
+		var vidHtmlEle; var canvHtmlEle;
 		for(var i = 1; i <= NUM_SLAVES; i++) {
 			vidHtmlEle += '<video id="video_' + i + '" width="'+ canvas.width + '" height="' + canvas.height + '" crossorigin="anonymous" controls src="' + '">Your browser does not support HTML5 video.</video>';
+			canvHtmlEle += '<canvas class="tile" id="canvas_' + i + '" width="'+ VID_WIDTH + '" height="' + VID_HEIGHT + '"></canvas>';
 		}
 		document.getElementById('zoomableVidElements').innerHTML = vidHtmlEle;
+		document.getElementById('canvasElements').innerHTML = canvHtmlEle;
 
 		// There should be a '4 column by 3 row' orientation of video players
 		// To loop through the rows while we are on a column
@@ -954,8 +958,9 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 				});
 				// Construct a DashVideoSource to represent the DASH manifest
 				var mpdUrl = mpd_list[vidCount - 1];
-				var estimator = new shaka.util.EWMABandwidthEstimator();
-				var src = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
+				var abrManager = new shaka.media.SimpleAbrManager();
+				var src = new shaka.player.DashVideoSource(mpdUrl, null, player.estimator, abrManager);
+
 				// Load the src into the Shaka Player
 				shakaPlayer.load(src);
 				vidCount++;
