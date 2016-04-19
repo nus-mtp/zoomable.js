@@ -11,6 +11,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   $scope.userSortState = '';
   $scope.hasMouseover = 'hidden';
   $scope.videoList = [];
+  $scope.error = 'tesa';
 
   $scope.model = {
     selectedVideoList: []
@@ -23,11 +24,12 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   function getVideoList() {
     servicesAPI.get()
       .success(function(data) {
-        if (data.length === 0) {
+        if (data.length == 0) {
           $scope.error = NoVideoError;
+        } else {
+          $scope.videoList = data;
+          getProcessStatusAll();
         }
-        $scope.videoList = data;
-        getProcessStatusAll();
       })
       .error(function() {
         $scope.error = ServiceUnavailableError;
@@ -272,7 +274,6 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   /* Check process status for all video entries */
   function getProcessStatusAll() {
     if ($scope.videoList){
-      $scope.error = '';
 
       for (var i = 0; i < $scope.videoList.length; i++) {
         if ($scope.videoList[i].hasProcessed === 'false') {
