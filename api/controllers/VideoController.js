@@ -28,8 +28,7 @@ module.exports = {
    */
   findOne: function (req, res) {
     Video.findOne({
-      id: req.param('id'),
-      ownedBy: req.session.me
+      id: req.param('id')
     }).exec(function (err, video) {
       if (err) return res.negotiate(err);
       if (!video) {
