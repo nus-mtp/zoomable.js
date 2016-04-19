@@ -33,5 +33,6 @@ module.exports.policies = {
 		// Apply the `false` policy as the default for all of VideoController's actions
 		// (`false` prevents all access)
 		'*': 'sessionAuth',
+    'findOne': true,
 	}
 };
