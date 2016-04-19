@@ -26,6 +26,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   var videoTotalTime = 0;
   var video = new Whammy.Video(1);
   $scope.noHeatmapYet = true;
+  var hasCompiledSessions = false;
 
   /* Set delay in heatmap visualisation to prevent iframe from lagging */
   $timeout(getVideoViewData, 5000);
@@ -45,6 +46,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
           if (Math.floor(session.width) == 128) {
             return;
           }
+
           // Heatmap.js draw a point in circle by default
           // draw 4 points in order to draw a rectangular shape heatmap according to given coordinates and zoomed area width
           var zoomedCanvasWidth = Math.floor(session.width);
@@ -73,9 +75,10 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
           compiledSessions[Math.floor(session.videoTime)].push({x: x2, y: y2, radius: radius});
           compiledSessions[Math.floor(session.videoTime)].push({x: x3, y: y3, radius: radius});
           compiledSessions[Math.floor(session.videoTime)].push({x: x4, y: y4, radius: radius});
+          hasCompiledSessions = true;
         });
 
-        if (compiledSessions.length > 0) {
+        if (hasCompiledSessions) {
           generateHeatmapVideo();
         }
       }
