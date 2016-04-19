@@ -920,10 +920,18 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		shaka.polyfill.installAll();
 
 		// Inject the video elements into the HTML
-		var vidHtmlEle; var canvHtmlEle;
+		var vidHtmlEle = ''; var canvHtmlEle = '';
 		for(var i = 1; i <= NUM_SLAVES; i++) {
 			vidHtmlEle += '<video id="video_' + i + '" width="'+ canvas.width + '" height="' + canvas.height + '" crossorigin="anonymous" controls src="' + '">Your browser does not support HTML5 video.</video>';
-			canvHtmlEle += '<canvas class="tile" id="canvas_' + i + '" width="'+ VID_WIDTH + '" height="' + VID_HEIGHT + '"></canvas>';
+			if (i % 4 === 1) {
+				canvHtmlEle += '<div class="canvas-row"><canvas class="tile" id="canvas_' + i + '" width="'+ VID_WIDTH + '" height="' + VID_HEIGHT + '"></canvas>';
+			}
+			else if (i % 4 === 0) {
+				canvHtmlEle += '<canvas class="tile" id="canvas_' + i + '" width="'+ VID_WIDTH + '" height="' + VID_HEIGHT + '"></canvas></div>';
+			}
+			else {
+				canvHtmlEle += '<canvas class="tile" id="canvas_' + i + '" width="'+ VID_WIDTH + '" height="' + VID_HEIGHT + '"></canvas>';
+			}
 		}
 		document.getElementById('zoomableVidElements').innerHTML = vidHtmlEle;
 		document.getElementById('canvasElements').innerHTML = canvHtmlEle;
