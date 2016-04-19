@@ -25,8 +25,8 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   var compiledSessions = {};
   var videoTotalTime = 0;
   var video = new Whammy.Video(1);
-  $scope.noHeatmapYet = true;
   var hasCompiledSessions = false;
+  $scope.noHeatmapYet = true;
 
   /* Set delay in heatmap visualisation to prevent iframe from lagging */
   $timeout(getVideoViewData, 5000);
@@ -79,7 +79,10 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
         });
 
         if (hasCompiledSessions) {
+          $scope.error = 'Heatmap is still processing...';
           generateHeatmapVideo();
+        } else {
+          $scope.error = 'No Zoom Statistics Yet';
         }
       }
     });
