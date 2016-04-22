@@ -17,8 +17,9 @@ module.exports = {
    * environment (see config/connections.js and config/models.js )           *
    ***************************************************************************/
 
-  // models: {
-  //   connection: 'someMongodbServer'
-  // }
+  models: {
+    connection: 'localDiskDb'
+  },
 
+  appUrl: 'http://localhost:1337'
 };

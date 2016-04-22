@@ -1,16 +1,17 @@
 angular.module('zoomableApp').controller('dashboardController', function($scope, servicesAPI, $mdDialog,
    $mdMedia, Upload, $timeout, $interval, $location, $q){
   // ERROR MESSAGE
-  var ServiceUnavailableError = 'Service is unavailable at the moment. Please refresh your browser.';
-  var NoVideosUploaded = 'No Videos Yet';
+  var ServiceUnavailableError = 'Service is unavailable at the moment. :(';
+  var NoVideoError = 'No Video Yet';
 
   // VARIABLES
-  $scope.filterStates = ['Public','Private'];
+  $scope.filterStates = ['Public','Private','All'];
   $scope.sortStates = ['Latest','Most Viewed'];
   $scope.userFilterState = '';
   $scope.userSortState = '';
   $scope.hasMouseover = 'hidden';
   $scope.videoList = [];
+  $scope.error = '';
 
   $scope.model = {
     selectedVideoList: []
@@ -23,13 +24,14 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   function getVideoList() {
     servicesAPI.get()
       .success(function(data) {
-        if (data.length === 0) {
-          $scope.error = NoVideosUploaded;
+        if (data.length == 0) {
+          $scope.error = NoVideoError;
+        } else {
+          $scope.videoList = data;
+          getProcessStatusAll();
         }
-        $scope.videoList = data;
-        getProcessStatusAll();
       })
-      .error(function(data) {
+      .error(function() {
         $scope.error = ServiceUnavailableError;
       });
   }
@@ -86,7 +88,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         var arrayIds = {
           id : $scope.model.selectedVideoList
         }
-        servicesAPI.deleteAll(arrayIds).then(function(data) {
+        servicesAPI.deleteAll(arrayIds).then(function() {
           getVideoList();
         });
         // Empty video list
@@ -121,7 +123,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
     if ($scope.userSortState === 'Latest') {
       $scope.sortType = '-createdAt';
     } else if ($scope.userSortState === 'Most Viewed') {
-      $scope.sortType = '-views';
+      $scope.sortType = '-viewedSessions.length';
     }
   };
 
@@ -132,6 +134,8 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
       $scope.filterType = { privacy: 1 };
     } else if ($scope.userFilterState === 'Private') {
       $scope.filterType = { privacy: 0 };
+    } else if ($scope.userFilterState === 'All') {
+      $scope.filterType = {};
     }
   };
 
@@ -195,7 +199,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         for (var i = 0; i < files.length; i++) {
 
           // check for unsupported video format
-          if ( !((files[i].type !== "video/mp4") || (files[i].type !== "video/quicktime"))) {
+          if ( !((files[i].type !== 'video/mp4') || (files[i].type !== 'video/quicktime'))) {
             // show toast message if file format is unsupported
             var toast = $mdToast.simple()
               .content(files[i].name + ' ' + ERROR_UNSUPPORTED_FORMAT)
@@ -213,13 +217,11 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         }
         if ($scope.uploadedFiles.length > 0) {
           // Upload files to server
-          for (var i = 0; i < files.length; i++) {
-            var file = files[i];
+          for (var j = 0; j < files.length; j++) {
+            var file = files[j];
 
             if (!file.$error) {
-              createAndUploadVideo(file).then(function(){
-                //
-              });
+              createAndUploadVideo(file);
             }
           }
         }
@@ -242,7 +244,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
         $scope.progressBar.start();
 
         servicesAPI.upload(file)
-          .then(function (resUpload) {
+          .then(function () {
 
             // update upload progress bar of video to be completed
             $scope.progressBar.complete();
@@ -253,13 +255,13 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
           });
       });
       return deferred.promise;
-    };
+    }
 
     function formatBytes(bytes) {
-      if (bytes < 1024) return bytes + " Bytes";
-      else if(bytes < 1048576) return(bytes / 1024).toFixed(1) + " KB";
-      else if(bytes < 1073741824) return(bytes / 1048576).toFixed(1) + " MB";
-      else return(bytes / 1073741824).toFixed(1) + " GB";
+      if (bytes < 1024) return bytes + ' Bytes';
+      else if(bytes < 1048576) return(bytes / 1024).toFixed(1) + ' KB';
+      else if(bytes < 1073741824) return(bytes / 1048576).toFixed(1) + ' MB';
+      else return(bytes / 1073741824).toFixed(1) + ' GB';
     }
 
     $scope.cancel = function() {
@@ -272,22 +274,22 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   /* Check process status for all video entries */
   function getProcessStatusAll() {
     if ($scope.videoList){
+
       for (var i = 0; i < $scope.videoList.length; i++) {
-        if ($scope.videoList[i].hasProcessed === "false") {
+        if ($scope.videoList[i].hasProcessed === 'false') {
           var videoId = {
             id : $scope.videoList[i].id
           }
-          getProcessStatus(videoId, i);
+          getProcessStatus(videoId);
         }
       }
     }
-  };
+  }
 
   /* Get process status of a video from API every 5 seconds */
-  function getProcessStatus (videoId, i) {
+  function getProcessStatus (videoId) {
     var interval = $interval(function() {
       var hasVideo = false;
-      var scope = $scope;
       var video_index = 0;
 
       // check if video entry exists in video list
@@ -304,7 +306,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
               getVideoList();
               $interval.cancel(interval);
             }
-          }).catch( function (res) {
+          }).catch( function () {
             // if video processing has error, show error message to user
             $scope.videoList[video_index].error = 'Error processing video. Please upload again. :(';
             $interval.cancel(interval);
@@ -318,7 +320,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
       }
 
     }, 1000);
-  };
+  }
 
   /* Function to catch broadcast event from login controller to perform search on video list */
   $scope.$on('searchBroadcast', function(event, query) {

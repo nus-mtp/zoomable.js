@@ -115,7 +115,7 @@ describe('dashboardController', function(){
       // call function to update sortType
       scope.updateSortState(state);
       // should update sortType
-      expect(scope.sortType).toEqual('-views');
+      expect(scope.sortType).toEqual('-viewedSessions.length');
     });
     it('sets filterType to public', function() {
       // set filterType to undefined

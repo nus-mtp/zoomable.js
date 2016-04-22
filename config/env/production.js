@@ -17,15 +17,14 @@ module.exports = {
    * environment (see config/connections.js and config/models.js )           *
    ***************************************************************************/
 
-  // models: {
-  //   connection: 'someMysqlServer'
-  // },
+  models: {
+  },
 
   /***************************************************************************
-   * Set the port in the production environment to 80                        *
+   * Set the port in the production environment to 443                        *
    ***************************************************************************/
 
-  // port: 80,
+  port: 443,
 
   /***************************************************************************
    * Set the log level in production environment to "silent"                 *
@@ -35,4 +34,27 @@ module.exports = {
   //   level: "silent"
   // }
 
+  appUrl: 'https://zoomable.pw',
+
+  /***************************************************************************
+  * Your SSL certificate and key, if you want to be able to serve HTTP      *
+  * responses over https:// and/or use websockets over the wss:// protocol  *
+  * (recommended for HTTP, strongly encouraged for WebSockets)              *
+  *                                                                         *
+  * In this example, we'll assume you created a folder in your project,     *
+  * `config/ssl` and dumped your certificate/key files there:               *
+  ***************************************************************************/
+  ssl: {
+    key: require('fs').readFileSync(__dirname + '/ssl/zoomable.pw.key'),
+    cert: require('fs').readFileSync(__dirname + '/ssl/zoomable.pw.pem')
+  },
+
+  // Increase the hookTimeout to 50 seconds to prevent premature timeout
+  // as minifying JS may take quite sometime
+  hookTimeout: 50000, 
+
+  // Redirect everything to HTTPS
+  policies: {
+    '*': 'isHTTPS'
+  }
 };

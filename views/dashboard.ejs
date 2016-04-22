@@ -6,7 +6,7 @@
       <div layout="row" layout-align="space-between center" class="no-btm-padding">
         <h2 class="page-header">
           <md-icon class="header-icon video"></md-icon>
-          <span class="md-headline header-title">My Videos
+          <span class="md-headline header-title">My {{ videoList.length > 1 ? 'Videos' : 'Video' }}
             <span ng-show="videoList.length" class="video-count">{{ videoList.length }}</span>
             <span ng-hide="videoList.length" class="video-count">0</span>
           </span>
@@ -67,7 +67,7 @@
             <div class="md-list-item-text">
               <h3 class="video-title">{{ video.title }}</h3>
               <h4>
-                <span ng-show"video.views">{{ video.views }} Views </span>
+                <span ng-show"video.viewedSessions.length">{{ video.viewedSessions.length }} {{ video.viewedSessions.length > 1 ? 'views' : 'view'}} </span>
                 &middot;
                 {{ video.createdAt | date:'medium'}}
                 <span ng-if="!video.privacy">
@@ -76,8 +76,8 @@
               </h4>
               <p>
                 <span ng-if="video.tags.length">
-                  <md-icon md-svg-icon="images/ic_tag_black_24px.svg" class="small md-avatar-icon"></md-icon>
-                  {{ video.tags }}
+                  <md-icon md-svg-icon="images/ic_tag_black_24px.svg" class="small"></md-icon>
+                    <span class="tag-bg" ng-repeat="tag in video.tags">{{ tag }}</span>
                 </span>
               </p>
             </div>
@@ -91,7 +91,7 @@
 
           </md-list-item>
 
-          <md-list-item ng-show="error" layout="row" layout-align="center center">
+          <md-list-item ng-if="videoList.length === 0" layout="row" layout-align="center center">
             {{ error }}
           </md-list-item>
         </md-card-content>

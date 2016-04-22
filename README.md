@@ -13,7 +13,7 @@ This is an open-source HTML5 video player that allows users to zoom in with grea
 To build the image:
 
 ```bash
-$ ocker build -t <your-username>/<repository-name> 
+$ docker build -t <your-username>/<repository-name> .
 ```
 
 Then run the built image:
@@ -60,9 +60,13 @@ $ sails lift
 
 If this server is setup locally, open your browser and enter the url: [http://localhost:1337](http://localhost:1337) to visit the main webpage of the project.
 
-## Usage
-`to be updated`
+## Start the Server for Production
 
+Start the server in production by running the following command:
+```
+$ node app.js --prod
+```
+Detailed settings can be found in the [development guide](https://github.com/nus-mtp/zoomable.js/blob/develop/documentation/Team%20Meteoria%20Developer's%20Guide.pdf)
 
 ## Tests
 [Mocha](https://mochajs.org/) and [PhantomJS](http://phantomjs.org/) are used for frontend and backend testing.
@@ -74,7 +78,7 @@ $ grunt test
 
 
 ## Documentation
-`to be updated`
+Detailed documentation can be found in the [development guide](https://github.com/nus-mtp/zoomable.js/blob/develop/documentation/Team%20Meteoria%20Developer's%20Guide.pdf)
 
 
 ## Team 

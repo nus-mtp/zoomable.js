@@ -30,13 +30,6 @@
           </md-button>
           <md-menu-content width="3">
             <md-menu-item>
-              <md-button ng-click="">
-                <div layout="row">
-                  <p flex>Settings</p>
-                </div>
-              </md-button>
-            </md-menu-item>
-            <md-menu-item>
               <md-button class="dropdown-link">
                 <div layout="row">
                   <a href="/api/user/logout" flex>Log Out</a>
@@ -59,13 +52,6 @@
     <div id="showStatBtn" class="selection-btn" ng-click="showPage($event)" ng-class="{selected: location == '/statistics'}">
       <md-icon class="header-icon stats"></md-icon>
       <div class="btn-name">My Statistics</div>
-    </div>
-    <md-divider></md-divider>
-    <div class="tag-header">Tags</div>
-    <div class="tag-area">
-      <div class="tag-item" ng-repeat="tag in tagList" ng-click="setSelectedTag($event)">
-        {{tag}}
-      </div>
     </div>
   </md-sidenav>
 </div>

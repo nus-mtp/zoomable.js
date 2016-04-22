@@ -3,12 +3,10 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
   $scope.username = '';
   $scope.password = '';
   $scope.emailAddress = '';
-  $scope.forgetEmail = '';
   $scope.isCreate = false;
   $scope.errorMsg = '';
   $scope.searchQuery = '';
   $scope.location = location.pathname;
-  $scope.tagList = ['architecture', 'education', 'learning', 'inspiration'];  // sample tag list
 
   // FUNCTIONS FOR NAVBAR
 
@@ -40,18 +38,6 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
       // show statistic page
       window.location = '/statistics';
     }
-
-    // toggle the menu
-    $scope.toggleLeftMenu();
-  };
-
-  /* Function to show video list of selected tag */
-  $scope.setSelectedTag = function(event) {
-    // remove previous selected tag if any
-    $('.tag-item').removeClass('selected');
-    // add selected class
-    $(event.target).addClass('selected');
-    // show videos with selected tag - WIP
 
     // toggle the menu
     $scope.toggleLeftMenu();
@@ -101,6 +87,12 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
   /* Function to sign in or create new account */
   $scope.submitForm = function() {
     if ($scope.isCreate) {
+      if ($scope.username.length < 6 || $scope.password.length < 6) {
+        // prompt username or password too short
+        $scope.errorMsg = 'Username and password must be at least 6 characters long.';
+        return;
+      }
+
       var accountData = {
         username: $scope.username,
         password: $scope.password,
@@ -109,39 +101,50 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
 
       // create a new account for new user
 			servicesAPI.createAccount(accountData)
-	    .success(function(data) {
+      .success(function() {
         // redirect to dashboard page
         window.location = '/';
-	    })
-	    .error(function(error, status) {
+      })
+      .error(function(error, status) {
         if (status === 409) {
-          // email address already in use, reset password field
-          $scope.password = '';
+          // email address already in use, update error message
+          $scope.errorMsg = error;
         }
-        // update error message
-        $scope.errorMsg = error;
-	    });
+        else if (status === 400) {
+          if (error === 'LengthNotSatisfied') {
+            // username or password too short
+            $scope.errorMsg = 'Username and password must be at least 6 characters long.';
+          }
+          else {
+            // username already in use, update error message
+            $scope.errorMsg = 'Username is already taken by another user.';
+          }
+        }
+
+        //reset password field
+        $scope.password = '';
+      });
     }
     else {
-      var accountData = {
+      var loginData = {
           username: $scope.username,
           password: $scope.password
       }
 
       // check if user entered correct username and password
-      servicesAPI.login(accountData)
-	    .success(function(data) {
+      servicesAPI.login(loginData)
+      .success(function() {
         // redirect to dashboard page
         window.location = '/';
-	    })
-	    .error(function(error, status) {
+      })
+      .error(function(error, status) {
         if (status === 401) {
           // unsuccessful login, initialise password field
           $scope.password = '';
         }
         // update error message
         $scope.errorMsg = error;
-	    });
+      });
     }
   };
 
@@ -161,15 +164,5 @@ angular.module('zoomableApp').controller('loginController', function($scope, ser
     }
     return true;
   };
-
-  $scope.resetPassword = function() {
-    if ($scope.forgetEmail) {
-      // check database for user email
-
-      // prompt invalid email if email is not found in system
-
-      // else send verification message if email is verified
-    }
-  }
 
 });

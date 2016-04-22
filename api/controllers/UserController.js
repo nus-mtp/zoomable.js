@@ -59,6 +59,11 @@ module.exports = {
    * Content: {username: ':username', password: ':password', email: ':emailaddress'}
    */
   signup: function (req, res) {
+    if (req.param('username').length < 6 || req.param('password').length < 6) {
+      // prompt error if username and password is less than 6 characters
+      return res.send(400, 'LengthNotSatisfied');
+    }
+
     Passwords.encryptPassword({
       // Encrypt with BCrypt algo
       password: req.param('password'),
@@ -142,6 +147,11 @@ module.exports = {
    * Usage: GET /api/user/getAccountDate
    */
   getAccountDate: function (req, res) {
+    // Handle the case when no user is signed in
+    if (!req.session.me) {
+      return res.status(401).forbidden('NoPermission');
+    }
+
     // Look up the user record from the database which is
     // referenced by the id in the user session (req.session.me)
     User.findOne(req.session.me).exec(function foundUser(err, user) {

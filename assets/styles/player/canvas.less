@@ -18,10 +18,16 @@ video, canvas,
 #canvasPlayerArea {
 	background-color: @color-black;
 	overflow: hidden;
+	cursor: -webkit-grab;
+
+	&:active {
+		cursor: -webkit-grabbing;
+	}
 }
 
 #uiControls {
 	width: 100%;
+	cursor: default;
 
 	&.hideOnHover {
 		opacity: 0;
@@ -31,11 +37,21 @@ video, canvas,
 
 #miniMapControls {
 	background-color: rgba(0, 0, 0, 0.5);
+	border: 1px solid @color-white;
 	height: 20%;
 	width: 20%;
 	position: absolute;
 	top: 0px;
 	right: 0px;
+}
+
+#minimap {
+	z-index: 8;
+	position:absolute;
+}
+#minimap_rect {
+	z-index: 10;
+	position:absolute;
 }
 
 #miniMapIndicator {
@@ -268,12 +284,6 @@ video, canvas,
 }
 #snapshotBtn {
 	background: url(../images/ic_snapshot.svg) no-repeat;
-}
-#settingBtn {
-	background: url(../images/ic_setting.svg) no-repeat;
-}
-#captionBtn {
-	background: url(../images/ic_caption.svg) no-repeat;
 }
 #fullscreenBtn {
 	background: url(../images/ic_fullscreen.svg) no-repeat;

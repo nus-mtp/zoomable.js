@@ -1,4 +1,4 @@
-angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload, $timeout) {
+angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload) {
   return {
     createVideo : function(video) {
       return $http.post('/api/video', video);
@@ -17,6 +17,9 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
     },
     getVideoStats : function() {
       return $http.get('/api/video/getStats');
+    },
+    getHeatMapStats : function(id) {
+      return $http.get('/api/viewsession/getVideoId/' + id);
     },
     getUploadProgress : function(id) {
       return $http.post('/api/video/isComplete', id);
@@ -37,7 +40,7 @@ angular.module('zoomableApp').factory('servicesAPI', function($http, $q, Upload,
       return $http.get('/api/user/getAccountDate');
     },
     upload : function (file) {
-      return $q(function(resolve, reject) {
+      return $q(function(resolve) {
         setTimeout(function() {
           Upload.upload({
             url : '/api/video/upload',

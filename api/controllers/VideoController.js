@@ -28,8 +28,7 @@ module.exports = {
    */
   findOne: function (req, res) {
     Video.findOne({
-      id: req.param('id'),
-      ownedBy: req.session.me
+      id: req.param('id')
     }).exec(function (err, video) {
       if (err) return res.negotiate(err);
       if (!video) {
@@ -47,7 +46,7 @@ module.exports = {
   find: function (req, res) {
     Video.find({
       ownedBy: req.session.me
-    }).exec(function (err, videos) {
+    }).populate('viewedSessions').exec(function (err, videos) {
       if (err) return res.negotiate(err);
       if (videos.length == 0) {
         // no videos uploaded, return empty array
@@ -55,6 +54,24 @@ module.exports = {
       }
       return res.json(videos);
     })
+  },
+
+  /**
+   * `VideoController.findByTags()`
+   * Usage: POST /api/video/findByTags
+   * DO NOT WORK ATM
+   */
+  findByTags: function (req, res) {
+    Tag.find({
+      tags: req.param('tags')
+    })
+    .populate('videoWithTags')
+    .exec(function (err, tags) {
+      if (err) return res.negotiate(err);
+      if (video.length == 0) return res.notFound();
+      var videoList = tags.videoWithTags;
+      return res.json(videoList);
+    });
   },
 
   /**
@@ -105,9 +122,11 @@ module.exports = {
 
   /**
    * `VideoController.tags()`
-   * Usage:
+   * Usage: POST /api/video/
+   * Content: {id: :id, tags: [:tags]}
    */
-  tags: function (req, res) {
+  addTags: function (req, res) {
+    Video.find()
     return res.json({
       todo: 'tags() is not implemented yet!'
     });
@@ -150,7 +169,7 @@ module.exports = {
       }
 
       // generate a list of mpd dir
-      var fdWithExtension = sails.getBaseUrl() + uploadedFiles[0].fd.split('/public')[1];
+      var fdWithExtension = sails.config.appUrl + uploadedFiles[0].fd.split('/public')[1];
       var fd = fdWithExtension.substr(0, fdWithExtension.lastIndexOf('.')) || fdWithExtension;
 
       var mpdArray = [];
@@ -164,7 +183,7 @@ module.exports = {
       Video.update({
         id: req.param('id')
       },  {
-        embedURL: sails.getBaseUrl() + '/embed/' + req.param('id'),
+        embedURL: sails.config.appUrl + '/embed/' + req.param('id'),
         mpdDir: mpdArray,
         thumbnailDir: fd + ".png",
         mp3Dir: fd + ".mp3"
@@ -216,7 +235,9 @@ module.exports = {
     Video.find({
       id: req.param('id'),
       ownedBy: req.session.me
-    }).populate('viewedSessions').exec(function (err, video) {
+    })
+    .populate('viewedSessions')
+    .exec(function (err, video) {
       if (err) return res.negotiate(err);
 
       if (!video) {
@@ -242,7 +263,9 @@ module.exports = {
   getStats: function (req, res) {
     Video.find({
       ownedBy: req.session.me
-    }).populate('viewedSessions').exec(function (err, videos) {
+    })
+    .populate('viewedSessions')
+    .exec(function (err, videos) {
       if (err) return res.negotiate(err);
 
       if (videos.length == 0) {

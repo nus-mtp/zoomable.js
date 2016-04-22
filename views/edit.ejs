@@ -12,16 +12,20 @@
     <!-- EDIT PAGE CONTENT -->
     <md-card>
       <md-tabs md-dynamic-height md-border-bottom>
-        <!-- TAB 1 : SETTINGS & INFO-->
+        <!-- TAB 1 : SETTINGS & INFO -->
         <md-tab>
           <md-tab-label>
             <md-icon class="tab-icon" md-svg-icon="images/ic_edit_black_24px.svg"></md-icon>
-            <span class="tab-header">INFO & SETTINGS</span>
+            <span class="tab-header">INFO &amp; SETTINGS</span>
           </md-tab-label>
           <md-tab-body>
             <md-content class="md-padding">
               <div layout="row" class="video-and-info"> <!-- start top row -->
-                <iframe width="640" height="360" src="{{ video.embedURL }}" allowfullscreen></iframe>
+                <div ng-if="video.hasProcessed === 'false'" style="width:640px;height:360px;opacity:0.7;display:flex;
+                align-items:center;justify-content: center;">
+                  Video is still processing...
+                </div>
+                <iframe ng-if="video.hasProcessed === 'true'" width="640" height="360" src="{{ video.embedURL }}" allowfullscreen></iframe>
                 <div layout="column" class="video-info-column">
                   <div layout="row" layout-align="end start">
                     <md-button class="md-raised cancel-btn" ng-click="showConfirm($event)">Cancel</md-button>
@@ -34,11 +38,7 @@
                       <span class="field">Time Uploaded:</span>
                       <span class="value">{{ video.createdAt | date:'MMMM d, y h:mma' }}</span>
                     </p>
-                    <p>
-                      <span class="field">Video Duration:</span>
-                      <span class="value">{{ video.duration ? video.duration : 'Unavailable' }}</span>
-                    </p>
-                    <p class="embed-link-area">
+                    <p class="embed-link-area" ng-if="video.hasProcessed === 'true'">
                       <span class="field">Embed Link:</span>
                       <span class="value">
                         <input id="embedURL" value="{{ video.embedURL }}" readonly="readonly"/>
@@ -66,7 +66,7 @@
                   </md-input-container>
                   <div layout="row">
                     <div flex="80" class="input-chips">
-                      <md-chips ng-model="tags" readonly="false" placeholder="+Tag" delete-button-label="Remove Tag" secondary-placeholder="Add a tag">
+                      <md-chips ng-model="tags" readonly="false" placeholder="Enter a tag" delete-button-label="Remove Tag" delete-hint="Press delete to remove tag" secondary-placeholder="+Tag"></md-chips>
                     </div>
                     <div flex="20">
                       <div class="custom-button-set">
@@ -94,28 +94,14 @@
           </md-tab-body>
         </md-tab>
 
-        <!-- TAB 2 : SUBTITLES & CC (NOT DONE)-->
-        <md-tab>
-          <md-tab-label>
-            <md-icon class="tab-icon" md-svg-icon="images/ic_subtitles_black_24px.svg"></md-icon>
-            <span class="tab-header">SUBTITLES & CC</span>
-          </md-tab-label>
-          <md-tab-body>
-            <md-content class="md-padding">
-              <h1 class="md-display-2">Subtitles Here</h1>
-              <p>TO BE IMPLEMENTED.</p>
-            </md-content>
-          </md-tab-body>
-        </md-tab>
-
-        <!-- TAB 3 : STATISTICS (NOT DONE)-->
+        <!-- TAB 2 : STATISTICS -->
         <md-tab>
           <md-tab-label>
             <md-icon class="tab-icon" md-svg-icon="images/ic_trending_up_black_24px.svg"></md-icon>
             <span class="tab-header">STATISTICS</span>
           </md-tab-label>
           <md-tab-body>
-            <md-content class="md-padding" ng-controller="statisticController">
+            <md-content class="md-padding">
               <div class="video-date">Video uploaded on: {{ video.createdAt | date:'d MMM yyyy' }}</div>
               <%- partial('statsdata.ejs') %>
             </md-content>

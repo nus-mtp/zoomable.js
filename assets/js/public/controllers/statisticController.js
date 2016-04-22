@@ -1,4 +1,5 @@
-angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter, moment, servicesAPI){
+angular.module('zoomableApp').controller('statisticController', function($scope, $timeout, $filter,
+   moment, servicesAPI, $q, $window, $timeout){
   // VARIABLES
   $scope.location = location.pathname.split('/');           // location array contains path name in array[1]
   $scope.criteria = 'DAY';                                  // default set to day for date criteria
@@ -8,9 +9,174 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
   $scope.viewSessions = [];                                 // scope to store viewSessions to empty array
   $scope.viewsCount = [];                                   // scope to store processed viewSessions into date and count
   $scope.userVideoLength = 0;                               // scope to store user uploaded video length
+  $scope.videoURL = '';                                     // scope to store embed video URL
+
+  // Get video id if location is on edit page
+  if ($scope.location[1] === 'edit') {
+    $scope.videoId = $scope.location[2];
+    $scope.videoURL = location.origin + '/embed/' + $scope.videoId;
+  }
 
   // CHART VARIABLES
   $scope.series = ['Views'];                                // default series to show for graph
+
+  // HEATMAP VARIABLES
+  var sessions = {};
+  var compiledSessions = {};
+  var videoTotalTime = 0;
+  var video = new Whammy.Video(1);
+  var hasCompiledSessions = false;
+  $scope.noHeatmapYet = true;
+
+  /* Set delay in heatmap visualisation to prevent iframe from lagging */
+  $timeout(getVideoViewData, 5000);
+
+  /* Get view data of a video for heatmap visualisation */
+  function getVideoViewData() {
+    servicesAPI.getHeatMapStats($scope.videoId).success(function (data) {
+      if (data.length > 0) {
+        sessions = data;
+        videoTotalTime = Math.floor(data[0].videoTotalTime);
+
+        // group all coordinates by second
+        sessions.forEach(function(session){
+
+          // maximum canvas width is set at 128px x 72px
+          // skip session if canvas width is at 128px which means canvas is not zoomed
+          if (Math.floor(session.width) == 128) {
+            return;
+          }
+
+          // Heatmap.js draw a point in circle by default
+          // draw 4 points in order to draw a rectangular shape heatmap according to given coordinates and zoomed area width
+          var zoomedCanvasWidth = Math.floor(session.width);
+          var radius = zoomedCanvasWidth / 2;
+          var horizontalDistance = Math.floor(zoomedCanvasWidth / 4);
+          var verticalDistance = Math.floor( ((zoomedCanvasWidth / 128) * 72) / 4);
+
+          // point 1
+          var x1 = Math.floor(session.coordinates[0]) + horizontalDistance;
+          var y1 = Math.floor(session.coordinates[1]) + verticalDistance;
+
+          // point 2
+          var x2 = Math.floor(session.coordinates[0]) + horizontalDistance * 3;
+          var y2 = Math.floor(session.coordinates[1]) + verticalDistance;
+
+          // point 3
+          var x3 = Math.floor(session.coordinates[0]) + horizontalDistance;
+          var y3 = Math.floor(session.coordinates[1]) + verticalDistance * 3;
+
+          // point 4
+          var x4 = Math.floor(session.coordinates[0]) + horizontalDistance * 3;
+          var y4 = Math.floor(session.coordinates[1]) + verticalDistance * 3;
+
+          compiledSessions[Math.floor(session.videoTime)] = compiledSessions[Math.floor(session.videoTime)] || [];
+          compiledSessions[Math.floor(session.videoTime)].push({x: x1, y: y1, radius: radius});
+          compiledSessions[Math.floor(session.videoTime)].push({x: x2, y: y2, radius: radius});
+          compiledSessions[Math.floor(session.videoTime)].push({x: x3, y: y3, radius: radius});
+          compiledSessions[Math.floor(session.videoTime)].push({x: x4, y: y4, radius: radius});
+          hasCompiledSessions = true;
+        });
+
+        if (hasCompiledSessions) {
+          $scope.error = 'Heatmap is still processing...';
+          generateHeatmapVideo();
+        } else {
+          $scope.error = 'No Zoom Statistics Yet';
+        }
+      }
+    });
+  };
+
+  /* Generate a heatmap video by compiling heatmap canvas into a video  */
+  var currentTime = 0
+  function generateHeatmapVideo() {
+    if (currentTime >= videoTotalTime) {
+      compileHeatmapVideo();
+    } else {
+      // generate heatmap for a second if session exists
+      if (compiledSessions.hasOwnProperty(currentTime)){
+        coordinatesPerSecond( compiledSessions[currentTime]).then(function(context){
+          video.add(context);
+          currentTime++;
+          generateHeatmapVideo();
+        });
+      }
+      // generate empty canvas for seconds without sessions
+      else {
+        document.getElementsByClassName('heatmap-canvas')[0].setAttribute('id', 'heatmap-image');
+        var context = document.getElementById('heatmap-image').getContext('2d');
+        context.clearRect(0,0,1920,1080);
+        context.fillStyle = '#FFFFFF';
+        context.fillRect(0,0,1920,1080);
+        video.add(context);
+        currentTime++;
+        generateHeatmapVideo();
+      }
+    }
+  }
+
+  var heatmapInstance = h337.create({
+    container: document.getElementById('heatmap-canvas'),
+    radius: 10,
+    maxOpacity: .7,
+    minOpacity: 0,
+    blur: .8,
+    backgroundColor: '#FFFFFF'
+  });
+
+  function coordinatesPerSecond(coordinates){
+    var deferred = $q.defer();
+    var aggregatedCoordinates = {
+      max: coordinates.length,
+      min: 0,
+      data: coordinates
+    };
+    generateCanvas(aggregatedCoordinates).then(function() {
+      document.getElementsByClassName('heatmap-canvas')[0].setAttribute('id', 'heatmap-image');
+      var context = document.getElementById('heatmap-image').getContext('2d');
+      // change canvas transparent background to white
+      context.globalCompositeOperation = 'destination-over';
+      context.fillStyle = '#FFFFFF';
+      context.fillRect(0,0,1920,1080);
+      deferred.resolve(context);
+    });
+    return deferred.promise;
+  }
+
+  function generateCanvas(aggregatedCoordinates) {
+    var deferred = $q.defer();
+    deferred.resolve(heatmapInstance.setData(aggregatedCoordinates));
+    return deferred.promise;
+  }
+
+  function compileHeatmapVideo() {
+    video.compile(false, function(output){
+      $scope.noHeatmapYet = false;
+      var url = window.URL.createObjectURL(output);
+      document.getElementById('video').src = url;
+    });
+  }
+
+  /* Restyle video iframes to exclude controls in statistics page */
+  $('iframe#heatmap-iframe').load( function() {
+    $('iframe#heatmap-iframe').contents().find('head')
+      .append($('<style type="text/css">#miniMapControls,#zoomBarControls,#seekBarControls,#bottomBarControls{display:none;}</style>'));
+  });
+  $('iframe#heatmap-iframe2').load( function() {
+    $('iframe#heatmap-iframe2').contents().find('head')
+      .append($('<style type="text/css">  #seekBarControls,#bottomBarControls{display:none;}</style>'));
+  });
+
+  /* Sync play events of iframes from heatmap video */
+  document.getElementById('video').onplay = function() {
+    $('iframe#heatmap-iframe').contents().find('#playPauseBtn').click();
+    $('iframe#heatmap-iframe2').contents().find('#playPauseBtn').click();
+  };
+  document.getElementById('video').onpause = function() {
+    $('iframe#heatmap-iframe').contents().find('#playPauseBtn').click();
+    $('iframe#heatmap-iframe2').contents().find('#playPauseBtn').click();
+  };
 
   /* Get all user view data required for stats */
   var init = function() {
@@ -21,9 +187,9 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
         // call stats api to get all of user's videos with stats
         servicesAPI.getVideoStats().success(function(data) {
-          if (data.length === 0) {
+          if (data.length === 0 || data.viewSessions.length === 0) {
             $scope.noStatisticsYet = true;
-            $scope.userVideoLength = 0;
+            $scope.userVideoLength = data.length === 0 ? 0 : data.videoLength;
           }
           else {
             $scope.viewSessions = data.viewSessions;
@@ -36,9 +202,8 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       });
     }
     else if ($scope.location[1] === 'edit') {
-      // call stats api for selected video with id = $scope.location[2]
-      var uid = $scope.location[2];
-      servicesAPI.getVideoStat(uid).success(function(data) {
+      // call stats api for selected video
+      servicesAPI.getVideoStat($scope.videoId).success(function(data) {
         if (data.length === 0 || data.viewSessions.length === 0) {
           $scope.noStatisticsYet = true;
         }
@@ -67,7 +232,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     }
     // default min date is creation date
     $scope.minDate = moment(createdDate).toDate();
-  };
+  }
 
   /* Function to order view sessions and count by date */
   function processViewSessions() {
@@ -101,7 +266,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
         vc_index++;
       }
     }
-  };
+  }
 
   /* Function to set date criteria */
   $scope.updateCriteria = function(event) {
@@ -118,7 +283,6 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
 
   /* Function to update chart data and labels */
   function updateLabelsAndData() {
-    var prevDate = 0;
 
     // initialse scope label, data and other variables
     $scope.labels = [];
@@ -126,6 +290,7 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
     $scope.totalViewsForPeriod = 0;
     var vc_index = 0;
     var count = 0;
+    var idx, sum, formatedVCDate;
 
     // convert Javascript Date object to Moment object
     var startMoment = moment($scope.startDate).startOf('day');
@@ -139,12 +304,12 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       }
 
       // update the data to show
-      for (var idx = 0; idx < $scope.labels.length; idx++) {
+      for (idx = 0; idx < $scope.labels.length; idx++) {
 
         // add all view counts from the array
         if (vc_index < $scope.viewsCount.length) {
           // format view count date to same format as labels
-          var formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
+          formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
 
           if ($scope.labels[idx] === formatedVCDate) {
             // assign count to data[0] scope if date is the same
@@ -179,14 +344,14 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       }
 
       // update the data to show
-      for (var idx = 0; idx < count; idx++) {
+      for (idx = 0; idx < count; idx++) {
         // for each count add up the sum of the next 7 days for subsequent week
-        var sum = 0;
+        sum = 0;
         for (var day = 0; day < 7; day++) {
           // add all view counts from the array
           if (vc_index < $scope.viewsCount.length) {
             // format view count date to same format as labels
-            var formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
+            formatedVCDate = moment($scope.viewsCount[vc_index].date).format('D/M');
 
             if (startMoment.format('D/M') === formatedVCDate) {
               // add to sum if date is the same
@@ -217,8 +382,8 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
       var vcArr = $scope.viewsCount.slice(0);
 
       // update the data to show
-      for (var idx = 0; idx < count; idx++) {
-        var sum = 0;
+      for (idx = 0; idx < count; idx++) {
+        sum = 0;
 
         // add all view counts from the array
         for (var i = 0; i < vcArr.length; i++) {
@@ -240,6 +405,6 @@ angular.module('zoomableApp').controller('statisticController', function($scope,
         currentMonth++;
       }
     }
-  };
+  }
 
 });

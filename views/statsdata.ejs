@@ -1,9 +1,42 @@
-<div class="statsdata">
+<div class="statsdata" ng-controller="statisticController">
+  <!-- MESSAGE TO SHOW WHEN NO VIEW SESSIONS ARE AVAILABLE -->
   <div class="no-stats" ng-if="noStatisticsYet">
-    <md-list-item>Statistics not available yet.</md-list-item>
+    <md-list-item>Video statistics are not available yet.</md-list-item>
   </div>
 
-  <div ng-if="!noStatisticsYet">
+  <div ng-show="!noStatisticsYet">
+    <!-- HEATMAP AREA -->
+    <div class="zoom-analysis-area" ng-show="location[1] === 'edit'">
+      <div layout="row">
+        <div flex="100" class="zoom-stats-area">
+          <div class="graph-title">
+            <md-icon class="zoom-icon" md-svg-icon="images/ic_zoom.svg"></md-icon>Zoom Frequency Analysis
+          </div>
+        </div>
+      </div>
+      <div layout="row" ng-show="!noHeatmapYet">
+        <div flex="50" class="zoom-stats-video">
+          <h3>Actual Video</h3>
+          <iframe id="heatmap-iframe2" width="480" height="270" src="{{ videoURL }}" allowfullscreen></iframe>
+        </div>
+        <div flex="50" class="zoom-stats-video">
+          <h3>Heatmap Video</h3>
+          <div id="heatmap-canvas" style="width:128px;height:72px;display:none"></div>
+          <video id="video" controls style="width:482px;height:272px;opacity:0.6;position:absolute"></video>
+          <iframe id="heatmap-iframe" width="480" height="270" src="{{ videoURL }}" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div layout="row" ng-show="noHeatmapYet">
+        <div flex="100" class="zoom-stats-area">
+          <span style="opacity:0.7">{{ error }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIVIDER SHOWN WHEN HEAT MAP IS SHOWN (in edit page)-->
+    <md-divider class="video-divider" ng-show="location[1] === 'edit'"></md-divider>
+
+    <!-- VIEW STATS AREA -->
     <div layout="row">
       <div flex="70" class="date-area">
         <md-datepicker ng-model="startDate" md-placeholder="Enter start date" ng-change="updateDate(startDate, endDate)"
@@ -37,9 +70,6 @@
           <br />
           Total Views From {{startDate | date:'d MMM yyyy'}} to {{endDate | date:'d MMM yyyy'}}: <span>{{ totalViewsForPeriod }}</span>
         </div>
-      </div>
-      <div flex="50" class="shares-stats-area">
-        <!-- TODO: Graph for video shares -->
       </div>
     </div>
 

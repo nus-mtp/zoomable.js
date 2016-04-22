@@ -43,6 +43,8 @@ var jsFilesToInject = [
   'js/dependencies/angular-moment.js',
   'js/dependencies/Chart.js',
   'js/dependencies/angular-chart.js',
+  'js/dependencies/heatmap.js',
+  'js/dependencies/whammy.js',
   'js/public/zoomableApp.js',
   'js/public/directives.js',
   'js/public/servicesAPI.js',

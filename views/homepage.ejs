@@ -5,38 +5,21 @@
 
     <md-card>
       <!-- Login and Sign Up Form -->
-      <div class="card-contents" ng-show="!forgetPassword">
+      <div class="card-contents">
         <div class="logo" aria-label="Logo"></div>
         <div class="description">An open source JavaScript/HTML5 video server and player with zoom and pan features.</div>
         <form name="loginForm">
           <div class="field-area">
             <p class="error-message" ng-model="errorMsg">{{errorMsg}}</p>
             <input placeholder="Email" name="userEmail" ng-model="emailAddress" ng-show="isCreate" type="email"/>
-            <input placeholder="Username" name="userName" ng-model="username" type="text"/>
-            <input placeholder="Password" name="userPassword" ng-model="password" type="password"/>
-            <a href="" class="link right" ng-click="forgetPassword = true">Forgot Password</a>
+            <input placeholder="{{isCreate ? 'Username (at least 6 characters)' : 'Username'}}" name="userName" ng-model="username" type="text"/>
+            <input placeholder="{{isCreate ? 'Password (at least 6 characters)' : 'Password'}}" name="userPassword" ng-model="password" type="password" autocomplete="off"/>
             <button type="submit" name="submitBtn" ng-click="submitForm()" ng-disabled="loginForm.$pristine || hasEmptyFields()">
               {{isCreate ? 'Create Account' : 'Login'}}
             </button>
             <a href="" class="link center" ng-click="isCreate = !isCreate; errorMsg = ''">
               {{isCreate ? 'Back' : 'Create New Account'}}
             </a>
-          </div>
-        </form>
-      </div>
-
-      <!-- Forget Password Form -->
-      <div class="card-contents" ng-show="forgetPassword">
-        <div class="header">Forgot your password?</div>
-        <div class="instructions">Please enter the email address for your account.<br />A verification code with instructions to reset your password will be sent to you shortly.</div>
-        <form name="forgetPasswordForm">
-          <div class="field-area">
-            <p class="error-message" ng-model="errorMsg">{{errorMsg}}</p>
-            <input placeholder="Email" name="resetEmail" ng-model="forgetEmail" type="email"/>
-            <button type="submit" name="submitBtn" ng-click="resetPassword()" ng-disabled="forgetPasswordForm.$pristine || forgetPasswordForm.resetEmail.$invalid">
-              Reset
-            </button>
-            <a href="" class="link center" ng-click="forgetPassword = false">Back to Login</a>
           </div>
         </form>
       </div>

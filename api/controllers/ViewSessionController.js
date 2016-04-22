@@ -24,7 +24,7 @@ module.exports = {
    * Description: Create a video view session for the specified video
    */
   create: function (req, res) {
-    if (!req.body.sessionId || !req.body.videoId || !req.body.coordinates || !req.body.width || !req.body.videoTime) {
+    if (!req.body.sessionId || !req.body.videoId || req.body.coordinates.length !== 2 || req.body.width < 0 || req.body.videoTime < 0|| req.body.videoTotalTime < 0) {
       return res.json({
         error: 'Required fields are not entered.'
       });
@@ -64,6 +64,33 @@ module.exports = {
         }
       });
     });
+  },
+
+  /**
+   * `ViewSessionController.getVideoStat()`
+   * Usage: GET /api/viewsession/getVideoId/:id
+   * Description: Get list of video data for specified video id
+   */
+  getVideoId: function (req, res) {
+    ViewSession.find({
+      videoId: req.param('id')
+    }).populate('viewLogs').exec(function (err, sessions) {
+      if (err) return res.negotiate(err);
+
+      if (!sessions) {
+        // no session for matched video id, return empty array
+        return res.json([]);
+      }
+
+      // get viewdata objects
+      var viewDataList = [];
+      sessions.forEach(function (session) {
+        session.viewLogs.forEach(function (viewdata) {
+          viewDataList.push(viewdata);
+        })
+      });
+      return res.json(viewDataList);
+    })
   }
 };
 
@@ -76,6 +103,7 @@ function createViewData(session, req, res) {
     coordinates: req.body.coordinates,
     width: req.body.width,
     videoTime: req.body.videoTime,
+    videoTotalTime: req.body.videoTotalTime,
     sessionObj: session.id
   }).exec(function (err, data) {
     if (err) throw err;

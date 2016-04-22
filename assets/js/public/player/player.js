@@ -1,12 +1,14 @@
+
 // On 'DOMContentLoaded', create a master Player object and initialize
 var vidCount = 1;
 document.addEventListener('DOMContentLoaded', function() {
 	// Retrieve the list of MPDs and audio file through a HTTP GET request to the server
 	var url = document.URL;
-	var vidId = url.substring(url.lastIndexOf('/'));
+	var urlParts = url.split('/');
+	var vidId = urlParts[urlParts.length - 1];	// get video id without '/'
 	var mpdList;
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "/api/video" + vidId, true);
+	xhr.open("GET", "/api/video/" + vidId, true);
 	xhr.send();
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200) {
@@ -16,12 +18,18 @@ document.addEventListener('DOMContentLoaded', function() {
 			mpdList.push(JSON.parse(xhr.response).mp3Dir);
 
 			canvas_obj = document.getElementById('canvas');
+			canvas_obj.width = 1920;
+			canvas_obj.height = 1080;
+
+			var minimap_canvas = []
+			minimap_canvas[0] = document.getElementById('minimap');
+			minimap_canvas[1] = document.getElementById('minimap_rect');
 			var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 				var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;
 				return v.toString(16);
 			});
 
-			var loadPlayers = new Player(canvas_obj, mpdList, vidId, uuid);
+			var loadPlayers = new Player(canvas_obj, mpdList, vidId, uuid, minimap_canvas);
 			loadPlayers.initShakaPlayers();
 			loadPlayers.init();
 		}
@@ -29,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 }, false);
 
-var Player = function(canvas, mpd_list, vidId, uuid) {
+var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 
 	var VID_WIDTH = canvas.width / 4;
 	var VID_HEIGHT = canvas.height / 3;
@@ -40,8 +48,10 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 	this.vidId = vidId;	// The unique video ID assigned by the server side
 	this.uuid = uuid;	// The uuid to denote each viewing session's stats
 
-	this.time = null;
+	this.time;
+	this.frame = 0;
 	this.timeArr = [];  // Array of current time for each video object
+	this.frameArr = [];  // Array of current frame for each video object
 	this.duration = null;
 
 	this.slaves = []; //array of slave objects
@@ -50,9 +60,13 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 	// To store the pause state of each video's pause status
 	this.slavePauseArr = [];
 	this.paused = true;
+	this.timerActive = false;
+	this.timer = null;
+	this.statInit = false;
 
 	// To determine if the overall state of the players have ended
 	this.ended = false;
+	this.endHotFix = false;	// Turned to true if video cannot end and needs a hot fix
 	// To store the truthy value of whether the players' videos have ended
 	this.slaveEndArr = [];
 
@@ -72,6 +86,10 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 	this.zoom;
 	this.transforms;
 	this.util;
+	this.sync;
+
+	this.minimap;
+	this.snapshotCanvas;
 
 	// Initialization of all the Shaka players and the video elements
 	this.initShakaPlayers = function() {
@@ -80,6 +98,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 
 	// Initialization will only be called once during the creation of the Player object the first time
 	this.init = function() {
+		this.dimensions = { cw:canvas.width, ch:canvas.height };
 
 		this.duration = getVideoDuration(this); // To intialize the video duration
 		this.volume = new Volume(this); // To initialize the volume of the audio file
@@ -90,12 +109,16 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		this.controls = new Controls(this);
 		this.transforms = new Transforms(this);
 		this.seek = new Seek(this);
-		this.transforms = new Transforms(this);
 		this.util = new Util(this);
 		//this.transforms.draw();
 		this.last = { x: canvas.width/2, y: canvas.height/2 };
-
+		this.sync = new Sync(this);
 		this.mouseactions = new MouseActions(this);
+		this.snapshotCanvas = document.getElementById('snapshot_canvas');
+		this.minimap = new Minimap(minimap_canvas[0], minimap_canvas[1], "", this);
+		this.minimap.init();
+		this.stats = new Stats(this);
+
 	};
 
 	var MouseActions = function(player) {
@@ -110,6 +133,10 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		// To listen for the 'mouseup' event on the canvas
 		player.canvas.addEventListener('mouseup',function(event) {
 			player.mouseactions.mouseUp(event);
+		},false);
+		// To listen for the 'mouseleave' event on the canvas
+		player.canvas.addEventListener('mouseleave',function(event) {
+			player.mouseactions.mouseLeave(event);
 		},false);
 
 
@@ -132,7 +159,11 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		};
 		this.mouseUp = function(evt){
 			player.dragStart = null;
-		}
+		};
+		this.mouseLeave = function(evt){
+			// terminate dragging when mouse moves out of canvas
+			player.dragStart = null;
+		};
 	};
 
 	var Scroll = function(player) {
@@ -147,7 +178,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				player.controls.updateZoomUI();
 			}
 			return evt.preventDefault() && false;
-		}
+		};
 	};
 
 	var Controls = function(player) {
@@ -163,6 +194,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		this.zoomOutBtn = document.getElementById('zoomOutBtn');
 		this.zoomCtrl = document.getElementById('zoomCtrl');
 		this.zoomInBtn = document.getElementById('zoomInBtn');
+		this.snapshotBtn = document.getElementById('snapshotBtn');
 		this.fullscreenBtn = document.getElementById('fullscreenBtn');
 
 		this.playPauseBtn.addEventListener('click',function(){
@@ -221,6 +253,11 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			player.controls.updateSliderUI(player.controls.zoomCtrl);
 		},false);
 
+		// Triggers the snapshot to be downloaded
+		this.snapshotBtn.addEventListener('click',function(){
+			player.controls.takeSnapshot();
+		},false);
+
 		// This is to check and update the FULLSCREEN button on the UI controls
 		// and toggle full screen when clicked
 		this.fullscreenBtn.addEventListener('click',function(){
@@ -235,11 +272,17 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				// Set the slavePauseArr to all false
 				player.util.setPauseArr(false);
 				player.paused = false;
-				syncPauseState(player);
+				player.sync.pauseState();
 				// Change the UI controls to reflect the new play state
 				player.controls.changeToPlayState();
 				// Play the audio file
 				player.audio.play();
+				// Check if the video's stat tracking has been initialized
+				// If not, initialise it
+				if (player.statInit == false) {
+					player.statInit = true;
+					player.stats.statTrack();
+				}
 			}
 			// Else if the video has ended, i.e. player.ended == true,
 			// Set the seek time back to 0, play all the videos
@@ -249,7 +292,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				player.util.setPauseArr(false);
 				// Set the player's pause state to false
 				player.paused = false;
-				syncPauseState(player);
+				player.sync.pauseState();
 				// Reset the player.slaveEndArr to empty again
 				player.slaveEndArr = [];
 				// Set the player's ended boolean value to false
@@ -265,44 +308,44 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				player.util.forAllSlaves(player.controls.pauseVideo);
 				player.util.setPauseArr(true);
 				player.paused = true;
-				syncPauseState(player);
+				player.sync.pauseState();
 				// Change the UI controls to reflect the new pause state
 				player.controls.changeToPauseState();
 				// Pause the audio file
 				player.audio.pause();
 			}
-		}
+		};
 
 		this.playVideo = function(slaveObj) {
 			slaveObj.video.play();
-		}
+		};
 
 		this.pauseVideo = function(slaveObj) {
 			slaveObj.video.pause();
-		}
+		};
 
 		this.restartVideo = function(slaveObj) {
 			slaveObj.video.currentTime = 0;
 			slaveObj.video.play();
-		}
+		};
 
 		/* Updates icon to "play" button during pause state, show UI controls bar */
 		this.changeToPauseState = function() {
 			this.playPauseBtn.className = 'play';
 			this.uiControls.className = '';
-		}
+		};
 
 		/* Updates icon to "pause" button during play state, hide UI controls bar */
 		this.changeToPlayState = function() {
 			this.playPauseBtn.className = 'pause';
 			this.uiControls.className = 'hideOnHover';
-		}
+		};
 
 		/* Updates icon to "replay" button after video has ended, show UI controls bar */
 		this.changeToReplayState = function() {
 			this.playPauseBtn.className = 'replay';
 			this.uiControls.className = '';
-		}
+		};
 
 		/* Retrieve total duration of video and update total time text */
 		this.getVideoLength = function() {
@@ -329,6 +372,14 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			gradient.push('rgba(255, 255, 255, 0.3) ' + (element.value * 100) + '%');
 			gradient.push('rgba(255, 255, 255, 0.3) 100%');
 			element.style.background = 'linear-gradient(' + gradient.join(',') + ')';
+		};
+
+		this.takeSnapshot = function() {
+			var snapContext = player.snapshotCanvas.getContext('2d');
+			snapContext.drawImage(player.canvas,0,0);
+			player.snapshotCanvas.toBlob(function(blob) {
+	  			saveAs(blob, "snapshot.jpg");
+			}, "image/jpeg");
 		};
 
 		/* Toggle fullscreen video */
@@ -372,7 +423,8 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				$('#fullscreenBtn').removeClass('exit');
 			}
 		});
-	}
+
+	};
 
 	var Volume = function(player){
 		this.previousVolume = {
@@ -495,7 +547,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 
 		var setVideoTime = function(slaveObj, theTime) {
 			slaveObj.video.currentTime = theTime;
-		}
+		};
 	};
 
 	var Zoom = function(player) {
@@ -517,7 +569,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				player.transforms.refit();
 			}
 			player.transforms.redraw();
-		}
+		};
 
 		/* Private function to call zoom(clicks,x,y) from the UI Controls. */
 		function zoomHelper(value) {
@@ -528,7 +580,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			var y = player.dimensions.ch/2;
 			player.zoom.zoom(value, x, y);
 			player.controls.updateZoomUI();
-		}
+		};
 		/* Adjust zoom by adjusting the slider */
 		this.adjust = function() {
 			var zoomPercent = player.controls.zoomCtrl.value;
@@ -536,18 +588,19 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			var old_s = player.transforms.xform.a;
 			var delta_clicks = Math.log(new_s/old_s) / Math.log(player.scaleFactor);
 			zoomHelper(delta_clicks);
-		}
+		};
 
 		/* Adjust zoom by clicking zoom in and out buttons */
 		this.in = function() {
 			zoomHelper(1);
-		}
+		};
 		this.out = function() {
 			zoomHelper(-1);
-		}
+		};
 	};
 
 	var Transforms = function(player) {
+		//TODO: update minimap rectangle
 		var svg = document.createElementNS("http://www.w3.org/2000/svg",'svg');
 		this.savedTransforms = [];
 		this.xform = svg.createSVGMatrix();
@@ -605,7 +658,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		player.ctx.transformedPoint = function(x,y){
 			pt.x=x; pt.y=y;
 			return pt.matrixTransform(player.transforms.xform.inverse());
-		}
+		};
 
 		/* Checks if the viewport borders intersect with the canvas borders
 		** If it intersects, then scale/translate back the canvas accordingly to fit the viewport.*/
@@ -630,15 +683,43 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				var dy = (player.dimensions.ch - ty-player.dimensions.ch*s)/s;
 				this.translate(0, dy);
 			}
-		}
+		};
 		this.redraw = function() {
 			function slaveRedraw(slave) {
 				slave.transforms.redraw();
 			}
 			player.util.forAllSlaves(slaveRedraw);
-			// change dimensions and coords
+
+			var canv_to_minimap = player.minimap.canvas.width / player.canvas.width;
+			var x = player.transforms.xform.e;
+			var y = player.transforms.xform.f;
+			if (x < 0) x *= (-1);
+			if (y < 0) y *= (-1);
+			x /= player.transforms.xform.a;
+			y /= player.transforms.xform.a;
+			x *= canv_to_minimap;
+			y *= canv_to_minimap;
+			var new_width = player.canvas.width/player.transforms.xform.a;
+			var new_height = player.canvas.height/player.transforms.xform.a;
+			new_width *= canv_to_minimap;
+			new_height *= canv_to_minimap;
+
+			// If a timer has not been initiated, and video is zoomed in, and video has not ended, start one
+			if ( (player.timerActive == false) && (player.ended == false) && (Math.round(x) != 0) && (Math.round(y) != 0) ) {
+				player.timer = setInterval(player.stats.statTrack, 1000);
+				player.timerActive = true;
+			}
+			// Else check if the player has been zoomed out to original magnification
+			else if ( (player.timerActive == true) && (Math.round(x) == 0) && (Math.round(y) == 0) ) {
+				clearInterval(player.timer);
+				player.timerActive = false;
+			}
+
+			player.minimap.outline.draw(x, y, new_width, new_height);	// Redraws the minimap
+
+			//change dimensions and coords
 			// slave.redraw for slaves still in view
-		}
+		};
 		this.outerTranslate = function() {
 			var pt = player.ctx.transformedPoint(player.last.x,player.last.y);
 			var dx = pt.x-player.dragStart.x;
@@ -660,7 +741,47 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
 			}*/
 			this.redraw();
+		};
+
+	};
+
+	var Stats = function(player) {
+		// Function to handle stats calculation and stats sending
+		// Creates an object that contains statistics for the heatmap
+		this.createStats = function() {
+			var statObj = {
+				coordinates : [player.minimap.x_coord, player.minimap.y_coord],
+				width : player.minimap.new_width,
+				videoTime : player.time,
+				videoId : player.vidId,
+				sessionId : player.uuid,
+				videoTotalTime :  player.duration
+			};
+
+			if (statObj.videoTime === undefined) {
+				statObj.videoTime = 0;
+			}
+			if (statObj.videoTotalTime === undefined) {
+				statObj.videoTotalTime = 0;
+			}
+			return statObj;
+		};
+
+		// Function to send statistics to the website
+		this.sendStats = function(obj) {
+			// Make a HTTP POST message to send this JSON object to the server
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "/api/viewsession", true);
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.send(JSON.stringify(obj));
+		};
+
+		// Function to create a stats object and send it
+		this.statTrack = function() {
+			var statObj = player.stats.createStats();
+			player.stats.sendStats(statObj);
 		}
+
 	}
 
 	var Util = function(player) {
@@ -669,11 +790,11 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		this.convertPercentToScale = function(percent) {
 			var range = player.zoom.maxZoom - 1;
 			return percent*range + 1;
-		}
+		};
 		this.convertScaleToPercent = function(scale) {
 			var range = player.zoom.maxZoom - 1;
 			return (scale-1)/range;
-		}
+		};
 		/* Function to converts seconds to HH:MM:SS format */
 		this.convertSecondsToHMS = function(timeInSeconds) {
 			var formattedTime = '';
@@ -689,7 +810,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			formattedTime = hours+':'+mins+':'+secs;
 
 			return formattedTime;
-		}
+		};
 
 		this.forAllSlaves = function(someFunction, extraParam) {
 			if (extraParam === undefined) {
@@ -703,26 +824,100 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 					someFunction(player.slaves[i], extraParam);
 				}
 			}
-		}
+		};
 
 		this.setPauseArr = function(isPaused) {
 			for (var i = 0; i < player.slavePauseArr.length; i++) {
 				player.slavePauseArr[i] = isPaused;
 			}
-		}
+		};
 
-		this.sendStats = function(currTime) {
-			var statObj = {
-				width: (player.transforms.xform.a) * (player.dimensions.cw),
-				videoTime: currTime,
-				videoId: player.vidId,
-				sessionId: player.uuid
-			};
-			// Make a HTTP POST message to send this JSON object to the server
-			var xhr = new XMLHttpRequest();
-			//xhttp.open("POST", )
-		}
-	}
+	};
+
+	var Sync = function(player) {
+
+		this.currentTime = function() {
+			var earliestTime = null;
+			for (var i = 0; i < (player.timeArr.length) - 1; i++) {
+				if (earliestTime === null) {
+					earliestTime = player.timeArr[i];
+				}
+				else {
+					if (player.timeArr[i] < earliestTime) {
+						earliestTime = player.timeArr[i];
+					}
+				}
+			}
+			//player.time = player.timeArr[0];
+			player.time = earliestTime;
+			if (player.duration - player.time < 0.000001) {
+				player.endHotFix = true;
+				player.sync.endState();	// To check if video should end
+			}
+		};
+
+		this.pauseState = function() {
+			var newPauseState = player.paused;
+			// After the for-loop, as long as 1 video is still playing, the paused
+			// state will still be set to an overall false. i.e. Player is NOT paused
+			for (var i = 0; i < (player.slavePauseArr.length) - 1; i++) {
+				if (newPauseState == null) {
+					newPauseState = player.slavePauseArr[i];
+				}
+				else {
+					newPauseState = newPauseState && player.slavePauseArr[i];
+				}
+			}
+
+			// Check if the values been changed, i.e. False -> True / True -> False
+			// If they have been changed, update the UI controls
+			if (player.paused != newPauseState) {
+				player.paused = newPauseState;
+				// Call the UI controls update
+				// If the state is PAUSED, i.e. newPauseState == true
+				if (player.paused == true) {
+					player.controls.changeToPauseState();
+				}
+				else if (player.paused == false) {
+					player.controls.changeToPlayState();
+				}
+				else {
+					// For now: console log the error
+					console.log("UH OH...");
+				}
+			}
+		};
+
+		this.endState = function() {
+			// Check if there are NUM_SLAVES number of elements in the array, else
+			// don't even bother doing comparisons. Also checks that the endHotFix is
+			// NOT invoked.
+			if ( (player.slaveEndArr.length < NUM_SLAVES) && (player.endHotFix == false) ) {
+				return;
+			}
+			var newEndState = true;
+			// After the for-loop, as long as 1 video has not ended their session,
+			// the overall end state will be set to false, i.e. Video has NOT ended
+			for (var i = 0; i < (player.slaveEndArr.length) - 1; i++) {
+				newEndState = newEndState && player.slaveEndArr[i];
+			}
+
+			// If the overall end state is true for all videos, reset the UI play
+			// button to be the 'replay' button
+			if ( ((newEndState == true) || (player.endHotFix == true)) && (player.controls.playPauseBtn.className != 'replay') ) {
+				// Set the overall player end state to be true
+				player.ended = true;
+				// Reset the players
+				player.endHotFix = false;
+				if (player.timerActive == true) {
+					clearInterval(player.timer);
+					player.timerActive = false;
+				}
+				player.controls.changeToReplayState();
+			}
+		};
+
+	};
 
 	var init_players = function(player, canvas, mpd_list) {
 		var vidCount = 1;
@@ -733,7 +928,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		// Inject the video elements into the HTML
 		var vidHtmlEle;
 		for(var i = 1; i <= NUM_SLAVES; i++) {
-			vidHtmlEle += '<video id="video_' + i + '" width="640" height="360" crossorigin="anonymous" controls src="' + '">Your browser does not support HTML5 video.</video>';
+			vidHtmlEle += '<video id="video_' + i + '" width="'+ canvas.width + '" height="' + canvas.height + '" crossorigin="anonymous" controls src="' + '">Your browser does not support HTML5 video.</video>';
 		}
 		document.getElementById('zoomableVidElements').innerHTML = vidHtmlEle;
 
@@ -746,28 +941,6 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				// Locate the video element
 				var vid = document.getElementById('video_' + vidCount);
 
-				// Attach the event handlers to the video element first
-				vid.ontimeupdate = function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.timeArr[vidTimeArrIndex] = vid.currentTime;   // Update the global array of current time value for this video object
-					syncCurrentTime(player);  // Run the synchronization check for the current time
-					player.seek.updateSeekTime();   // Update the seek time based on this new time
-				};
-
-				// Upon the 'pause' event
-				vid.onpause = function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.slavePauseArr[vidTimeArrIndex] = true;   // Update the global array of pause state value for this video object
-					syncPauseState(player);	// Run the synchronization check for the overall pause state
-				};
-
-				// Upon the 'ended' event
-				vid.addEventListener('ended', function(evt) {
-					var vidTimeArrIndex = (evt.srcElement.id.substring(6) - 1);
-					player.slaveEndArr[vidTimeArrIndex] = true;	// Update the global array of truth value for video end state
-					syncEndState(player);	// Run the synchronization check for the overall end state
-				}, false);
-
 				// Set the src mpd for that video element
 				vid.src = mpd_list[vidCount - 1];
 
@@ -775,9 +948,9 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 				var coords = { x: colNum*VID_WIDTH, y: rowNum*VID_HEIGHT };
 				var dimensions = { width: VID_WIDTH, height: VID_HEIGHT };
 
-				var slaveObj = new Slave(vid, canvas, coords, dimensions); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
+				var slaveObj = new Slave(vid, canvas, coords, dimensions, player); // Slave(video element, canvas it needs to draw to, coordinates to from, dimensions to draw within)
 				player.slaves.push(slaveObj);
-				slaveObj.init();
+				slaveObj.init(vidCount);
 
 				// Construct the Shaka player to wrap around it
 				var shakaPlayer = new shaka.player.Player(vid);
@@ -803,77 +976,7 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 		// Set the audio object of the Player
 		player.audio = document.getElementById('aud_file');
 
-	}
-
-	var syncCurrentTime = function(player) {
-		var earliestTime = null;
-		for (var i = 0; i < (player.timeArr.length) - 1; i++) {
-			if (earliestTime === null) {
-				earliestTime = player.timeArr[i];
-			}
-			else {
-				if (player.timeArr[i] < earliestTime) {
-					earliestTime = player.timeArr[i];
-				}
-			}
-		}
-		player.time = earliestTime;
 	};
-
-	var syncPauseState = function(player) {
-		var newPauseState = player.paused;
-		// After the for-loop, as long as 1 video is still playing, the paused
-		// state will still be set to an overall false. i.e. Player is NOT paused
-		for (var i = 0; i < (player.slavePauseArr.length) - 1; i++) {
-			if (newPauseState == null) {
-				newPauseState = player.slavePauseArr[i];
-			}
-			else {
-				newPauseState = newPauseState && player.slavePauseArr[i];
-			}
-		}
-
-		// Check if the values been changed, i.e. False -> True / True -> False
-		// If they have been changed, update the UI controls
-		if (player.paused != newPauseState) {
-			player.paused = newPauseState;
-			// Call the UI controls update
-			// If the state is PAUSED, i.e. newPauseState == true
-			if (player.paused == true) {
-				player.controls.changeToPauseState();
-			}
-			else if (player.paused == false) {
-				player.controls.changeToPlayState();
-			}
-			else {
-				// For now: console log the error
-				console.log("UH OH...");
-			}
-		}
-	};
-
-	var syncEndState = function(player) {
-		// Check if there are NUM_SLAVES number of elements in the array, else
-		// don't even bother doing comparisons
-		if (player.slaveEndArr.length < NUM_SLAVES) {
-			return;
-		}
-		var newEndState = true;
-		// After the for-loop, as long as 1 video has not ended their session,
-		// the overall end state will be set to false, i.e. Video has NOT ended
-		for (var i = 0; i < (player.slaveEndArr.length) - 1; i++) {
-			newEndState = newEndState && player.slaveEndArr[i];
-		}
-
-		// If the overall end state is true for all videos, reset the UI play
-		// button to be the 'replay' button
-		if (newEndState == true) {
-			// Set the overall player end state to be true
-			player.ended = true;
-			// Reset the players
-			player.controls.changeToReplayState();
-		}
-	}
 
 	var getVideoDuration = function(player) {
 		player.slaves[0].video.onloadedmetadata = function() {
@@ -882,5 +985,4 @@ var Player = function(canvas, mpd_list, vidId, uuid) {
 			return player.duration;
 		};
 	};
-
 }

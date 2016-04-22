@@ -1,7 +1,7 @@
 var request = require('supertest');
 
 describe('VideoController', function () {
-	var credentials = { username: 'test', password: 'testtesttest'};
+	var credentials = { username: 'testuser', password: 'testtesttest'};
 	var vid1 = {title: 'Mission Impossible', thumbnailDir: '/video/1/a.jpg'};
 	var vid2 = {title: 'Mission Possible', thumbnailDir: '/video/1/a.jpg'};
 
@@ -48,14 +48,14 @@ describe('VideoController', function () {
 	describe('#read', function () {
 		var agent = request.agent('http://localhost:1337');
 
-		it('should not read Video object based on the id before login', function (done) {
+		it('should return a Video Object based on the id given before login', function (done) {
 			request(sails.hooks.http.app)
 			.get('/api/video/4')
-			.expect(403)
+			.expect(200)
 			.end(function (err, res) {
 				if (err) done(err);
 
-				(res.text).should.match('You are not permitted to perform this action.');
+				(res.body.title).should.equal('Mission Impossible');
 				done();
 			});
 		});
