@@ -136,6 +136,10 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 		player.canvas.addEventListener('mouseup',function(event) {
 			player.mouseactions.mouseUp(event);
 		},false);
+		// To listen for the 'mouseleave' event on the canvas
+		player.canvas.addEventListener('mouseleave',function(event) {
+			player.mouseactions.mouseLeave(event);
+		},false);
 
 
 		this.mouseDown = function(evt){
@@ -156,6 +160,10 @@ var Player = function(canvas, mpd_list, vidId, uuid, minimap_canvas) {
 			}
 		};
 		this.mouseUp = function(evt){
+			player.dragStart = null;
+		};
+		this.mouseLeave = function(evt){
+			// terminate dragging when mouse moves out of canvas
 			player.dragStart = null;
 		};
 	};

@@ -11,7 +11,7 @@ angular.module('zoomableApp').controller('dashboardController', function($scope,
   $scope.userSortState = '';
   $scope.hasMouseover = 'hidden';
   $scope.videoList = [];
-  $scope.error = 'tesa';
+  $scope.error = '';
 
   $scope.model = {
     selectedVideoList: []
