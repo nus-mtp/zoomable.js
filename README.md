@@ -2,6 +2,8 @@
 ## Overview
 This is an open-source HTML5 video player that allows users to zoom in with greater detail and pan around the video with bandwith efficiency. The Javascript-based zoomable video player streams dash-compliant videos and adapts to network conditions to provide continuous video playback by reducing the video resolutions where necessary.
 
+[Demo Video](https://drive.google.com/file/d/0B5QpNMSV_eLhT3pEZ1h3UUhxQXM/view?usp=sharing)
+
 ## Setup with Docker
 
 ### Install the necessary pre-requisites
